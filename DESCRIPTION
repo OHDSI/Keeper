@@ -1,0 +1,34 @@
+Package: KEEPER
+Type: Package
+Title: An R package to review patient profiles for phenotype validation
+Version: 0.0.1
+Date: 2023-10-09
+Authors@R: c(
+    person("Ostropolets", "Anna", email = "ostropolets@ohdsi.org", role = c("aut", "cre")),
+    person("Observational Health Data Science and Informatics", role = c("cph"))
+  )
+Maintainer: Anna <ostropolets@ohdsi.org>
+Description: An R package to review patient profiles for phenotype validation.
+Depends:
+	DatabaseConnector (>= 5.0.0),
+	R (>= 4.0.0)
+Imports:
+  checkmate,
+  clock,
+  dplyr,
+  lifecycle,
+  ParallelLogger,
+  rlang,
+  stats
+Suggests:
+  rmarkdown,
+  testthat,
+  knitr,
+  withr,
+  SqlRender
+License: Apache License
+RoxygenNote: 7.2.3
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+Encoding: UTF-8
+Language: en-US
