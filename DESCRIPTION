@@ -16,7 +16,9 @@ Depends:
 Imports:
   checkmate,
   dplyr,
-  SqlRender
+  SqlRender,
+  english,
+  stringr
 Suggests:
   rmarkdown,
   testthat,

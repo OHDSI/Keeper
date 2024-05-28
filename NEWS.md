@@ -12,3 +12,5 @@ Changes:
 4. Removed `exportFolder` argument from `createKeeper()`. The function now returns the Keeper output.
 
 5. Keeper output column names now use camelCase in line with Hades recommendations.
+
+6. Adding functions for converting Keeper output into prompts for large language models.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/createKEEPER.R
 \name{createKeeper}
 \alias{createKeeper}
-\title{Creates a folder with the keeperOutput to review person level profiles.}
+\title{Export person level data from OMOP CDM tables for eligible persons in the cohort.}
 \usage{
 createKeeper(
   connectionDetails = NULL,
@@ -87,7 +87,7 @@ You may input drugs that are used to treat disease of interest and drugs used to
 \item{complications}{keeperOutput: input string for concept_ids for complications of the disease of interest within a year after the index date}
 }
 \description{
-Export person level data from OMOP CDM tables for eligible persons in the cohort. Creates a folder with the keeperOutput to review person level profiles.
+Export person level data from OMOP CDM tables for eligible persons in the cohort.
 }
 \examples{
 \dontrun{

@@ -1,6 +1,6 @@
 # Copyright 2024 Observational Health Data Sciences and Informatics
 #
-# This file is part of keeperOutput
+# This file is part of Keeper
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Creates a folder with the keeperOutput to review person level profiles.
-#'
-#' @description
-#' Export person level data from OMOP CDM tables for eligible persons in the cohort. Creates a folder with the keeperOutput to review person level profiles.
+#' Export person level data from OMOP CDM tables for eligible persons in the cohort.
 #'
 #' @template Connection
 #'
