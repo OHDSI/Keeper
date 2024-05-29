@@ -15,6 +15,29 @@
 # limitations under the License.
 
 #' Export person level data from OMOP CDM tables for eligible persons in the cohort.
+#' 
+#' @description
+#' Use `useAncestor = TRUE` to switch from verbatim string of concept_ids vs ancestors. In latter 
+#' case, the app will take you concept_ids and include them along with their descendants.
+#'
+#' Use `sampleSize` to specify desired number of patients to be selected.
+#'
+#' Use `assignNewId = TRUE` to replace person_id with a new sequence.
+#' 
+#' Explanation of categories:
+#' - instantiated cohort with patients of interest in COHORT table or in another table that has the same fields as COHORT;
+#' - doi: string for disease of interest (ex.: diabetes type I). Hereon, assume a string of concept_ids;
+#' - symptoms: symptoms of disease of interest or alternative/competing diagnoses (those that you want to see to be able to distinguish your doi from another close disease, ex.: polyuria, weight gain or loss, vision disturbances);
+#' - comorbidities: relevant diseases that co-occur with doi or alternative/competing diagnoses (ex.: obesity, metabolic syndrome, pancreatic disorders, pregnancy);
+#' - drugs: drugs, relevant to the disease of interest or those that can be used to treat alternative/competing diagnoses (ex.: insulin, oral glucose lowering drugs);
+#' - diagnosticProcedures: relevant diagnostic procedures (ex.: ultrasound of pancreas);
+#' - measurements: relevant lab tests (ex.: islet cell ab, HbA1C, glucose measurement in blood, insulin ab);
+#' - alternativeDiagnosis: alternative/competing diagnoses (ex.: diabetes type 2, cystic fibrosis, gestational diabetes, renal failure, pancreonecrosis)
+#' - treatmentProcedures: relevant treatment procedures (ex.: operative procedures on pancreas);
+#' - complications: relevant complications (ex.: retinopathy, CKD).
+#' 
+#' *note: if no suitable concept_ids exists for an input string, input c(0)
+#'
 #'
 #' @template Connection
 #'
@@ -42,7 +65,7 @@
 #'
 #' @param doi                         keeperOutput: input vector of concept_ids for disease of interest
 #'
-#' @param comorbidities               keeperOutput: input vector of concept_ids for co-morbidities associated with the disease of interest (such as smoking or hypelipidemia for diabetes)
+#' @param comorbidities               keeperOutput: input vector of concept_ids for comorbidities associated with the disease of interest (such as smoking or hyperlipidemia for diabetes)
 #'
 #' @param symptoms                    keeperOutput: input vector of concept_ids for symptoms associated with the disease of interest (such as weight gain or loss for diabetes)
 #'
@@ -68,9 +91,6 @@
 #'   password = 'secure'
 #' )
 #'
-#' XXX: to do: add windows as parameters, check ranges for measurements, fix NA, fix length of CSV 
-#'      string, add support for cdi as list
-#' XXX: consider: adding a * for primary status
 #' createKeeper(
 #'   connectionDetails = connectionDetails,
 #'   databaseId = "Synpuf",
@@ -104,8 +124,26 @@
 #'                      433736, 320128, 4170226, 40443308, 441267, 4163735, 192963, 85828009)                             
 #' )
 #' }
-#'
-#'
+#' @return 
+#' Output is a data frame with one row per patient, with the following information per patient:
+#' 
+#' - demographics (age, gender);
+#' - visit_context: information about visits overlapping with the index date (day 0) formatted as the type of visit and its duration;
+#' - observation_period: information about overlapping OBSERVATION_PERIOD formatted as days prior - days after the index date;
+#' - presentation: all records in CONDITION_OCCURRENCE on day 0 with corresponding type and status;
+#' - comorbidities: records in CONDITION_ERA and OBSERVATION that were selected as comorbidities and risk factors within all time prior excluding day 0. The list does not inlcude symptoms, disease of interest and complications;
+#' - symptoms: records in CONDITION_ERA that were selected as symptoms 30 days prior excluding day 0. The list does not include disease of interest and complications. If you want to see symptoms outside of this window, please place them in complications;
+#' - prior_disease: records in CONDITION_ERA that were selected as disease of interest or complications all time prior excluding day 0;
+#' - prior_drugs: records in DRUG_ERA that were selected as drugs of interest all time prior excluding day 0 formatted as day of era start and length of drug era;
+#' - prior_treatment_procedures: records in PROCEDURE_OCCURRENCE that were selected as treatments of interest within all time prior excluding day 0;
+#' - diagnostic_procedures: records in PROCEDURE_OCCURRENCE that were selected as diagnostic procedures within all time prior excluding day 0;
+#' - measurements: records in MEASUREMENT that were selected as measurements (lab tests) of interest within 30 days before and 30 days after day 0 formatted as value and unit (if exists) and assessment compared to the reference range provided in MEASUREMENT table (normal, abnormal high and abnormal low);
+#' - alternative_diagnosis: records in CONDITION_ERA that were selected as alternative (competing) diagnosis within 90 days before and 90 days after day 0. The list does not include disease of interest;
+#' - after_disease: same as prior_disease but after day 0;
+#' - after_drugs: same as prior_drugs but after day 0;
+#' - after_treatment_procedures: same as prior_treatment_procedures but after day 0;
+#' - death: death record any time after day 0.
+#' 
 #' @export
 createKeeper <- function(connectionDetails = NULL,
                          connection = NULL,
