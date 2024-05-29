@@ -18,9 +18,8 @@ Features
 Examples
 ========
 ```r
-createKeeper(
+keeper <- createKeeper(
   connectionDetails = connectionDetails,
-  exportFolder = "c:/temp/keeper",
   databaseId = "Synpuf",
   cdmDatabaseSchema = "dbo",
   cohortDatabaseSchema = "results",
