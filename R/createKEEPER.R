@@ -30,31 +30,31 @@
 #'
 #' @param sampleSize                  (Optional, default = 20) The number of persons to randomly sample. Ignored, if personId is given.
 #'
-#' @param personIds                   (Optional) An array of personId's to look for in Cohort table and CDM.
+#' @param personIds                   (Optional) A vector of personId's to look for in Cohort table and CDM.
 #'
 #' @param databaseId                  A short string for identifying the database (e.g. 'Synpuf'). This will be displayed
 #'                                    in shiny app to toggle between databases. Should not have space or underscore (_).
 #'
 #' @param assignNewId                 (Default = FALSE) Do you want to assign a newId for persons. This will replace the personId in the source with a randomly assigned newId.
 #'
-#' @param drugs                       keeperOutput: input string for concept_ids for drug exposures relevant to the disease of interest, to be used for prior exposures and treatment after the index date. 
+#' @param drugs                       keeperOutput: input vector of concept_ids for drug exposures relevant to the disease of interest, to be used for prior exposures and treatment after the index date. 
 #'                                    You may input drugs that are used to treat disease of interest and drugs used to treat alternative diagnosis
 #'
-#' @param doi                         keeperOutput: input string for concept_ids for disease of interest
+#' @param doi                         keeperOutput: input vector of concept_ids for disease of interest
 #'
-#' @param comorbidities               keeperOutput: input string for concept_ids for co-morbidities associated with the disease of interest (such as smoking or hypelipidemia for diabetes)
+#' @param comorbidities               keeperOutput: input vector of concept_ids for co-morbidities associated with the disease of interest (such as smoking or hypelipidemia for diabetes)
 #'
-#' @param symptoms                    keeperOutput: input string for concept_ids for symptoms associated with the disease of interest (such as weight gain or loss for diabetes)
+#' @param symptoms                    keeperOutput: input vector of concept_ids for symptoms associated with the disease of interest (such as weight gain or loss for diabetes)
 #'
-#' @param diagnosticProcedures        keeperOutput: input string for concept_ids for diagnostic procedures relevant to the condition of interest within a month prior and after the index date
+#' @param diagnosticProcedures        keeperOutput: input vector of concept_ids for diagnostic procedures relevant to the condition of interest within a month prior and after the index date
 #'
-#' @param measurements	              keeperOutput: input string for concept_ids for lab tests relevant to the disease of interest within a month prior and after the index date
+#' @param measurements	              keeperOutput: input vector of concept_ids for lab tests relevant to the disease of interest within a month prior and after the index date
 #'
-#' @param alternativeDiagnosis        keeperOutput: input string for concept_ids for competing diagnosis within a month after the index date
+#' @param alternativeDiagnosis        keeperOutput: input vector of concept_ids for competing diagnosis within a month after the index date
 #'
-#' @param treatmentProcedures	        keeperOutput: input string for concept_ids for treatment procedures relevant to the disease of interest within a month after the index date
+#' @param treatmentProcedures	        keeperOutput: input vector of concept_ids for treatment procedures relevant to the disease of interest within a month after the index date
 #'
-#' @param complications               keeperOutput: input string for concept_ids for complications of the disease of interest within a year after the index date
+#' @param complications               keeperOutput: input vector of concept_ids for complications of the disease of interest within a year after the index date
 #'
 #' @param useAncestor                 keeperOutput: a switch for using concept_ancestor to retrieve relevant terms vs using verbatim strings of codes
 #'
@@ -184,26 +184,7 @@ createKeeper <- function(connectionDetails = NULL,
     null.ok = TRUE,
     add = errorMessage
   )
-  
-  # if (is.null(personIds)) {
-  #   checkmate::assertIntegerish(
-  #     x = sampleSize,
-  #     lower = 0,
-  #     len = 1,
-  #     null.ok = TRUE,
-  #     add = errorMessage
-  #   )
-  # } else {
-  #   checkmate::assertIntegerish(
-  #     x = personIds,
-  #     lower = 0,
-  #     min.len = 1,
-  #     null.ok = TRUE
-  #   )
-  # }
-  
-  # create export folder
-  
+ 
   checkmate::reportAssertions(collection = errorMessage)
   
   originalDatabaseId <- databaseId

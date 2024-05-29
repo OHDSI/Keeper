@@ -9,7 +9,7 @@ createPromptSettings(
   testingReminder = TRUE,
   uncertaintyInstructions = TRUE,
   discussEvidence = TRUE,
-  provideExamples = TRUE,
+  provideExamples = FALSE,
   maxParts = 100,
   maxDays = 5
 )

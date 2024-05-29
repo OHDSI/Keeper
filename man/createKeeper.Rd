@@ -58,7 +58,7 @@ can be created.}
 
 \item{sampleSize}{(Optional, default = 20) The number of persons to randomly sample. Ignored, if personId is given.}
 
-\item{personIds}{(Optional) An array of personId's to look for in Cohort table and CDM.}
+\item{personIds}{(Optional) A vector of personId's to look for in Cohort table and CDM.}
 
 \item{databaseId}{A short string for identifying the database (e.g. 'Synpuf'). This will be displayed
 in shiny app to toggle between databases. Should not have space or underscore (_).}
@@ -67,24 +67,24 @@ in shiny app to toggle between databases. Should not have space or underscore (_
 
 \item{useAncestor}{keeperOutput: a switch for using concept_ancestor to retrieve relevant terms vs using verbatim strings of codes}
 
-\item{doi}{keeperOutput: input string for concept_ids for disease of interest}
+\item{doi}{keeperOutput: input vector of concept_ids for disease of interest}
 
-\item{comorbidities}{keeperOutput: input string for concept_ids for co-morbidities associated with the disease of interest (such as smoking or hypelipidemia for diabetes)}
+\item{comorbidities}{keeperOutput: input vector of concept_ids for co-morbidities associated with the disease of interest (such as smoking or hypelipidemia for diabetes)}
 
-\item{symptoms}{keeperOutput: input string for concept_ids for symptoms associated with the disease of interest (such as weight gain or loss for diabetes)}
+\item{symptoms}{keeperOutput: input vector of concept_ids for symptoms associated with the disease of interest (such as weight gain or loss for diabetes)}
 
-\item{alternativeDiagnosis}{keeperOutput: input string for concept_ids for competing diagnosis within a month after the index date}
+\item{alternativeDiagnosis}{keeperOutput: input vector of concept_ids for competing diagnosis within a month after the index date}
 
-\item{drugs}{keeperOutput: input string for concept_ids for drug exposures relevant to the disease of interest, to be used for prior exposures and treatment after the index date.
+\item{drugs}{keeperOutput: input vector of concept_ids for drug exposures relevant to the disease of interest, to be used for prior exposures and treatment after the index date.
 You may input drugs that are used to treat disease of interest and drugs used to treat alternative diagnosis}
 
-\item{diagnosticProcedures}{keeperOutput: input string for concept_ids for diagnostic procedures relevant to the condition of interest within a month prior and after the index date}
+\item{diagnosticProcedures}{keeperOutput: input vector of concept_ids for diagnostic procedures relevant to the condition of interest within a month prior and after the index date}
 
-\item{measurements}{keeperOutput: input string for concept_ids for lab tests relevant to the disease of interest within a month prior and after the index date}
+\item{measurements}{keeperOutput: input vector of concept_ids for lab tests relevant to the disease of interest within a month prior and after the index date}
 
-\item{treatmentProcedures}{keeperOutput: input string for concept_ids for treatment procedures relevant to the disease of interest within a month after the index date}
+\item{treatmentProcedures}{keeperOutput: input vector of concept_ids for treatment procedures relevant to the disease of interest within a month after the index date}
 
-\item{complications}{keeperOutput: input string for concept_ids for complications of the disease of interest within a year after the index date}
+\item{complications}{keeperOutput: input vector of concept_ids for complications of the disease of interest within a year after the index date}
 }
 \description{
 Export person level data from OMOP CDM tables for eligible persons in the cohort.

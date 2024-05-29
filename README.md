@@ -124,7 +124,8 @@ Documentation can be found on the [package website](https://ohdsi.github.io/Keep
 
 PDF versions of the documentation are also available:
 
-* Package manual: [Keeper manual](https://raw.githubusercontent.com/OHDSI/DatabaseConnector/main/extras/Keeper.pdf) 
+* Vignette: [Using Keeper with Large Language Models](https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/UsingKeeperWithLlms.pdf)
+* Package manual: [Keeper manual](https://raw.githubusercontent.com/OHDSI/Keeper/main/extras/Keeper.pdf) 
 
 
 Support

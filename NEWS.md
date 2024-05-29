@@ -13,4 +13,4 @@ Changes:
 
 5. Keeper output column names now use camelCase in line with Hades recommendations.
 
-6. Adding functions for converting Keeper output into prompts for large language models.
+6. Adding functions for converting Keeper output into prompts for large language models (LLMs), and for parsing the response of an LLM.

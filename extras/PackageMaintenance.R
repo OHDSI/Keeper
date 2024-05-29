@@ -20,9 +20,15 @@ OhdsiRTools::checkUsagePackage("Keeper")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
-# Create manual ----------------------------------------------------------------
+# Create manual, vignetes, and website -----------------------------------------
 unlink("extras/Keeper.pdf")
 system("R CMD Rd2pdf ./ --output=extras/Keeper.pdf")
+
+rmarkdown::render("vignettes/UsingKeeperWithLlms.Rmd",
+                  output_file = "../inst/doc/UsingKeeperWithLlms.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
 
 pkgdown::build_site()
 OhdsiRTools::fixHadesLogo()

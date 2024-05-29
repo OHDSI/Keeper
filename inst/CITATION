@@ -1,0 +1,18 @@
+citHeader("To cite Keeper in publications use:")
+
+bibentry(bibtype = "Article",
+        author = c(as.person("A. Ostropolets"),
+                   as.person("G. Hripcsak"),
+                   as.person("S.A. Hussain"),
+                   as.person("L.R. Richter"),
+                   as.person("M. Spotnitz"),
+                   as.person("A. Elhussein"),
+                   as.person("P. Ryan")),
+        title = "Scalable and interpretable alternative to chart review for phenotype evaluation using standardized structured data from electronic health records",
+        journal = "Journal of the American Medical Informatics Association",
+        volume = "31",
+        issue = "1",
+        pages = "119-129",
+        year = "2023",
+        url = "https://doi.org/10.1093/jamia/ocad202"
+)
