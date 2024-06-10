@@ -1,5 +1,5 @@
 ---
-title: "Setting KEEPER paramethers"
+title: "Setting KEEPER parameters"
 author: "Anna Ostropolets"
 date: "`r Sys.Date()`"
 output:
@@ -10,7 +10,7 @@ output:
     number_sections: yes
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{Setting Keeper paramethers}
+  %\VignetteIndexEntry{Setting Keeper parameters}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,13 +20,15 @@ library(Keeper)
 ```
 # Introduction
 
-This vignette describes how one sets input paramethers for Keeper to generate patient summaries.
+This vignette describes how one sets input parameters for Keeper to generate patient summaries.
 
 # Executing phenotype definition of interest
 
 Keeper extracts and summarizes patient level data for patients in a given cohort to enable examination of patient summaries. Such examination can be used to interatively develop a phenotype (cohort definition) of a disease or (primary use case) determine if patients have the disease and subsequently calculate positive predictive value. The review should be done by a person familiar with the disease of interest. Alternatively, it can be done by LLM, which additionally enables calculation of sensitivity and specificity. Please refer to the Using Keeper with LLMs vignette for the latter use case.
 
-First step is to create a phenotype of interest and execute it against database(s). Cohort_id of resulting cohort will be fed into KEEPER input. One can then specify a sample size to randomly select a given number of patients from the cohort (paramether sample_size) or input a comma-separated vector of person_ids to select specific patients (paramether personIds). One can further de-identify patients by replacing OMOP personId with new random ids (paramether assignNewId = TRUE).
+First step is to create a phenotype of interest and execute it against database(s). Cohorts can be created using ATLAS, R or SQL.
+The cohort table should contain cohort_id (number of cohort), subject_id (patient identifier), cohort_start_date and cohort_end_date and will be subsequently fed into KEEPER input. More information on creating cohorts can be found [here](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
+One can then specify a sample size to randomly select a given number of patients from the cohort (parameter sample_size) or input a comma-separated vector of person_ids to select specific patients (parameter personIds). One can further de-identify patients by replacing OMOP personId with new random ids (paramether assignNewId = TRUE).
 
 
 # Creating concept code vectors 
@@ -34,6 +36,7 @@ First step is to create a phenotype of interest and execute it against database(
 KEEPER extracts data based on user input. If a code is found in patient data, KEEPER will extract it along with the date relative to the index date (cohort_start_date). Therefore, code selection is very important.
 
 We will use example of Type I Diabetes Mellitus (T1DM) to illustrate a strategy for code selection.
+The first step is to create a [clinical definition](https://ohdsi.github.io/PhenotypeLibrary/articles/GuidanceOnClinicalDescriptionForConditionPhenotypes.html). For this exercise, we will use a brief version of it.
 [T1DM](https://www.ncbi.nlm.nih.gov/books/NBK507713/) is an autoimmune condition characterized by decreased production of insulin by pancreas. Common onset is in childhood or adolescence but can occurr in adults. Symptoms include weight loss, polyuria and polydipsia, fatigue and others. Common differential diagnoses (those that need to be ruled out) include type II diabetes, pancreatic disorders such as cystic fibrosis, pancreanecrosis, steroid-induced diabetes, renal glucosuria and other conditions. Diagnostic procedures include glucose measurements, C-peptide, pancreatic and insulin antibodies as well as HbA1C. It is primarily treated with insulin. Complications include hypo and hyperglycemia, neuropathy, nephrophaty, cerebrovascular disease and peripheral arthery disease. 
 We will use this definition to construct our inputs. The notion of differential diagnosis is important as for each input except for disease of interest we will consider T1DM and differential diagnoses to be able to see evidence for and rule out other diagnoses.
 
@@ -69,7 +72,8 @@ Doi or disease of interest is the disease or state of interest itself. Here, we 
 * 201254	Type 1 diabetes mellitus
 * 435216	Disorder due to type 1 diabetes mellitus
 
-First code is the code of T1DM itself and second code is the code denoting the diseases occurring due to T1DM which implies the patients have T1DM as well. Common strategy is to select codes used the index event criteria in the phenotype. If useAncestor is set to TRUE, KEEPER will use the hierarchy to pull in descendants of selected concepts.
+First code is the code of T1DM itself and second code is the code denoting the diseases occurring due to T1DM which implies the patients have T1DM as well. Common strategy is to select codes used the index event criteria in the phenotype. 
+If useAncestor is set to TRUE (default behaviour), KEEPER will use the hierarchy to pull in descendants of selected concepts.
 
 DOI is looked up in CONDITION_OCCURRENCE table.
 
@@ -77,11 +81,18 @@ DOI is looked up in CONDITION_OCCURRENCE table.
 
 Here we input symptoms typically occurring in T1DM and differential diagnoses. These are signs and symptoms occuring in a short time window before the disease onset.
 
+Based on our clinical definition, we selected the following codes:
+
 * 79936   Polyuria
 * 432454  Excessive thirst
 * 254761  Cough (symptom of cystic fibrosis)
 * 4229881	Weight loss		
 * 4232487	Weight gain
+
+These codes are SNOMED codes that represent broad codes for the symptoms we are intrested in and source codes of the corresponding conditions map either to them directly or to their descendants. The decendants will be pulled in as we set useAncestor to TRUE.
+A good approach for selecting codes for this section as well as for the subsequent sections is to input your term in Atlas Search and click on the green shopping cart (Phoebe initial code selection) to get the starting point and use Phoebe (Recommend tab in Atlas Concept Set tab) to explore recommendations.
+Instructions on how to use Phoebe can be found [here](https://www.ohdsi.org/2022showcase-6/).
+Alternatively, you can explore your data to find appropriate SNOMED codes for symptoms using string search. It should be noted that with local data exploration you are more likely to miss the relevant codes.
 
 Symptoms are looked up in OBSERVATION and CONDITION_OCCURRENCE tables within 30 days prior to the index date.
 

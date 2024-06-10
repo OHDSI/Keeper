@@ -79,6 +79,7 @@ Documentation can be found on the [package website](https://ohdsi.github.io/Keep
 PDF versions of the documentation are also available:
 
 * Vignette: [Using Keeper with Large Language Models](https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/UsingKeeperWithLlms.pdf)
+* Vignette: [Setting parameters for Keeper](https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/SettingKeeperParameters.pdf)
 * Package manual: [Keeper manual](https://raw.githubusercontent.com/OHDSI/Keeper/main/extras/Keeper.pdf) 
 
 

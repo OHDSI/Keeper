@@ -30,8 +30,8 @@ rmarkdown::render("vignettes/UsingKeeperWithLlms.Rmd",
                                           toc = TRUE,
                                           number_sections = TRUE))
 
-rmarkdown::render("vignettes/SettingKeeperParamethers.Rmd",
-                  output_file = "../inst/doc/SettingKeeperParamethers.pdf",
+rmarkdown::render("vignettes/SettingKeeperParameters.Rmd",
+                  output_file = "../inst/doc/SettingKeeperParameters.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
