@@ -4,11 +4,11 @@ Knowledge-Enhanced Electronic Profile Review (KEEPER)
 [![Build Status](https://github.com/OHDSI/Keeper/workflows/R-CMD-check/badge.svg)](https://github.com/OHDSI/Keeper/actions?query=workflow%3AR-CMD-check)
 [![codecov.io](https://codecov.io/github/OHDSI/Keeper/coverage.svg?branch=main)](https://app.codecov.io/github/OHDSI/Keeper?branch=mai)
 
+KEEPER is part of [HADES](https://ohdsi.github.io/Hades/).
 
 Introduction
 ============
 An R package for reviewing patient profiles for phenotype validation. 
-
 
 Features
 ========
@@ -44,7 +44,7 @@ keeper <- createKeeper(
 
 
 Technology
-============
+==========
 
 Keeper is an R package.
 
@@ -96,7 +96,6 @@ Read [here](https://ohdsi.github.io/Hades/contribute.html) how you can contribut
 
 License
 =======
-
 Keeper is licensed under Apache License 2.0. 
 
 
@@ -108,11 +107,10 @@ Keeper is being developed in R Studio.
 
 ### Development status
 
-Under development.
+Ready for testing. Interface may still change in future versions.
 
 
 Acknowledgements
 ================
 
 - None
-

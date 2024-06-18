@@ -24,6 +24,7 @@ devtools::spell_check()
 unlink("extras/Keeper.pdf")
 system("R CMD Rd2pdf ./ --output=extras/Keeper.pdf")
 
+dir.create("inst/doc")
 rmarkdown::render("vignettes/UsingKeeperWithLlms.Rmd",
                   output_file = "../inst/doc/UsingKeeperWithLlms.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",

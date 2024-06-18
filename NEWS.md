@@ -1,3 +1,11 @@
+Keeper 0.2.0
+============
+
+Changes:
+
+1. Added vignette on selection of concept sets.
+
+
 Keeper 0.1.0
 ============
 

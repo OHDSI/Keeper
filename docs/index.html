@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -50,6 +50,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/SettingKeeperParameters.html">Setting KEEPER parameters</a>
+    </li>
+    <li>
       <a href="articles/UsingKeeperWithLlms.html">Using Keeper with Large Language Models</a>
     </li>
   </ul>
@@ -61,6 +64,12 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://ohdsi.github.io/Hades" class="external-link"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
+</li>
+<li>
+  <a href="https://github.com/OHDSI/Keeper/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
 </li>
       </ul>
 </div>
@@ -79,6 +88,7 @@
 <div class="page-header"><h1 id="knowledge-enhanced-electronic-profile-review-keeper">Knowledge-Enhanced Electronic Profile Review (KEEPER)<a class="anchor" aria-label="anchor" href="#knowledge-enhanced-electronic-profile-review-keeper"></a>
 </h1></div>
 <p><a href="https://github.com/OHDSI/Keeper/actions?query=workflow%3AR-CMD-check" class="external-link"><img src="https://github.com/OHDSI/Keeper/workflows/R-CMD-check/badge.svg" alt="Build Status"></a> <a href="https://app.codecov.io/github/OHDSI/Keeper?branch=mai" class="external-link"><img src="https://codecov.io/github/OHDSI/Keeper/coverage.svg?branch=main" alt="codecov.io"></a></p>
+<p>KEEPER is part of <a href="https://ohdsi.github.io/Hades/" class="external-link">HADES</a>.</p>
 </div>
 <div class="section level1">
 <h1 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
@@ -108,26 +118,15 @@
 <span>  sampleSize <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  assignNewId <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  useAncestor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  doi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">201820</span>,<span class="fl">442793</span>,<span class="fl">443238</span>,<span class="fl">4016045</span>,<span class="fl">4065354</span>,<span class="fl">45757392</span>, <span class="fl">4051114</span>, <span class="fl">433968</span>, <span class="fl">375545</span>, <span class="fl">29555009</span>, </span>
-<span>          <span class="fl">4209145</span>, <span class="fl">4034964</span>, <span class="fl">380834</span>, <span class="fl">4299544</span>, <span class="fl">4226354</span>, <span class="fl">4159742</span>, <span class="fl">43530690</span>, <span class="fl">433736</span>, <span class="fl">320128</span>, </span>
-<span>          <span class="fl">4170226</span>, <span class="fl">40443308</span>, <span class="fl">441267</span>, <span class="fl">4163735</span>, <span class="fl">192963</span>, <span class="fl">85828009</span><span class="op">)</span>,</span>
-<span>  symptoms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4232487</span>, <span class="fl">4229881</span><span class="op">)</span>,</span>
-<span>  comorbidities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">432867</span>, <span class="fl">436670</span><span class="op">)</span>,</span>
-<span>  drugs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1730370</span>, <span class="fl">21604490</span>, <span class="fl">21601682</span>, <span class="fl">21601855</span>, <span class="fl">21601462</span>, <span class="fl">21600280</span>, <span class="fl">21602728</span>, <span class="fl">1366773</span>, </span>
-<span>            <span class="fl">21602689</span>, <span class="fl">21603923</span>, <span class="fl">21603746</span><span class="op">)</span>,</span>
-<span>  diagnosticProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40756884</span>, <span class="fl">4143852</span>, <span class="fl">2746768</span>, <span class="fl">2746766</span><span class="op">)</span>,</span>
-<span>  measurements  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3034962</span>, <span class="fl">3000483</span>, <span class="fl">3034962</span>, <span class="fl">3000483</span>, <span class="fl">3004501</span>, <span class="fl">3033408</span>, <span class="fl">3005131</span>, <span class="fl">3024629</span>, </span>
-<span>                    <span class="fl">3031266</span>, <span class="fl">3037110</span>, <span class="fl">3009261</span>, <span class="fl">3022548</span>, <span class="fl">3019210</span>, <span class="fl">3025232</span>, <span class="fl">3033819</span>, <span class="fl">3000845</span>, </span>
-<span>                    <span class="fl">3002666</span>, <span class="fl">3004077</span>, <span class="fl">3026300</span>, <span class="fl">3014737</span>, <span class="fl">3027198</span>, <span class="fl">3025398</span>, <span class="fl">3010300</span>, <span class="fl">3020399</span>, </span>
-<span>                    <span class="fl">3007332</span>, <span class="fl">3025673</span>, <span class="fl">3027457</span>, <span class="fl">3010084</span>, <span class="fl">3004410</span>, <span class="fl">3005673</span><span class="op">)</span>,</span>
-<span>  alternativeDiagnosis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">201820</span>,<span class="fl">442793</span>,<span class="fl">443238</span>,<span class="fl">4016045</span>,<span class="fl">4065354</span>,<span class="fl">45757392</span>, <span class="fl">4051114</span>, <span class="fl">433968</span>, </span>
-<span>                           <span class="fl">375545</span>, <span class="fl">29555009</span>, <span class="fl">4209145</span>, <span class="fl">4034964</span>, <span class="fl">380834</span>, <span class="fl">4299544</span>, <span class="fl">4226354</span>, </span>
-<span>                           <span class="fl">4159742</span>, <span class="fl">43530690</span>, <span class="fl">433736</span>,<span class="fl">320128</span>, <span class="fl">4170226</span>, <span class="fl">40443308</span>, <span class="fl">441267</span>, </span>
-<span>                           <span class="fl">4163735</span>, <span class="fl">192963</span>, <span class="fl">85828009</span><span class="op">)</span>,</span>
-<span>  treatmentProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  complications <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">201820</span>,<span class="fl">442793</span>,<span class="fl">443238</span>,<span class="fl">4016045</span>,<span class="fl">4065354</span>,<span class="fl">45757392</span>, <span class="fl">4051114</span>, <span class="fl">433968</span>, <span class="fl">375545</span>, </span>
-<span>                     <span class="fl">29555009</span>, <span class="fl">4209145</span>, <span class="fl">4034964</span>, <span class="fl">380834</span>, <span class="fl">4299544</span>, <span class="fl">4226354</span>, <span class="fl">4159742</span>, <span class="fl">43530690</span>, </span>
-<span>                     <span class="fl">433736</span>, <span class="fl">320128</span>, <span class="fl">4170226</span>, <span class="fl">40443308</span>, <span class="fl">441267</span>, <span class="fl">4163735</span>, <span class="fl">192963</span>, <span class="fl">85828009</span><span class="op">)</span>                             </span>
+<span>  doi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">435216</span>, <span class="fl">201254</span><span class="op">)</span>,</span>
+<span>  symptoms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">79936</span>, <span class="fl">432454</span>, <span class="fl">4232487</span>, <span class="fl">4229881</span>, <span class="fl">254761</span><span class="op">)</span>,</span>
+<span>  comorbidities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">141253</span>, <span class="fl">432867</span>, <span class="fl">436670</span>, <span class="fl">433736</span>, <span class="fl">255848</span><span class="op">)</span>,</span>
+<span>  drugs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">21600712</span>, <span class="fl">21602728</span>, <span class="fl">21603531</span><span class="op">)</span>,</span>
+<span>  diagnosticProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  measurements  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3004410</span>,<span class="fl">3005131</span>,<span class="fl">3005673</span>,<span class="fl">3010084</span>,<span class="fl">3033819</span>,<span class="fl">4149519</span>,<span class="fl">4229110</span>, <span class="fl">4020120</span><span class="op">)</span>,</span>
+<span>  alternativeDiagnosis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">192963</span>,<span class="fl">201826</span>,<span class="fl">441267</span>,<span class="fl">40443308</span><span class="op">)</span>,</span>
+<span>  treatmentProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4242748</span><span class="op">)</span>,</span>
+<span>  complications <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">201820</span>,<span class="fl">375545</span>,<span class="fl">380834</span>,<span class="fl">433968</span>,<span class="fl">442793</span>,<span class="fl">4016045</span>,<span class="fl">4209145</span>,<span class="fl">4299544</span><span class="op">)</span>                             </span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level1">
@@ -166,6 +165,8 @@
 <ul>
 <li>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/UsingKeeperWithLlms.pdf" class="external-link">Using Keeper with Large Language Models</a>
 </li>
+<li>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/SettingKeeperParameters.pdf" class="external-link">Setting parameters for Keeper</a>
+</li>
 <li>Package manual: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/extras/Keeper.pdf" class="external-link">Keeper manual</a>
 </li>
 </ul>
@@ -196,7 +197,7 @@
 <div class="section level3">
 <h3 id="development-status">Development status<a class="anchor" aria-label="anchor" href="#development-status"></a>
 </h3>
-<p>Under development.</p>
+<p>Ready for testing. Interface may still change in future versions.</p>
 </div>
 </div>
 <div class="section level1">
@@ -213,6 +214,8 @@
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://github.com/OHDSI/Keeper/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/OHDSI/Keeper/issues" class="external-link">Report a bug</a></li>
 <li><a href="http://forums.ohdsi.org" class="external-link">Ask a question</a></li>
 </ul>
 </div>
