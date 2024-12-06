@@ -441,6 +441,7 @@ createKeeper <- function(connectionDetails = NULL,
       ungroup()%>%
       distinct()%>%
       mutate(dateName = paste(.data$conceptName, " (day ", .data$dateComb, ")", sep = ""))%>%
+      arrange(as.integer(dateComb))%>%
       group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) %>% 
       summarise(!!(SqlRender::snakeCaseToCamelCase(subset_name)) := paste(.data$dateName, collapse = "; "))
   }
