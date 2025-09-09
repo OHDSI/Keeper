@@ -374,15 +374,15 @@ createKeeper <- function(connectionDetails = NULL,
   }
   
   # check if patients exist
-  cohort <- DatabaseConnector::renderTranslateQuerySql(
-    connection = connection,
-    sql = "SELECT count(*) FROM #pts_cohort;",
-    tempEmulationSchema = tempEmulationSchema)
-  
-  if (nrow(cohort) == 0) {
-    warning("Cohort does not have the selected subject ids.")
-    return(NULL)
-  }
+  #cohort <- DatabaseConnector::renderTranslateQuerySql(
+  #  connection = connection,
+  #  sql = "SELECT count(*) FROM #pts_cohort;",
+  #   tempEmulationSchema = tempEmulationSchema,)
+  # 
+  #if (nrow(cohort) == 0) {
+  #  warning("Cohort does not have the selected subject ids.")
+  #  return(NULL)
+  #}
   
   
   # keeperOutput code
