@@ -415,7 +415,8 @@ createKeeper <- function(connectionDetails = NULL,
     tables[[table_name]] <- DatabaseConnector::renderTranslateQuerySql(
       connection = connection,
       sql = paste("SELECT * FROM #", table_name, ";", sep = ""),
-      snakeCaseToCamelCase = TRUE) %>% 
+      snakeCaseToCamelCase = TRUE,
+      tempEmulationSchema = tempEmulationSchema) %>% 
       as_tibble()
   }
   
