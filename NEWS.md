@@ -1,3 +1,11 @@
+Keeper 0.2.1
+============
+
+Bugfixes:
+
+1. Fixes error related to temp tables on platforms that require temp table emulation (e.g. DataBricks).
+
+
 Keeper 0.2.0
 ============
 

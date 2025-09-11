@@ -1,8 +1,8 @@
 Package: Keeper
 Type: Package
 Title: An R package to review patient profiles for phenotype validation
-Version: 0.2.0
-Date: 2024-06-18
+Version: 0.2.1
+Date: 2025-09-11
 Authors@R: c(
     person("Ostropolets", "Anna", email = "ostropolets@ohdsi.org", role = c("aut", "cre")),
     person("Schuemie", "Martjn", role = c("aut")),
@@ -26,7 +26,7 @@ Suggests:
   withr,
   Eunomia
 License: Apache License
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/Keeper/, https://github.com/OHDSI/Keeper
 BugReports: https://github.com/OHDSI/Keeper/issues

@@ -8,6 +8,15 @@
 \description{
 An R package to review patient profiles for phenotype validation.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://ohdsi.github.io/Keeper/}
+  \item \url{https://github.com/OHDSI/Keeper}
+  \item Report bugs at \url{https://github.com/OHDSI/Keeper/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Ostropolets Anna \email{ostropolets@ohdsi.org}
 
