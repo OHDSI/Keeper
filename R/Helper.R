@@ -16,11 +16,11 @@
 
 replaceId <- function(data, useNewId = TRUE) {
   if (useNewId) {
-    data <- data %>%
-      dplyr::select(-"personId") %>%
+    data <- data |>
+      dplyr::select(-"personId") |>
       dplyr::rename("personId" = "newId")
   } else {
-    data <- data %>%
+    data <- data |>
       dplyr::select(-"newId")
   }
   return(data)

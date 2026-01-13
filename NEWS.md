@@ -1,3 +1,15 @@
+Keeper 1.0.0
+============
+
+Changes:
+
+1. Using the [ellmer](https://ellmer.tidyverse.org/index.html) package to standardize communication with LLMs. Users can now call the `reviewCases()` function to have the LLM adjudicate cases.
+
+Bugfixes:
+
+1. Avoiding incorrect person IDs due to integer overflow by usng strings instead.
+
+
 Keeper 0.2.1
 ============
 

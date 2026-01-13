@@ -7,7 +7,7 @@
 createSystemPrompt(settings, diseaseName)
 }
 \arguments{
-\item{settings}{A settings object as created using \code{createPromptSettings()}.}
+\item{settings}{A settings object as created using \code{\link[=createPromptSettings]{createPromptSettings()}}.}
 
 \item{diseaseName}{The name of the disease to use in the prompt.}
 }

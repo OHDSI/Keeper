@@ -51,7 +51,7 @@
 #'
 #' @param cohortName                  (optional) Cohort Name
 #'
-#' @param sampleSize                  (Optional, default = 20) The number of persons to randomly sample. Ignored, if personId is given.
+#' @param sampleSize                  (Optional, default = 20) The number of persons to randomly sample. Ignored, if `personIds` is given.
 #'
 #' @param personIds                   (Optional) A vector of personId's to look for in Cohort table and CDM.
 #'
@@ -116,7 +116,9 @@
 #' @return 
 #' Output is a data frame with one row per patient, with the following information per patient:
 #' 
-#' - demographics (age, gender);
+#' - personId;
+#' - age;
+#' - gender;
 #' - visit_context: information about visits overlapping with the index date (day 0) formatted as the type of visit and its duration;
 #' - observation_period: information about overlapping OBSERVATION_PERIOD formatted as days prior - days after the index date;
 #' - presentation: all records in CONDITION_OCCURRENCE on day 0 with corresponding type and status;
@@ -292,7 +294,7 @@ createKeeper <- function(connectionDetails = NULL,
       progressBar = TRUE,
       bulkLoad = (Sys.getenv("bulkLoad") == TRUE),
       camelCaseToSnakeCase = TRUE,
-      data = tibble(subjectId = as.double(personIds) %>% unique())
+      data = tibble(subjectId = as.double(personIds) |> unique())
     )
     
     DatabaseConnector::renderTranslateExecuteSql(
@@ -416,19 +418,20 @@ createKeeper <- function(connectionDetails = NULL,
       connection = connection,
       sql = paste("SELECT * FROM #", table_name, ";", sep = ""),
       snakeCaseToCamelCase = TRUE,
-      tempEmulationSchema = tempEmulationSchema) %>% 
+      tempEmulationSchema = tempEmulationSchema,
+      integer64AsNumeric = FALSE) |> 
       as_tibble()
   }
   
-  subjects <- tables[["presentation"]] %>%
+  subjects <- tables[["presentation"]] |>
     select("personId", "newId", "age", "gender", "cohortDefinitionId", "cohortStartDate", "observationPeriod")
   
-  tables[["presentation"]] <- tables[["presentation"]] %>%
-    group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) %>% 
+  tables[["presentation"]] <- tables[["presentation"]] |>
+    group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) |> 
     summarise(presentation = paste(.data$conceptName, collapse = " ")) 
   
-  tables[["visit_context"]] <- tables[["visit_context"]] %>%
-    group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) %>% 
+  tables[["visit_context"]] <- tables[["visit_context"]] |>
+    group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) |> 
     summarise(visitContext = paste(.data$conceptName, collapse = " ")) 
   
   # loop for modifying tables 
@@ -437,13 +440,13 @@ createKeeper <- function(connectionDetails = NULL,
                        "after_disease",  "after_treatment_procedures")
   
   for (subset_name in subset_name_list) {
-    tables[[subset_name]] <- tables[[subset_name]] %>%
-      group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate, .data$conceptName) %>% 
-      summarise(dateComb = toString(sort(unique(.data$dateOrder))))%>%
-      ungroup()%>%
-      distinct()%>%
-      mutate(dateName = paste(.data$conceptName, " (day ", .data$dateComb, ")", sep = ""))%>%
-      group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) %>% 
+    tables[[subset_name]] <- tables[[subset_name]] |>
+      group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate, .data$conceptName) |> 
+      summarise(dateComb = toString(sort(unique(.data$dateOrder)))) |>
+      ungroup() |>
+      distinct() |>
+      mutate(dateName = paste(.data$conceptName, " (day ", .data$dateComb, ")", sep = "")) |>
+      group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) |> 
       summarise(!!(SqlRender::snakeCaseToCamelCase(subset_name)) := paste(.data$dateName, collapse = "; "))
   }
   
@@ -451,8 +454,8 @@ createKeeper <- function(connectionDetails = NULL,
   subset_name_list2 <- c("prior_drugs", "after_drugs", "measurements", "death")
   
   for (subset_name in subset_name_list2) {
-    tables[[subset_name]] <- tables[[subset_name]] %>%
-             group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) %>% 
+    tables[[subset_name]] <- tables[[subset_name]] |>
+             group_by(.data$cohortDefinitionId, .data$personId, .data$cohortStartDate) |> 
              summarise(!!(SqlRender::snakeCaseToCamelCase(subset_name)) := paste(.data$conceptName, collapse = " "))
   }
   
@@ -461,19 +464,21 @@ createKeeper <- function(connectionDetails = NULL,
   # keeping cohort_definition_id to support lists in future
   keeperOutput <- subjects
   for (table_name in table_name_list) {
-    keeperOutput <- keeperOutput %>%
+    keeperOutput <- keeperOutput |>
       left_join(tables[[table_name]], by = c("personId", "cohortStartDate", "cohortDefinitionId"))
   }
-  keeperOutput <- keeperOutput %>%
+  keeperOutput <- keeperOutput |>
     select("personId", "newId", "age", "gender", "observationPeriod", "visitContext", "presentation", "comorbidities", "symptoms", "priorDisease", "priorDrugs", "priorTreatmentProcedures",
-           "diagnosticProcedures", "measurements", "alternativeDiagnosis", "afterDisease", "afterTreatmentProcedures", "afterDrugs", "death")%>%
-    distinct()
+           "diagnosticProcedures", "measurements", "alternativeDiagnosis", "afterDisease", "afterTreatmentProcedures", "afterDrugs", "death") |>
+    distinct() |>
+    mutate(personId = as.character(.data$personId))
   # add columns for review
   #tibble::add_column(reviewer = NA, status = NA, index_misspecification = NA, notes = NA)
   
   keeperOutput <- replaceId(data = keeperOutput, useNewId = assignNewId)
   
-  keeperOutput %>%
-    replace(is.na(keeperOutput), "") %>%
-    return()
+  keeperOutput <- keeperOutput |>
+    replace(is.na(keeperOutput), "") 
+  
+  return(keeperOutput)
 }

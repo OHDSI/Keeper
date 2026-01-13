@@ -56,7 +56,7 @@ can be created.}
 
 \item{cohortName}{(optional) Cohort Name}
 
-\item{sampleSize}{(Optional, default = 20) The number of persons to randomly sample. Ignored, if personId is given.}
+\item{sampleSize}{(Optional, default = 20) The number of persons to randomly sample. Ignored, if \code{personIds} is given.}
 
 \item{personIds}{(Optional) A vector of personId's to look for in Cohort table and CDM.}
 
@@ -89,7 +89,9 @@ You may input drugs that are used to treat disease of interest and drugs used to
 \value{
 Output is a data frame with one row per patient, with the following information per patient:
 \itemize{
-\item demographics (age, gender);
+\item personId;
+\item age;
+\item gender;
 \item visit_context: information about visits overlapping with the index date (day 0) formatted as the type of visit and its duration;
 \item observation_period: information about overlapping OBSERVATION_PERIOD formatted as days prior - days after the index date;
 \item presentation: all records in CONDITION_OCCURRENCE on day 0 with corresponding type and status;

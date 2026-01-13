@@ -97,7 +97,7 @@ We need two prompts: the system prompt is a general description of how the LLM s
 ```{r}
 # Use the default settings:
 settings <- createPromptSettings()
-systempPrompt <- createSystemPrompt(setting = settings, 
+systempPrompt <- createSystemPrompt(settings = settings, 
                                     diseaseName = "Gastrointestinal bleeding")  
 writeLines(systempPrompt)
 ```
@@ -105,7 +105,7 @@ writeLines(systempPrompt)
 Then, for each patient we can generate the main prompt:
 ```{r}
 row <- keeper[1, ]
-prompt <- createPrompt(setting = settings, 
+prompt <- createPrompt(settings = settings, 
                        diseaseName = "Gastrointestinal bleeding",
                        keeperRow = row)  
 writeLines(prompt)
