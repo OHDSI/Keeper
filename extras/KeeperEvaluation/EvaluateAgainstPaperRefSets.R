@@ -14,6 +14,18 @@ promptSettings <- createPromptSettings()
 cacheFolder = "cache"
 resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoOldPrompt.csv"
 
+# GPT-o3 running on Azure with original full prompt
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings()
+cacheFolder = "cache"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3OldPrompt.csv"
+
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- openxlsx::read.xlsx(keeperFile) |>
