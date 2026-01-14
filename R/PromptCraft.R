@@ -21,6 +21,7 @@
 #' @param testingReminder         Remind the LLM that a diagnosis can be recorded
 #'                                just to justify a test, and therefore by itself
 #'                                is not sufficient evidence?
+#' @param timingReminder          Remind the LLM that the task is to evaluate the patient's status on day 0.
 #' @param uncertaintyInstructions Provide instructions to the LLM on how to deal
 #'                                with uncertainty?
 #' @param discussEvidence         Prompt the LLM to first discuss evidence in favor
@@ -40,6 +41,7 @@
 #' @export
 createPromptSettings <- function(writeNarrative = TRUE,
                                  testingReminder = TRUE,
+                                 timingReminder = TRUE,
                                  uncertaintyInstructions = TRUE,
                                  discussEvidence = TRUE,
                                  provideExamples = FALSE,
@@ -48,6 +50,7 @@ createPromptSettings <- function(writeNarrative = TRUE,
   settings <- list(
     writeNarrative = writeNarrative,
     testingReminder = testingReminder,
+    timingReminder = timingReminder,
     uncertaintyInstructions = uncertaintyInstructions,
     discussEvidence = discussEvidence,
     provideExamples = provideExamples,
@@ -79,36 +82,15 @@ discussEvidenceFormatTemplate <- c(
   "Evidence against <disease>:"
 )
 
+timingReminder <- "Your determination must strictly assess the patient's status as of Day 0. Do not use evidence that occurs a long time after this date (e.g., treatments started years later) to confirm the presence of the disease on Day 0."
+
 createExample <- function(settings) {
   example <- "Examples: \n\nPrompt: \""
-  if (settings$writeNarrative) {
-    example <- c(
-      example,
-      "Write a medical narrative that fits the recorded health data followed by a determination of whether the patient had Rheumatoid arthritis.",
-      ""
-    )
-  } else {
-    example <- c(
-      example,
-      "Determine whether the patient had Rheumatoid arthritis.",
-      ""
-    )
-  }
-  if (settings$testingReminder) {
-    example <- c(
-      example,
-      "Remember that recording a diagnosis for a disease could occur either because the patient had the disease or as justification for performing a diagnostic procedure to determine whether the patient has the disease. A diagnosis by itself or accompanied with only diagnostic procedures may therefore be insufficient evidence, even if recorded more than once. Lack of additional evidence of Rheumatoid arthritis other than the diagnosis and diagnostic procedures probably means that the patient was only being tested, and does not actually have Rheumatoid arthritis. However, it unlikely that a patient will be tested many times over, so an abundance of diagnoses will mean the patient has the disease.",
-      ""
-    )
-  }
-  if (settings$uncertaintyInstructions) {
-    example <- c(
-      example,
-      "In your final summary, indicate 'yes' if the most probable scenario is that the patient had Rheumatoid arthritis.",
-      "Indicate 'no' if it is not the most probable scenario, for example when it is more likely that the patient was tested for the disease but the diagnosis was not confirmed. Also indicate 'no' when there is insufficient information to say anything about the relative probability of scenarios.",
-      ""
-    )
-  }
+  exampleSettings <- settings
+  exampleSettings$provideExamples <- FALSE
+  exampleSystemPrompt <- createSystemPrompt(exampleSettings, "Rheumatoid arthritis")
+  example <- c(example, exampleSystemPrompt)
+  
   example <- c(
     example, "Healthcare data:",
     "",
@@ -154,34 +136,8 @@ createExample <- function(settings) {
     "\"",
     "Prompt: \""
   )
-  if (settings$writeNarrative) {
-    example <- c(
-      example,
-      "Write a medical narrative that fits the recorded health data followed by a determination of whether the patient had Acute bronchitis.",
-      ""
-    )
-  } else {
-    example <- c(
-      example,
-      "Determine whether the patient had Acute bronchitis.",
-      ""
-    )
-  }
-  if (settings$testingReminder) {
-    example <- c(
-      example,
-      "Remember that recording a diagnosis for a disease could occur either because the patient had the disease or as justification for performing a diagnostic procedure to determine whether the patient has the disease. A diagnosis by itself or accompanied with only diagnostic procedures may therefore be insufficient evidence, even if recorded more than once. Lack of additional evidence of Acute bronchitis other than the diagnosis and diagnostic procedures probably means that the patient was only being tested, and does not actually have Acute bronchitis. However, it unlikely that a patient will be tested many times over, so an abundance of diagnoses will mean the patient has the disease.",
-      ""
-    )
-  }
-  if (settings$uncertaintyInstructions) {
-    example <- c(
-      example,
-      "In your final summary, indicate 'yes' if the most probable scenario is that the patient had Acute bronchitis.",
-      "Indicate 'no' if it is not the most probable scenario, for example when it is more likely that the patient was tested for the disease but the diagnosis was not confirmed. Also indicate 'no' when there is insufficient information to say anything about the relative probability of scenarios.",
-      ""
-    )
-  }
+  exampleSystemPrompt <- createSystemPrompt(exampleSettings, "Acute bronchitis")
+  example <- c(example, exampleSystemPrompt)
   example <- c(
     example, "Healthcare data:",
     "",
@@ -260,6 +216,13 @@ createSystemPrompt <- function(settings, diseaseName) {
       prompt <- c(
         prompt,
         testingReminderTemplate,
+        ""
+      )
+    }
+    if (settings$timingReminder) {
+      prompt <- c(
+        prompt,
+        timingReminder,
         ""
       )
     }

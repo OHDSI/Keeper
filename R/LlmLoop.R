@@ -67,8 +67,8 @@ reviewCases <- function(keeper,
   checkmate::assert_character(cacheFolder, null.ok = TRUE, add = errorMessage)
   checkmate::reportAssertions(collection = errorMessage)
   
-  systempPrompt <- createSystemPrompt(settings = settings, diseaseName = diseaseName)  
-  client$set_system_prompt(systempPrompt)
+  systemPrompt <- createSystemPrompt(settings = settings, diseaseName = diseaseName)  
+  client$set_system_prompt(systemPrompt)
   if (!is.null(cacheFolder) && !dir.exists(cacheFolder)) {
     dir.create(cacheFolder)
   }
@@ -81,17 +81,23 @@ reviewCases <- function(keeper,
   for (i in seq_len(nPersons)) {
     message(sprintf("Reviewing person %d of %d", i, nPersons))
     row <- keeper[i, ]
-    fileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder)
-    if (file.exists(fileName)) {
-      response <- readLines(fileName)
+    responseFileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder)
+
+    if (file.exists(responseFileName)) {
+      response <- readLines(responseFileName)
     } else {
       prompt <- createPrompt(settings = settings, 
                              diseaseName = diseaseName,
                              keeperRow = row)  
       
+      # Store full prompt for easy review:
+      fullPrompt <- sprintf("[System Prompt]\n%s\n[Prompt]\n%s", systemPrompt, prompt)
+      promptFileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder, type = "prompt")
+      writeLines(fullPrompt, promptFileName)
+      
       client$set_turns(list())
       response <- client$chat(prompt, echo = "none")  
-      writeLines(response, fileName)
+      writeLines(response, responseFileName)
     }
     isCase <- parseLlmResponse(response)
     result$isCase[i] <- isCase  
@@ -99,9 +105,14 @@ reviewCases <- function(keeper,
   return(result)
 }
 
-generateCacheFileName <- function(diseaseName, personId, cacheFolder) {
-  fileName <- sprintf("%s_p%s.txt", 
+generateCacheFileName <- function(diseaseName, personId, cacheFolder, type = "response") {
+  fileName <- sprintf("%s_p%s", 
                       gsub("[^[:alnum:]]", "", diseaseName),
                       personId)
+  if (type != "response") {
+    fileName <- paste(fileName, type, sep = "_")
+  }
+  fileName <- paste(fileName, "txt", sep = ".")
+  
   return(file.path(cacheFolder, fileName))
 }

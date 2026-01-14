@@ -36,6 +36,7 @@
 #' @export
 parseLlmResponse <- function(response, noMatchIsDontKnow = TRUE) {
   response <- paste(response, collapse = "\n")
+  response <- gsub("\\*\\*", "", response)
   response <- trimws(gsub("^.*\nSummary:", "", response))
   response <- gsub("\\(Only \"yes\" or \"no\"\\)", "", response)
   if (grepl("500 Internal Server Error", response, ignore.case = TRUE)) {
