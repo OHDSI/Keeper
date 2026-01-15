@@ -22,6 +22,8 @@
 #'                                just to justify a test, and therefore by itself
 #'                                is not sufficient evidence?
 #' @param timingReminder          Remind the LLM that the task is to evaluate the patient's status on day 0.
+#' @param missingReminder         Remind the LLM that the absence of treatments and follow-up care indicates the patient
+#'                                didn't have the disease.
 #' @param uncertaintyInstructions Provide instructions to the LLM on how to deal
 #'                                with uncertainty?
 #' @param discussEvidence         Prompt the LLM to first discuss evidence in favor
@@ -42,6 +44,7 @@
 createPromptSettings <- function(writeNarrative = TRUE,
                                  testingReminder = TRUE,
                                  timingReminder = TRUE,
+                                 missingReminder = FALSE,
                                  uncertaintyInstructions = TRUE,
                                  discussEvidence = TRUE,
                                  provideExamples = FALSE,
@@ -51,6 +54,7 @@ createPromptSettings <- function(writeNarrative = TRUE,
     writeNarrative = writeNarrative,
     testingReminder = testingReminder,
     timingReminder = timingReminder,
+    missingReminder = missingReminder,
     uncertaintyInstructions = uncertaintyInstructions,
     discussEvidence = discussEvidence,
     provideExamples = provideExamples,
@@ -83,6 +87,8 @@ discussEvidenceFormatTemplate <- c(
 )
 
 timingReminder <- "Your determination must strictly assess the patient's status as of Day 0. Do not use evidence that occurs a long time after this date (e.g., treatments started years later) to confirm the presence of the disease on Day 0."
+
+missingReminder <- "Evaluate the 'Clinical Footprint': You must critically assess what is absent from the record. A confirmed diagnosis of a serious condition implies a necessary trajectory of care, including specific prescriptions, specialist visits, and ongoing management. If this expected treatment trail is missing, you must weigh this as strong evidence that the patient did not have the disease."
 
 createExample <- function(settings) {
   example <- "Examples: \n\nPrompt: \""
@@ -223,6 +229,13 @@ createSystemPrompt <- function(settings, diseaseName) {
       prompt <- c(
         prompt,
         timingReminder,
+        ""
+      )
+    }
+    if (settings$missingReminder) {
+      prompt <- c(
+        prompt,
+        missingReminder,
         ""
       )
     }

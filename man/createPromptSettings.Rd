@@ -8,6 +8,7 @@ createPromptSettings(
   writeNarrative = TRUE,
   testingReminder = TRUE,
   timingReminder = TRUE,
+  missingReminder = FALSE,
   uncertaintyInstructions = TRUE,
   discussEvidence = TRUE,
   provideExamples = FALSE,
@@ -24,6 +25,9 @@ just to justify a test, and therefore by itself
 is not sufficient evidence?}
 
 \item{timingReminder}{Remind the LLM that the task is to evaluate the patient's status on day 0.}
+
+\item{missingReminder}{Remind the LLM that the absence of treatments and follow-up care indicates the patient
+didn't have the disease.}
 
 \item{uncertaintyInstructions}{Provide instructions to the LLM on how to deal
 with uncertainty?}
