@@ -25,7 +25,6 @@ promptSettings <- createPromptSettings(writeNarrative = FALSE)
 cacheFolder <- "cacheTiming"
 resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoTiming.xlsx"
 
-
 # GPT-o3 running on Azure with original full prompt
 client <- chat_azure_openai(
   endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
@@ -37,6 +36,38 @@ promptSettings <- createPromptSettings(timingReminder = FALSE)
 cacheFolder <- "cache"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3OldPrompt.xlsx"
 
+# GPT-o3 running on Azure with additional timing reminder, removing narrative request.
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings(writeNarrative = FALSE)
+cacheFolder <- "cacheTiming"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3Timing.xlsx"
+
+# GPT-o3 running on Azure with additional timing reminder.
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheTimingNarrative"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3TimingNarrative.xlsx"
+
+# GPT-o3 running on Azure without narrative request
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings(timingReminder = FALSE, writeNarrative = FALSE)
+cacheFolder <- "cacheNoNarrative"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3NoNarrative.xlsx"
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
