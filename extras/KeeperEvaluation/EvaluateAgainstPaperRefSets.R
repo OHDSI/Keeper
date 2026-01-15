@@ -25,6 +25,16 @@ promptSettings <- createPromptSettings(writeNarrative = FALSE)
 cacheFolder <- "cacheTiming"
 resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoTiming.xlsx"
 
+# Nemotron 3 Nano running on local LM Studio with additional timing and missing reminder.
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "nvidia/nemotron-3-nano"
+)
+promptSettings <- createPromptSettings(missingReminder = TRUE, writeNarrative = FALSE)
+cacheFolder <- "cacheTimingMissing"
+resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoTimingMissing.xlsx"
+
 
 # GPT-o3 running on Azure with original full prompt
 client <- chat_azure_openai(
@@ -59,7 +69,7 @@ groups <- keeper |>
   group_split()
 
 allResults <- list()
-# group = groups[[5]]
+# group = groups[[3]]
 for (group in groups) {
   message("Evaluating ", group$cohortName[1])
   result <- reviewCases(keeper = group,
