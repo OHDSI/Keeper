@@ -1,10 +1,13 @@
 - name: Disease of interest
   parameterName: doi
   systemPromptTerms: |
-    You are a medical terminology expert and medical doctor. You are provided a free-text name of a medical condition. Provide one or more medical terms that are commonly used to denote that condition.
+    You are a medical terminology expert and medical doctor. 
+    You are provided a free-text name of a medical condition. 
+    Provide one or more medical terms that are commonly used to denote that condition.
     
     Output Format:
-    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
     JSON
     {
       "terms": ["string", ...]
@@ -13,25 +16,79 @@
   domains:
     - Condition
   systemPromptRemoveNonRelevant: |
-    You are a Clinical Coding Expert. Your goal is to identify OHDSI concepts that carry a Positive Assertion of a specific medical condition.
-    Rules for Selection: Review each concept. Select the Concept ID ONLY if the clinical assertion of that code guarantees the presence of the provided Condition.
+    You are a Clinical Coding Expert. 
+    Your goal is to identify OHDSI concepts that carry a Positive Assertion of a specific medical condition.
     
-    Ask yourself: \"If a patient has this code in their chart, does it mathematically guarantee they have the diagnosis?\"
+    Rules for Selection: 
+    Review each concept. 
+    Select the Concept ID ONLY if the clinical assertion of that code guarantees the presence of the provided Condition.
+    
+    Ask yourself: "If a patient has this code in their chart, does it mathematically guarantee they have the diagnosis?"
     
     Output Format:
     Provide your response in a single JSON object. Do not include any text outside of the JSON.
     JSON
     {
-      \"conceptId\": [integer, ...]
+      "conceptId": [integer, ...]
+    }
+  
+- name: Alternative diagnoses
+  parameterName: alternativeDiagnosis
+  systemPromptTerms: |
+    You are an expert diagnostic physician.
+    
+    Task: I will provide a target medical condition. You must generate a list of Differential Diagnoses.
+    
+    Criteria for Selection:
+    
+    Distinct Pathology: Selected terms must be distinct clinical entities with a different etiology than the target condition.
+    
+    Symptom Overlap: Selected terms must share significant signs, symptoms, or clinical presentations with the target, such that they would need to be "ruled out" during diagnosis.
+    
+    Exclusions: Do NOT include synonyms, broad categories (like "Disease"), or simple subtypes of the target condition.
+      
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+  domains:
+    - Condition
+  systemPromptRemoveNonRelevant: |
+    You are an expert Medical Doctor and Clinical Ontologist.
+
+    Task: You are provided with a Target Condition and a list of Candidate Concepts. Your goal is to filter the candidate list and select ONLY the concepts that represent valid Differential Diagnoses of the target condition.
+    
+    Definition of a Differential Diagnosis: A condition that is clinically distinct from the target (different etiology/pathology) but shares similar signs, symptoms, or clinical presentation such that confusion is possible.
+    
+    Criteria for Selection:
+    
+    Distinct Pathology: Selected Concepts must be distinct clinical entities with a different etiology than the target condition.
+    
+    Symptom Overlap: Selected Concepts must share significant signs, symptoms, or clinical presentations with the target, such that they would need to be "ruled out" during diagnosis.
+    
+    Exclusions: Do NOT include synonyms, broad categories (like "Disease"), or simple subtypes of the target condition.
+
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "conceptId": [integer, ...]
     }
 
 - name: Symptoms
   parameterName: symptoms
   systemPromptTerms: |
-    You are a medical terminology expert and medical doctor. You are provided a free-text name of a medical condition. Provide a list of medical terms that describe **symptoms** of the condition.
+    You are a medical terminology expert and medical doctor. 
+    You are provided a list of Medical Conditions.
+    Provide a list of medical terms that describe **symptoms** of one or more of the Medical Conditions.
     
     Output Format:
-    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    Provide your response in a single JSON object.
+    Do not include any text outside of the JSON.
     JSON
     {
       "terms": ["string", ...]
@@ -42,23 +99,33 @@
     - Observation
     
   systemPromptRemoveNonRelevant: |
-    You are a Clinical Coding Expert. Your goal is to identify OHDSI concepts that describe possible symptoms of a specific medical condition.
-    Rules for Selection: Review each concept. Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a symptom. The concept does not need to imply the condition is present, just the symptom.
+    You are a Clinical Coding Expert. 
+    You are provided a list of Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify Concepts that describe possible symptoms of one or more or more of the Medical Conditions.
+    
+    Rules for Selection: 
+    Review each concept. 
+    Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a symptom. 
+    The concept does not need to imply one of the Conditions is present, just the symptom.
     
     Output Format:
-    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
     JSON
     {
-      \"conceptId\": [integer, ...]
+      "conceptId": [integer, ...]
     }
 
 - name: Comorbidities
   parameterName: comorbidities
   systemPromptTerms: |
-    You are a medical terminology expert and medical doctor. You are provided a free-text name of a medical condition. Provide a list of medical terms that describe **comorbidities of the condition** or **comorbidities of differential diagnoses of the conditions**.
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions.
+    Provide a list of medical terms that describe **Comorbidities** of one or more of the Medical Conditions.
 
     Output Format:
-    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
     JSON
     {
       "terms": ["string", ...]
@@ -69,12 +136,18 @@
     - Observation
     
   systemPromptRemoveNonRelevant: |
-    You are a Clinical Coding Expert. Your goal is to identify OHDSI concepts that describe **comorbidities of the condition** or **comorbidities of differential diagnoses of the conditions**.
-    Rules for Selection: Review each concept. Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a comorbidity. The concept does not need to imply the condition is present, just the comorbidity.
+    You are a Clinical Coding Expert. 
+    Your goal is to identify OHDSI concepts that describe **Comorbidities** of one or more of the Medical Conditions.
+    
+    Rules for Selection: 
+    Review each concept. 
+    Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a Comorbidity. 
+    The concept does not need to imply one of the Conditions is present, just the Comorbidity.
     
     Output Format:
-    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
     JSON
     {
-      \"conceptId\": [integer, ...]
+      "conceptId": [integer, ...]
     }

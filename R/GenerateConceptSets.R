@@ -119,14 +119,13 @@ WHERE concept_id IN (@concept_ids)
   return(standardConcepts)
 }
 
-removeNonRelevantConcepts <- function(concepts, condition, client, systemPrompt, batchSize = 25) {
+removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemPrompt, batchSize = 25) {
   conceptIds <- c()
   for (start in seq(1, nrow(concepts), by = batchSize)) {
     batch <- concepts[start:min(start + batchSize - 1, nrow(concepts)), ]
     
-    prompt <- sprintf("Condition: %s\n\nConcepts:\n%s", 
-                      condition, 
-                      jsonlite::toJSON(select(batch, "conceptId", "conceptName")))
+    prompt <- paste0(conditionPrompt,
+                    sprintf("\n\nConcepts:\n%s", jsonlite::toJSON(select(batch, "conceptId", "conceptName"))))
     client$set_system_prompt(systemPrompt)
     client$set_turns(list())
     response <- client$chat(prompt, echo = "none")  
@@ -170,21 +169,31 @@ generateKeeperConceptSets <- function(
   yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
   # yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
   promptSets <- yaml::read_yaml(yamlFileName)
+  
+  conceptSets <- list()
+  
+  alternativeDiagnoses <- NULL
   for (i in seq_along(promptSets)) {
     promptSet <- promptSets[[i]]
     message(sprintf("Generating concept set: %s", promptSet$name))
     conceptSet <- generateConceptSet(
       condition = condition,
+      alternativeDiagnoses = alternativeDiagnoses,
       promptSet = promptSet,
       connection = connection,
       vocabDatabaseSchema = vocabDatabaseSchema,
       client = client
     )
+    if (promptSet$parameterName == "alternativeDiagnosis") {
+      alternativeDiagnoses <- attr(conceptSet , "initialTerms")
+    }
+    conceptSets[promptSet$parameterName] <- conceptSet
   }
 }
 
 
 generateConceptSet <- function(condition,
+                               alternativeDiagnoses = NULL,
                                promptSet,
                                client,
                                connection,
@@ -192,10 +201,16 @@ generateConceptSet <- function(condition,
   conceptBatchSize <- 20
   minRecordCount <- 1e5
   
+  if (is.null(alternativeDiagnoses)) {
+    conditionPrompt <- sprintf("Condition: %s", condition)
+  } else {
+    conditionPrompt <- sprintf("Conditions:\n- %s", paste(c(condition, alternativeDiagnoses), collapse = "\n- "))
+  }
+  
   message("- Generating initial term list using LLM")
   client$set_system_prompt(promptSet$systemPromptTerms)
   client$set_turns(list())
-  prompt <- sprintf("Condition: %s", condition)
+  prompt <- conditionPrompt
   response <- client$chat(prompt, echo = "none")  
   #writeLines(response)
   terms <- extractAndParseJson(response)$terms
@@ -211,7 +226,7 @@ generateConceptSet <- function(condition,
   message("- Removing non-relevant concepts using LLM")
   concepts <- removeNonRelevantConcepts(
     concepts = concepts,
-    condition = condition,
+    conditionPrompt = conditionPrompt,
     client = client,
     systemPrompt = promptSet$systemPromptRemoveNonRelevant,
     batchSize = conceptBatchSize
@@ -241,7 +256,7 @@ generateConceptSet <- function(condition,
   message("- Removing non-relevant concepts using LLM")
   concepts <- removeNonRelevantConcepts(
     concepts = concepts,
-    condition = condition,
+    conditionPrompt = conditionPrompt,
     client = client,
     systemPrompt = promptSet$systemPromptRemoveNonRelevant,
     batchSize = conceptBatchSize
@@ -256,5 +271,6 @@ generateConceptSet <- function(condition,
   
   concepts <- concepts |>
     select("conceptId", "conceptName", "vocabularyId")
+  attr(concepts, "initialTerms") <- terms
   return(concepts)
 }
