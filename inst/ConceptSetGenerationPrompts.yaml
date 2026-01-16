@@ -1,0 +1,80 @@
+- name: Disease of interest
+  parameterName: doi
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor. You are provided a free-text name of a medical condition. Provide one or more medical terms that are commonly used to denote that condition.
+    
+    Output Format:
+    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Condition
+  systemPromptRemoveNonRelevant: |
+    You are a Clinical Coding Expert. Your goal is to identify OHDSI concepts that carry a Positive Assertion of a specific medical condition.
+    Rules for Selection: Review each concept. Select the Concept ID ONLY if the clinical assertion of that code guarantees the presence of the provided Condition.
+    
+    Ask yourself: \"If a patient has this code in their chart, does it mathematically guarantee they have the diagnosis?\"
+    
+    Output Format:
+    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    JSON
+    {
+      \"conceptId\": [integer, ...]
+    }
+
+- name: Symptoms
+  parameterName: symptoms
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor. You are provided a free-text name of a medical condition. Provide a list of medical terms that describe **symptoms** of the condition.
+    
+    Output Format:
+    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Condition
+    - Observation
+    
+  systemPromptRemoveNonRelevant: |
+    You are a Clinical Coding Expert. Your goal is to identify OHDSI concepts that describe possible symptoms of a specific medical condition.
+    Rules for Selection: Review each concept. Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a symptom. The concept does not need to imply the condition is present, just the symptom.
+    
+    Output Format:
+    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    JSON
+    {
+      \"conceptId\": [integer, ...]
+    }
+
+- name: Comorbidities
+  parameterName: comorbidities
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor. You are provided a free-text name of a medical condition. Provide a list of medical terms that describe **comorbidities of the condition** or **comorbidities of differential diagnoses of the conditions**.
+
+    Output Format:
+    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Condition
+    - Observation
+    
+  systemPromptRemoveNonRelevant: |
+    You are a Clinical Coding Expert. Your goal is to identify OHDSI concepts that describe **comorbidities of the condition** or **comorbidities of differential diagnoses of the conditions**.
+    Rules for Selection: Review each concept. Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a comorbidity. The concept does not need to imply the condition is present, just the comorbidity.
+    
+    Output Format:
+    Provide your response in a single JSON object. Do not include any text outside of the JSON.
+    JSON
+    {
+      \"conceptId\": [integer, ...]
+    }

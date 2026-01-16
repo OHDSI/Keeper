@@ -19,7 +19,10 @@ Imports:
   SqlRender,
   english,
   stringr,
-  ellmer
+  ellmer,
+  jsonlite,
+  httr,
+  yaml
 Suggests:
   rmarkdown,
   testthat,
