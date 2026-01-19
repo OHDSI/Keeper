@@ -99,7 +99,7 @@ reviewCases <- function(keeper,
       response <- client$chat(prompt, echo = "none")  
       writeLines(response, responseFileName)
     }
-    isCase <- parseLlmResponse(response)
+    isCase <- parseLlmResponse(response, noMatchIsDontKnow = FALSE)
     result$isCase[i] <- isCase  
   }
   return(result)

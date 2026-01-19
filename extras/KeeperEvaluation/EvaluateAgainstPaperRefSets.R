@@ -80,6 +80,16 @@ promptSettings <- createPromptSettings(timingReminder = FALSE, writeNarrative = 
 cacheFolder <- "cacheNoNarrative"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3NoNarrative.xlsx"
 
+# DeepSeek R1 Distill Llam 70B running on local LM Studio with original full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "deepseek-r1-distill-llama-70b"
+)
+promptSettings <- createPromptSettings(timingReminder = FALSE)
+cacheFolder <- "cacheDeepSeek"
+resultsFile <- "extras/KeeperEvaluation/MetricsDeepSeekOldPrompt.xlsx"
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
