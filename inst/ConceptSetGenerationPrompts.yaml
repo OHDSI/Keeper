@@ -16,8 +16,9 @@
   domains:
     - Condition
   systemPromptRemoveNonRelevant: |
-    You are a Clinical Coding Expert. 
-    Your goal is to identify OHDSI concepts that carry a Positive Assertion of a specific medical condition.
+    You are a medical terminology expert and medical doctor. 
+    You are provided a Medical Condition and a list of candidate Concepts.
+    Your goal is to identify OHDSI Concepts that carry a positive assertion of the Medical Condition.
     
     Rules for Selection: 
     Review each concept. 
@@ -35,9 +36,9 @@
 - name: Alternative diagnoses
   parameterName: alternativeDiagnosis
   systemPromptTerms: |
-    You are an expert diagnostic physician.
-    
-    Task: I will provide a target medical condition. You must generate a list of Differential Diagnoses.
+    You are a medical terminology expert and medical doctor. 
+    You are provided a free-text name of a medical condition. 
+    Your goal is to generate a list of Differential Diagnoses.
     
     Criteria for Selection:
     
@@ -57,11 +58,9 @@
   domains:
     - Condition
   systemPromptRemoveNonRelevant: |
-    You are an expert Medical Doctor and Clinical Ontologist.
-
-    Task: You are provided with a Target Condition and a list of Candidate Concepts. Your goal is to filter the candidate list and select ONLY the concepts that represent valid Differential Diagnoses of the target condition.
-    
-    Definition of a Differential Diagnosis: A condition that is clinically distinct from the target (different etiology/pathology) but shares similar signs, symptoms, or clinical presentation such that confusion is possible.
+    You are a medical terminology expert and medical doctor.
+    You are provided a Medical Condition and a list of candidate Concepts.
+    Your goal is to filter the candidate list and select ONLY the concepts that represent valid Differential Diagnoses of the target condition.
     
     Criteria for Selection:
     
@@ -84,7 +83,7 @@
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
     You are provided a list of Medical Conditions.
-    Provide a list of medical terms that describe **symptoms** of one or more of the Medical Conditions.
+    Provide a list of medical terms that describe **Symptoms** of one or more of the Medical Conditions.
     
     Output Format:
     Provide your response in a single JSON object.
@@ -101,7 +100,7 @@
   systemPromptRemoveNonRelevant: |
     You are a Clinical Coding Expert. 
     You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify Concepts that describe possible symptoms of one or more or more of the Medical Conditions.
+    Your goal is to identify Concepts that describe possible **Symptoms** of one or more or more of the Medical Conditions.
     
     Rules for Selection: 
     Review each concept. 
@@ -137,12 +136,194 @@
     
   systemPromptRemoveNonRelevant: |
     You are a Clinical Coding Expert. 
+    You are provided a list of Medical Conditions and a list of candidate Concepts.
     Your goal is to identify OHDSI concepts that describe **Comorbidities** of one or more of the Medical Conditions.
     
     Rules for Selection: 
     Review each concept. 
     Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a Comorbidity. 
     The concept does not need to imply one of the Conditions is present, just the Comorbidity.
+    
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "conceptId": [integer, ...]
+    }
+
+- name: Drugs
+  parameterName: drugs
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions.
+    Provide a list of (generic) drug names and drug class that describe **Pharmaceutical Treatments** for one or more of the Medical Conditions. 
+    When listing a drug class, also include as many of the individual drug names in that class.
+
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Drug
+    
+  systemPromptRemoveNonRelevant: |
+    You are a medical terminology expert and medical doctor
+    You are provided a list of Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Pharmaceutical Treatments** for one or more of the Medical Conditions.
+    
+    Rules for Selection: 
+    Review each concept. 
+    Select the concept ID ONLY if the drug or drug class is used to treat one or more of the Medical Conditions.
+    The concept does not need to imply one of the Conditions is present, just the Treatment.
+    
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "conceptId": [integer, ...]
+    }
+
+- name: Diagnostic procedures
+  parameterName: diagnosticProcedures
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions.
+    Provide a list of medical procedure names that describe **Diagnostic Procedures** for one or more of the Medical Conditions.
+
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Procedure
+    
+  systemPromptRemoveNonRelevant: |
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Diagnostic Procedures** for one or more of the Medical Conditions.
+    
+    Rules for Selection: 
+    Review each concept. 
+    Select the concept ID ONLY if the procedure is used to diagnose one or more of the Medical Conditions.
+    The concept does not need to imply one of the Conditions is present, just the Treatment.
+    
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "conceptId": [integer, ...]
+    }
+    
+- name: Measurements
+  parameterName: measurements
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions.
+    Provide a list of medical laboratory test names that describe lab tests used to diagnose one or more of the Medical Conditions.
+
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Measurement
+    
+  systemPromptRemoveNonRelevant: |
+    You are a medical terminology expert and medical doctor. 
+    You are provided a list of Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe lab tests used to diagnose one or more of the Medical Conditions.
+    
+    Rules for Selection: 
+    Review each concept. 
+    Select the concept ID ONLY if the lab test is used to diagnose one or more of the Medical Conditions.
+    The concept does not need to imply one of the Conditions is present, just the lab test.
+    
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "conceptId": [integer, ...]
+    }
+    
+- name: Treatment procedures
+  parameterName: treatmentProcedures
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions.
+    Provide a list of medical procedure names that describe procedures used to treat one or more of the Medical Conditions.
+
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Procedure
+    
+  systemPromptRemoveNonRelevant: |
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Treatment Procedures** for one or more of the Medical Conditions.
+    
+    Rules for Selection: 
+    Review each concept. 
+    Select the concept ID ONLY if the procedure is used to treat one or more of the Medical Conditions.
+    The concept does not need to imply one of the Conditions is present, just the Treatment.
+    
+    Output Format:
+    Provide your response in a single JSON object. 
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "conceptId": [integer, ...]
+    }
+    
+- name: Comnplications
+  parameterName: complications
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor.
+    You are provided a list of Medical Conditions.
+    Provide a list of medical terms that describe **Complications** of one or more of the Medical Conditions.
+    
+    Output Format:
+    Provide your response in a single JSON object.
+    Do not include any text outside of the JSON.
+    JSON
+    {
+      "terms": ["string", ...]
+    }
+
+  domains:
+    - Condition
+    
+  systemPromptRemoveNonRelevant: |
+    You are a medical terminology expert and medical doctor. 
+    You are provided a list of Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify Concepts that describe possible **Complications** of one or more or more of the Medical Conditions.
+    
+    Rules for Selection: 
+    Review each concept. 
+    Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a Complication. 
+    The concept does not need to imply one of the Conditions is present, just the Complication.
     
     Output Format:
     Provide your response in a single JSON object. 
