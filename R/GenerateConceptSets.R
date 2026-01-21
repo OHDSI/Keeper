@@ -47,13 +47,16 @@ phoebeSearch <- function(conceptId) {
   response <- httr::GET(url)
   
   if (httr::status_code(response) == 200) {
-    content_text <- httr::content(response, "text", encoding = "UTF-8")
-    data <- jsonlite::fromJSON(content_text)
+    contextText <- httr::content(response, "text", encoding = "UTF-8")
+    if (contextText == "[]") {
+      return(NULL)
+    }
+    data <- jsonlite::fromJSON(contextText)
     data <- data |>
       SqlRender::snakeCaseToCamelCaseNames()
     return(data)
   } else {
-    stop(sprintf("Error in pheobe search for concept %s: %s", 
+    stop(sprintf("Error in phoebe search for concept %s: %s", 
                  conceptId,
                  httr::status_code(response)))
   }
@@ -187,7 +190,7 @@ generateKeeperConceptSets <- function(
     if (promptSet$parameterName == "alternativeDiagnosis") {
       alternativeDiagnoses <- attr(conceptSet , "initialTerms")
     }
-    conceptSets[promptSet$parameterName] <- conceptSet
+    conceptSets[[promptSet$parameterName]] <- conceptSet
   }
 }
 
