@@ -1,0 +1,491 @@
+conceptId,conceptName,vocabularyId,conceptSetName,target
+201254,Type 1 diabetes mellitus,SNOMED,doi,Disease of interest
+435216,Disorder due to type 1 diabetes mellitus,SNOMED,doi,Disease of interest
+201826,Type 2 diabetes mellitus,SNOMED,alternativeDiagnosis,Disease of interest
+4311629,Impaired glucose tolerance,SNOMED,alternativeDiagnosis,Disease of interest
+195596,Chronic pancreatitis,SNOMED,alternativeDiagnosis,Disease of interest
+195771,Secondary diabetes mellitus,SNOMED,alternativeDiagnosis,Disease of interest
+441267,Cystic fibrosis,SNOMED,alternativeDiagnosis,Disease of interest
+195212,Hypercortisolism,SNOMED,alternativeDiagnosis,Disease of interest
+4163735,Hemochromatosis,SNOMED,alternativeDiagnosis,Disease of interest
+438476,Vasopressin resistance,SNOMED,alternativeDiagnosis,Disease of interest
+201530,Hyperosmolar coma due to type 2 diabetes mellitus,SNOMED,alternativeDiagnosis,Disease of interest
+443734,Ketoacidosis due to type 2 diabetes mellitus,SNOMED,alternativeDiagnosis,Disease of interest
+432454,Excessive thirst,SNOMED,symptoms,Disease of interest
+79936,Polyuria,SNOMED,symptoms,Disease of interest
+438872,Excessive eating,SNOMED,symptoms,Disease of interest
+40491502,Unintentional weight loss,SNOMED,symptoms,Disease of interest
+435928,Abnormal weight loss,SNOMED,symptoms,Disease of interest
+4223659,Fatigue,SNOMED,symptoms,Disease of interest
+40304526,Nocturia,SNOMED,symptoms,Disease of interest
+374034,Visual disturbance,SNOMED,symptoms,Disease of interest
+373786,Abnormal vision,SNOMED,symptoms,Disease of interest
+4184149,Feeling irritable,SNOMED,symptoms,Disease of interest
+31967,Nausea,SNOMED,symptoms,Disease of interest
+45763927,Level of nausea,SNOMED,symptoms,Disease of interest
+4101344,Finding of vomiting,SNOMED,symptoms,Disease of interest
+200219,Abdominal pain,SNOMED,symptoms,Disease of interest
+4226991,Xerostomia,SNOMED,symptoms,Disease of interest
+136184,Pruritic disorder,SNOMED,symptoms,Disease of interest
+378253,Headache,SNOMED,symptoms,Disease of interest
+200843,Finding of frequency of urination,SNOMED,symptoms,Disease of interest
+200845,Urgent desire to urinate,SNOMED,symptoms,Disease of interest
+317002,Low blood pressure,SNOMED,symptoms,Disease of interest
+4272240,Malaise,SNOMED,symptoms,Disease of interest
+4202045,Postviral fatigue syndrome,SNOMED,symptoms,Disease of interest
+4012231,Poor stream of urine,SNOMED,symptoms,Disease of interest
+197672,Urinary incontinence,SNOMED,symptoms,Disease of interest
+4080921,Polymorphous light eruption,SNOMED,symptoms,Disease of interest
+4090425,Altered sensation of skin,SNOMED,symptoms,Disease of interest
+376961,Disturbance of consciousness,SNOMED,symptoms,Disease of interest
+438134,Hypersomnia,SNOMED,symptoms,Disease of interest
+436222,Altered mental status,SNOMED,symptoms,Disease of interest
+4268911,Disorientated,SNOMED,symptoms,Disease of interest
+4241033,Acute abdomen,SNOMED,symptoms,Disease of interest
+197981,Abdominal tenderness,SNOMED,symptoms,Disease of interest
+27587,Disturbance of salivary secretion,SNOMED,symptoms,Disease of interest
+79936,Polyuria,SNOMED,symptoms,Alternative diagnoses
+432454,Excessive thirst,SNOMED,symptoms,Alternative diagnoses
+4012368,Increased frequency of urination,SNOMED,symptoms,Alternative diagnoses
+438872,Excessive eating,SNOMED,symptoms,Alternative diagnoses
+40304526,Nocturia,SNOMED,symptoms,Alternative diagnoses
+4223659,Fatigue,SNOMED,symptoms,Alternative diagnoses
+374034,Visual disturbance,SNOMED,symptoms,Alternative diagnoses
+373786,Abnormal vision,SNOMED,symptoms,Alternative diagnoses
+4236484,Paresthesia,SNOMED,symptoms,Alternative diagnoses
+136184,Pruritic disorder,SNOMED,symptoms,Alternative diagnoses
+3655355,Erectile dysfunction,SNOMED,symptoms,Alternative diagnoses
+4237140,Abnormal sexual function,SNOMED,symptoms,Alternative diagnoses
+436246,Reduced libido,SNOMED,symptoms,Alternative diagnoses
+443262,Lack or loss of sexual desire,SNOMED,symptoms,Alternative diagnoses
+200219,Abdominal pain,SNOMED,symptoms,Alternative diagnoses
+200146,Pancreatic steatorrhea,SNOMED,symptoms,Alternative diagnoses
+254761,Cough,SNOMED,symptoms,Alternative diagnoses
+312437,Dyspnea,SNOMED,symptoms,Alternative diagnoses
+315078,Palpitations,SNOMED,symptoms,Alternative diagnoses
+444070,Tachycardia,SNOMED,symptoms,Alternative diagnoses
+443782,Tremor,SNOMED,symptoms,Alternative diagnoses
+138565,Hyperhidrosis,SNOMED,symptoms,Alternative diagnoses
+378253,Headache,SNOMED,symptoms,Alternative diagnoses
+441542,Anxiety,SNOMED,symptoms,Alternative diagnoses
+79908,Muscle weakness,SNOMED,symptoms,Alternative diagnoses
+435524,Sleep disorder,SNOMED,symptoms,Alternative diagnoses
+4078201,Mood swings,SNOMED,symptoms,Alternative diagnoses
+4167815,Disturbance in mood,SNOMED,symptoms,Alternative diagnoses
+4184149,Feeling irritable,SNOMED,symptoms,Alternative diagnoses
+40546087,Depressed mood,SNOMED,symptoms,Alternative diagnoses
+4191716,Symptoms of depression,SNOMED,symptoms,Alternative diagnoses
+318566,Flushing,SNOMED,symptoms,Alternative diagnoses
+196523,Diarrhea,SNOMED,symptoms,Alternative diagnoses
+435928,Abnormal weight loss,SNOMED,symptoms,Alternative diagnoses
+439141,Abnormal weight gain,SNOMED,symptoms,Alternative diagnoses
+200845,Urgent desire to urinate,SNOMED,symptoms,Alternative diagnoses
+4012231,Poor stream of urine,SNOMED,symptoms,Alternative diagnoses
+197672,Urinary incontinence,SNOMED,symptoms,Alternative diagnoses
+4272240,Malaise,SNOMED,symptoms,Alternative diagnoses
+4202045,Postviral fatigue syndrome,SNOMED,symptoms,Alternative diagnoses
+4155909,Anesthesia of skin,SNOMED,symptoms,Alternative diagnoses
+4090425,Altered sensation of skin,SNOMED,symptoms,Alternative diagnoses
+440068,Psychosexual dysfunction,SNOMED,symptoms,Alternative diagnoses
+444268,Inhibited male orgasm,SNOMED,symptoms,Alternative diagnoses
+4241033,Acute abdomen,SNOMED,symptoms,Alternative diagnoses
+197981,Abdominal tenderness,SNOMED,symptoms,Alternative diagnoses
+27674,Nausea and vomiting,SNOMED,symptoms,Alternative diagnoses
+433596,Abnormal sputum,SNOMED,symptoms,Alternative diagnoses
+314754,Wheezing,SNOMED,symptoms,Alternative diagnoses
+4305080,Abnormal breathing,SNOMED,symptoms,Alternative diagnoses
+77670,Chest pain,SNOMED,symptoms,Alternative diagnoses
+317376,Tachypnea,SNOMED,symptoms,Alternative diagnoses
+37396726,Cognitive communication disorder,SNOMED,symptoms,Alternative diagnoses
+4114624,Coordination problem,SNOMED,symptoms,Alternative diagnoses
+36714126,Difficulty walking,SNOMED,symptoms,Alternative diagnoses
+441417,Incoordination,SNOMED,symptoms,Alternative diagnoses
+78236,Muscle atrophy,SNOMED,symptoms,Alternative diagnoses
+4310235,Reduced mobility,SNOMED,symptoms,Alternative diagnoses
+36674346,Sarcopenia,SNOMED,symptoms,Alternative diagnoses
+432436,Symbolic dysfunction,SNOMED,symptoms,Alternative diagnoses
+4092743,Unsteady when standing,SNOMED,symptoms,Alternative diagnoses
+442306,Adjustment disorder with depressed mood,SNOMED,symptoms,Alternative diagnoses
+440383,Depressive disorder,SNOMED,symptoms,Alternative diagnoses
+2107249,Clinically significant depressive symptoms as categorized by using a standardized depression screening/assessment tool (MDD),CPT4,symptoms,Alternative diagnoses
+2107245,Mild to moderate depressive symptoms as categorized by using a standardized depression screening/assessment tool (MDD),CPT4,symptoms,Alternative diagnoses
+4150129,Musculoskeletal pain,SNOMED,symptoms,Alternative diagnoses
+4024561,Pain in lower limb,SNOMED,symptoms,Alternative diagnoses
+80141,Functional diarrhea,SNOMED,symptoms,Alternative diagnoses
+4338120,Altered bowel function,SNOMED,symptoms,Alternative diagnoses
+40491502,Unintentional weight loss,SNOMED,symptoms,Alternative diagnoses
+140168,Psoriasis,SNOMED,comorbidities,Disease of interest
+316866,Hypertensive disorder,SNOMED,comorbidities,Disease of interest
+4159131,Dyslipidemia,SNOMED,comorbidities,Disease of interest
+432867,Hyperlipidemia,SNOMED,comorbidities,Disease of interest
+443767,Disorder of eye due to diabetes mellitus,SNOMED,comorbidities,Disease of interest
+4023310,Blindness AND/OR vision impairment level,SNOMED,comorbidities,Disease of interest
+378416,Retinal disorder,SNOMED,comorbidities,Disease of interest
+443730,Disorder of nervous system due to diabetes mellitus,SNOMED,comorbidities,Disease of interest
+4301699,Neuropathy,SNOMED,comorbidities,Disease of interest
+195847,Gastroparesis syndrome,SNOMED,comorbidities,Disease of interest
+133444,Thyroiditis,SNOMED,comorbidities,Disease of interest
+4030040,Diffuse goiter,SNOMED,comorbidities,Disease of interest
+138387,Thyrotoxicosis,SNOMED,comorbidities,Disease of interest
+201618,Disorder of intestine,SNOMED,comorbidities,Disease of interest
+435789,Megaloblastic anemia,SNOMED,comorbidities,Disease of interest
+4035127,Hypoadrenalism,SNOMED,comorbidities,Disease of interest
+4284559,Hypermagnesemia,SNOMED,comorbidities,Disease of interest
+4041510,Skin hypopigmented,SNOMED,comorbidities,Disease of interest
+4031164,Non-scarring alopecia,SNOMED,comorbidities,Disease of interest
+74125,Inflammatory polyarthropathy,SNOMED,comorbidities,Disease of interest
+4280354,Nutritional anemia,SNOMED,comorbidities,Disease of interest
+432870,Thrombocytopenic disorder,SNOMED,comorbidities,Disease of interest
+4103749,Keratoconjunctivitis sicca (excluding Sjögren syndrome),SNOMED,comorbidities,Disease of interest
+255334,Collagen disease,SNOMED,comorbidities,Disease of interest
+375801,Demyelinating disease of central nervous system,SNOMED,comorbidities,Disease of interest
+440371,Disorder of immune function,SNOMED,comorbidities,Disease of interest
+4190307,Inflammatory disease of the central nervous system,SNOMED,comorbidities,Disease of interest
+320798,Parapsoriasis,SNOMED,comorbidities,Disease of interest
+40319772,Psoriatic arthritis,SNOMED,comorbidities,Disease of interest
+312902,Benign intracranial hypertension,SNOMED,comorbidities,Disease of interest
+4313767,Chronic peripheral venous hypertension,SNOMED,comorbidities,Disease of interest
+42709887,Hypertensive complication,SNOMED,comorbidities,Disease of interest
+381290,Ocular hypertension,SNOMED,comorbidities,Disease of interest
+192680,Portal hypertension,SNOMED,comorbidities,Disease of interest
+4322024,Pulmonary hypertension,SNOMED,comorbidities,Disease of interest
+197304,Ulcer of lower extremity,SNOMED,comorbidities,Disease of interest
+1314417,Patient not eligible due to active diagnosis of hypertension,HCPCS,comorbidities,Disease of interest
+40664710,"Patient not eligible (e.g., documentation the patient is not eligible due to active diagnosis of hypertension, patient refuses, urgent or emergent situation) (Deprecated)",HCPCS,comorbidities,Disease of interest
+437530,Disorder of lipid metabolism,SNOMED,comorbidities,Disease of interest
+140673,Hypothyroidism,SNOMED,comorbidities,Disease of interest
+4283892,Placement of stent in coronary artery,SNOMED,comorbidities,Disease of interest
+2721037,"Lifestyle modification program for management of coronary artery disease, including all supportive services; first quarter / stage",HCPCS,comorbidities,Disease of interest
+321588,Heart disease,SNOMED,comorbidities,Disease of interest
+318443,Arteriosclerotic vascular disease,SNOMED,comorbidities,Disease of interest
+142026,Disorder of cardiovascular prostheses and implants,SNOMED,comorbidities,Disease of interest
+435517,Acidosis,SNOMED,comorbidities,Disease of interest
+45768812,Anemia in chronic kidney disease,SNOMED,comorbidities,Disease of interest
+40483287,Disorder of kidney and/or ureter,SNOMED,comorbidities,Disease of interest
+2106278,"Documentation of treatment for nephropathy (eg, patient receiving dialysis, patient being treated for ESRD, CRF, ARF, or renal insufficiency, any visit to a nephrologist) (DM)",CPT4,comorbidities,Disease of interest
+44786436,"Documentation of end stage renal disease (esrd), dialysis, renal transplant before or during the measurement period or pregnancy during the measurement period",HCPCS,comorbidities,Disease of interest
+2617355,"Medical nutrition therapy; reassessment and subsequent intervention(s) following second referral in same year for change in diagnosis, medical condition or treatment regimen (including additional hours needed for renal disease), individual, face to fac...",HCPCS,comorbidities,Disease of interest
+2111054,"Treatment of extensive or progressive retinopathy (eg, diabetic retinopathy), photocoagulation",CPT4,comorbidities,Disease of interest
+317309,Peripheral arterial occlusive disease,SNOMED,comorbidities,Disease of interest
+321822,Peripheral vascular disorder due to diabetes mellitus,SNOMED,comorbidities,Disease of interest
+2617331,"Follow-up physician evaluation and management of a diabetic patient with diabetic sensory neuropathy resulting in a loss of protective sensation (lops) to include at least the following: (1) a patient history, (2) a physical examination that includes:...",HCPCS,comorbidities,Disease of interest
+2617330,"Initial physician evaluation and management of a diabetic patient with diabetic sensory neuropathy resulting in a loss of protective sensation (lops) which must include: (1) the diagnosis of lops, (2) a patient history, (3) a physical examination that...",HCPCS,comorbidities,Disease of interest
+2617332,"Routine foot care by a physician of a diabetic patient with diabetic sensory neuropathy resulting in a loss of protective sensation (lops) to include, the local care of superficial wounds (i.e. superficial to muscle and fascia) and at least the followi...",HCPCS,comorbidities,Disease of interest
+4215968,Obese,SNOMED,comorbidities,Alternative diagnoses
+437525,Overweight,SNOMED,comorbidities,Alternative diagnoses
+4159131,Dyslipidemia,SNOMED,comorbidities,Alternative diagnoses
+432867,Hyperlipidemia,SNOMED,comorbidities,Alternative diagnoses
+436940,Metabolic syndrome X,SNOMED,comorbidities,Alternative diagnoses
+133444,Thyroiditis,SNOMED,comorbidities,Alternative diagnoses
+194992,Celiac disease,SNOMED,comorbidities,Alternative diagnoses
+138502,Vitiligo,SNOMED,comorbidities,Alternative diagnoses
+141933,Alopecia areata,SNOMED,comorbidities,Alternative diagnoses
+194993,Intestinal malabsorption,SNOMED,comorbidities,Alternative diagnoses
+80502,Osteoporosis,SNOMED,comorbidities,Alternative diagnoses
+432594,Osteomalacia,SNOMED,comorbidities,Alternative diagnoses
+194984,Disease of liver,SNOMED,comorbidities,Alternative diagnoses
+4167354,Hypogonadism,SNOMED,comorbidities,Alternative diagnoses
+73553,Arthropathy,SNOMED,comorbidities,Alternative diagnoses
+437064,Chondrocalcinosis,SNOMED,comorbidities,Alternative diagnoses
+376938,Neurofibromatosis syndrome,SNOMED,comorbidities,Alternative diagnoses
+438688,Sarcoidosis,SNOMED,comorbidities,Alternative diagnoses
+435511,Hypercalcemia,SNOMED,comorbidities,Alternative diagnoses
+42709887,Hypertensive complication,SNOMED,comorbidities,Alternative diagnoses
+1314417,Patient not eligible due to active diagnosis of hypertension,HCPCS,comorbidities,Alternative diagnoses
+134057,Disorder of cardiovascular system,SNOMED,comorbidities,Alternative diagnoses
+437530,Disorder of lipid metabolism,SNOMED,comorbidities,Alternative diagnoses
+140673,Hypothyroidism,SNOMED,comorbidities,Alternative diagnoses
+45768812,Anemia in chronic kidney disease,SNOMED,comorbidities,Alternative diagnoses
+40483287,Disorder of kidney and/or ureter,SNOMED,comorbidities,Alternative diagnoses
+2106278,"Documentation of treatment for nephropathy (eg, patient receiving dialysis, patient being treated for ESRD, CRF, ARF, or renal insufficiency, any visit to a nephrologist) (DM)",CPT4,comorbidities,Alternative diagnoses
+44786436,"Documentation of end stage renal disease (esrd), dialysis, renal transplant before or during the measurement period or pregnancy during the measurement period",HCPCS,comorbidities,Alternative diagnoses
+2617355,"Medical nutrition therapy; reassessment and subsequent intervention(s) following second referral in same year for change in diagnosis, medical condition or treatment regimen (including additional hours needed for renal disease), individual, face to fac...",HCPCS,comorbidities,Alternative diagnoses
+434622,Deficiency anemias,SNOMED,comorbidities,Alternative diagnoses
+4280354,Nutritional anemia,SNOMED,comorbidities,Alternative diagnoses
+4035127,Hypoadrenalism,SNOMED,comorbidities,Alternative diagnoses
+4307981,Clostridium difficile colitis,SNOMED,comorbidities,Alternative diagnoses
+435510,Hypocalcemia,SNOMED,comorbidities,Alternative diagnoses
+192963,Disorder of pancreas,SNOMED,comorbidities,Alternative diagnoses
+201066,Obstruction of bile duct,SNOMED,comorbidities,Alternative diagnoses
+2108529,Pharmacologic therapy (other than minerals/vitamins) for osteoporosis prescribed (OP) (IBD),CPT4,comorbidities,Alternative diagnoses
+377604,Hepatic coma,SNOMED,comorbidities,Alternative diagnoses
+40481531,Sequela of chronic liver disease,SNOMED,comorbidities,Alternative diagnoses
+4084229,Primary gout,SNOMED,comorbidities,Alternative diagnoses
+442306,Adjustment disorder with depressed mood,SNOMED,comorbidities,Alternative diagnoses
+2107249,Clinically significant depressive symptoms as categorized by using a standardized depression screening/assessment tool (MDD),CPT4,comorbidities,Alternative diagnoses
+2107245,Mild to moderate depressive symptoms as categorized by using a standardized depression screening/assessment tool (MDD),CPT4,comorbidities,Alternative diagnoses
+1314390,Documentation stating the patient has had a diagnosis of bipolar disorder,HCPCS,comorbidities,Alternative diagnoses
+2617910,"Screening for depression documented as positive, follow-up plan not documented, reason not given",HCPCS,comorbidities,Alternative diagnoses
+2617831,Screening for depression is documented as being positive and a follow-up plan is documented,HCPCS,comorbidities,Alternative diagnoses
+3045858,"Feeling down, depressed, or hopeless in last 2 weeks",LOINC,comorbidities,Alternative diagnoses
+40546087,Depressed mood,SNOMED,comorbidities,Alternative diagnoses
+377527,Presenile dementia with depression,SNOMED,comorbidities,Alternative diagnoses
+379784,Senile dementia with depression,SNOMED,comorbidities,Alternative diagnoses
+4191716,Symptoms of depression,SNOMED,comorbidities,Alternative diagnoses
+444100,Mood disorder,SNOMED,comorbidities,Alternative diagnoses
+4113821,Anxiety state,SNOMED,comorbidities,Alternative diagnoses
+4111714,"Cerebral infarction due to cerebral venous thrombosis, non-pyogenic",SNOMED,comorbidities,Alternative diagnoses
+4242816,Benign neoplasm of pituitary gland,SNOMED,comorbidities,Alternative diagnoses
+441830,Disorder of fluid AND/OR electrolyte,SNOMED,comorbidities,Alternative diagnoses
+37311319,Hypovolemia,SNOMED,comorbidities,Alternative diagnoses
+436700,Exophthalmos,SNOMED,comorbidities,Alternative diagnoses
+439235,Self inflicted injury,SNOMED,comorbidities,Alternative diagnoses
+42742450,Asthma discharge plan provided to patient (Asthma),CPT4,comorbidities,Alternative diagnoses
+42742437,Inhaled corticosteroids prescribed (Asthma),CPT4,comorbidities,Alternative diagnoses
+40481511,Asthma control test,SNOMED,comorbidities,Alternative diagnoses
+4077802,Asthma monitoring,SNOMED,comorbidities,Alternative diagnoses
+314754,Wheezing,SNOMED,comorbidities,Alternative diagnoses
+320136,Disorder of respiratory system,SNOMED,comorbidities,Alternative diagnoses
+1567198,"insulin aspart, human",RxNorm,drugs,Disease of interest
+35198096,insulin aspart,RxNorm Extension,drugs,Disease of interest
+1550023,insulin lispro,RxNorm,drugs,Disease of interest
+1544838,"insulin glulisine, human",RxNorm,drugs,Disease of interest
+1531601,"insulin aspart protamine, human",RxNorm,drugs,Disease of interest
+1596977,"insulin, regular, human",RxNorm,drugs,Disease of interest
+46221581,insulin isophane,RxNorm,drugs,Disease of interest
+1502905,insulin glargine,RxNorm,drugs,Disease of interest
+1513849,"lente insulin, human",RxNorm,drugs,Disease of interest
+1516976,insulin detemir,RxNorm,drugs,Disease of interest
+35602717,insulin degludec,RxNorm,drugs,Disease of interest
+1513876,"insulin lispro protamine, human",RxNorm,drugs,Disease of interest
+1503297,metformin,RxNorm,drugs,Alternative diagnoses
+1559684,glyburide,RxNorm,drugs,Alternative diagnoses
+1560171,glipizide,RxNorm,drugs,Alternative diagnoses
+1516766,repaglinide,RxNorm,drugs,Alternative diagnoses
+1502826,nateglinide,RxNorm,drugs,Alternative diagnoses
+1547504,rosiglitazone,RxNorm,drugs,Alternative diagnoses
+1525215,pioglitazone,RxNorm,drugs,Alternative diagnoses
+40239216,linagliptin,RxNorm,drugs,Alternative diagnoses
+40166035,saxagliptin,RxNorm,drugs,Alternative diagnoses
+44785829,dapagliflozin,RxNorm,drugs,Alternative diagnoses
+1580747,sitagliptin,RxNorm,drugs,Alternative diagnoses
+43013884,alogliptin,RxNorm,drugs,Alternative diagnoses
+40170911,liraglutide,RxNorm,drugs,Alternative diagnoses
+793143,semaglutide,RxNorm,drugs,Alternative diagnoses
+45774435,dulaglutide,RxNorm,drugs,Alternative diagnoses
+1583722,exenatide,RxNorm,drugs,Alternative diagnoses
+44506754,lixisenatide,RxNorm,drugs,Alternative diagnoses
+43526465,canagliflozin,RxNorm,drugs,Alternative diagnoses
+45774751,empagliflozin,RxNorm,drugs,Alternative diagnoses
+1529331,acarbose,RxNorm,drugs,Alternative diagnoses
+40163890,1.5 ML pramlintide acetate 1 MG/ML Pen Injector [Symlin],RxNorm,drugs,Alternative diagnoses
+1502905,insulin glargine,RxNorm,drugs,Alternative diagnoses
+35602717,insulin degludec,RxNorm,drugs,Alternative diagnoses
+1513849,"lente insulin, human",RxNorm,drugs,Alternative diagnoses
+1516976,insulin detemir,RxNorm,drugs,Alternative diagnoses
+1550023,insulin lispro,RxNorm,drugs,Alternative diagnoses
+1567198,"insulin aspart, human",RxNorm,drugs,Alternative diagnoses
+35198096,insulin aspart,RxNorm Extension,drugs,Alternative diagnoses
+1596977,"insulin, regular, human",RxNorm,drugs,Alternative diagnoses
+1513876,"insulin lispro protamine, human",RxNorm,drugs,Alternative diagnoses
+1531601,"insulin aspart protamine, human",RxNorm,drugs,Alternative diagnoses
+1518148,colesevelam,RxNorm,drugs,Alternative diagnoses
+730548,bromocriptine,RxNorm,drugs,Alternative diagnoses
+1711947,deferoxamine,RxNorm,drugs,Alternative diagnoses
+985708,ketoconazole,RxNorm,drugs,Alternative diagnoses
+1558471,cabergoline,RxNorm,drugs,Alternative diagnoses
+1508439,mifepristone,RxNorm,drugs,Alternative diagnoses
+1363053,doxazosin,RxNorm,drugs,Alternative diagnoses
+1350489,prazosin,RxNorm,drugs,Alternative diagnoses
+1353766,propranolol,RxNorm,drugs,Alternative diagnoses
+1517070,desmopressin,RxNorm,drugs,Alternative diagnoses
+1507835,vasopressin (USP),RxNorm,drugs,Alternative diagnoses
+1395058,chlorthalidone,RxNorm,drugs,Alternative diagnoses
+992590,chlorothiazide,RxNorm,drugs,Alternative diagnoses
+974166,hydrochlorothiazide,RxNorm,drugs,Alternative diagnoses
+991382,amiloride,RxNorm,drugs,Alternative diagnoses
+1178663,indomethacin,RxNorm,drugs,Alternative diagnoses
+1504620,methimazole,RxNorm,drugs,Alternative diagnoses
+1554072,propylthiouracil,RxNorm,drugs,Alternative diagnoses
+19049909,potassium iodide,RxNorm,drugs,Alternative diagnoses
+1597756,glimepiride,RxNorm,drugs,Alternative diagnoses
+793293,ertugliflozin,RxNorm,drugs,Alternative diagnoses
+46221581,insulin isophane,RxNorm,drugs,Alternative diagnoses
+44816332,albiglutide,RxNorm,drugs,Alternative diagnoses
+1544838,"insulin glulisine, human",RxNorm,drugs,Alternative diagnoses
+1346823,carvedilol,RxNorm,drugs,Alternative diagnoses
+1341238,terazosin,RxNorm,drugs,Alternative diagnoses
+1314002,atenolol,RxNorm,drugs,Alternative diagnoses
+978555,indapamide,RxNorm,drugs,Alternative diagnoses
+1314577,nebivolol,RxNorm,drugs,Alternative diagnoses
+1338005,bisoprolol,RxNorm,drugs,Alternative diagnoses
+1307046,metoprolol,RxNorm,drugs,Alternative diagnoses
+1318853,nifedipine,RxNorm,drugs,Alternative diagnoses
+1780601,iodine,RxNorm,drugs,Alternative diagnoses
+4083110,US scan of thyroid,SNOMED,diagnosticProcedures,Alternative diagnoses
+2414364,"Collection and interpretation of physiologic data (eg, ECG, blood pressure, glucose monitoring) digitally stored and/or transmitted by the patient and/or caregiver to the physician or other qualified health care professional, qualified by education, training, licensure/regulation (when applicable) requiring a minimum of 30 minutes of time, each 30 days",CPT4,diagnosticProcedures,Alternative diagnoses
+4326835,Measurement of substance,SNOMED,diagnosticProcedures,Alternative diagnoses
+4042067,Impaired glucose tolerance test,SNOMED,measurements,Disease of interest
+4184637,Hemoglobin A1c measurement,SNOMED,measurements,Disease of interest
+3005673,Hemoglobin A1c/Hemoglobin.total in Blood by HPLC,LOINC,measurements,Disease of interest
+4229110,Insulin C-peptide measurement,SNOMED,measurements,Disease of interest
+4273883,Islet cell antibody measurement,SNOMED,measurements,Disease of interest
+4310476,Glutamic acid decarboxylase antibody level,SNOMED,measurements,Disease of interest
+3020148,Glutamate decarboxylase 65 Ab [Units/volume] in Serum,LOINC,measurements,Disease of interest
+4290342,Insulin antibody measurement,SNOMED,measurements,Disease of interest
+4149519,Glucose measurement,SNOMED,measurements,Disease of interest
+3004410,Hemoglobin A1c/Hemoglobin.total in Blood,LOINC,measurements,Disease of interest
+3007263,Hemoglobin A1c/Hemoglobin.total in Blood by calculation,LOINC,measurements,Disease of interest
+40762352,Hemoglobin A1c/Hemoglobin.total in Blood by IFCC protocol,LOINC,measurements,Disease of interest
+3005446,Hemoglobin A1/Hemoglobin.total in Blood,LOINC,measurements,Disease of interest
+4042067,Impaired glucose tolerance test,SNOMED,measurements,Alternative diagnoses
+4184637,Hemoglobin A1c measurement,SNOMED,measurements,Alternative diagnoses
+3005673,Hemoglobin A1c/Hemoglobin.total in Blood by HPLC,LOINC,measurements,Alternative diagnoses
+4229110,Insulin C-peptide measurement,SNOMED,measurements,Alternative diagnoses
+3010084,C peptide [Mass/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3009413,Insulin [Units/volume] in Serum or Plasma --fasting,LOINC,measurements,Alternative diagnoses
+3020148,Glutamate decarboxylase 65 Ab [Units/volume] in Serum,LOINC,measurements,Alternative diagnoses
+4273883,Islet cell antibody measurement,SNOMED,measurements,Alternative diagnoses
+4290342,Insulin antibody measurement,SNOMED,measurements,Alternative diagnoses
+3034965,Elastase.pancreatic [Presence] in Stool,LOINC,measurements,Alternative diagnoses
+3000570,Elastase.pancreatic [Mass/mass] in Stool,LOINC,measurements,Alternative diagnoses
+4021288,Triacylglycerol lipase measurement,SNOMED,measurements,Alternative diagnoses
+4176561,Ferritin measurement,SNOMED,measurements,Alternative diagnoses
+4235029,Transferrin measurement,SNOMED,measurements,Alternative diagnoses
+37398419,Serum transferrin level,SNOMED,measurements,Alternative diagnoses
+37393180,Percentage iron saturation,SNOMED,measurements,Alternative diagnoses
+4193722,24 hour urine cortisol output measurement,SNOMED,measurements,Alternative diagnoses
+4170855,Adrenocorticotropic hormone measurement,SNOMED,measurements,Alternative diagnoses
+2212460,Metanephrines,CPT4,measurements,Alternative diagnoses
+4260822,"Osmolality measurement, serum",SNOMED,measurements,Alternative diagnoses
+4193226,"Osmolality measurement, urine",SNOMED,measurements,Alternative diagnoses
+3008295,Osmolality of Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3026782,Osmolality of Urine,LOINC,measurements,Alternative diagnoses
+4246879,Thyroid stimulating hormone measurement,SNOMED,measurements,Alternative diagnoses
+4196969,T4 free measurement,SNOMED,measurements,Alternative diagnoses
+3008486,Thyroxine (T4) free [Moles/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3024675,Thyroxine (T4) free [Mass/volume] in Serum or Plasma by Dialysis,LOINC,measurements,Alternative diagnoses
+42529233,Thyroxine (T4) free [Mass/volume] in Serum or Plasma by Immunoassay,LOINC,measurements,Alternative diagnoses
+4232468,"Tri-iodothyronine measurement, total",SNOMED,measurements,Alternative diagnoses
+4017355,"Triiodothyronine, free measurement",SNOMED,measurements,Alternative diagnoses
+3026925,Triiodothyronine (T3) Free [Mass/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3026989,Triiodothyronine (T3) Free [Moles/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+4268416,Serum total T3 level,SNOMED,measurements,Alternative diagnoses
+4020112,Thyroid stimulating immunoglobulins measurement,SNOMED,measurements,Alternative diagnoses
+4018606,Anti-thyroid antibody measurement,SNOMED,measurements,Alternative diagnoses
+3017044,Thyrotropin receptor Ab [Units/volume] in Serum,LOINC,measurements,Alternative diagnoses
+4149519,Glucose measurement,SNOMED,measurements,Alternative diagnoses
+3004410,Hemoglobin A1c/Hemoglobin.total in Blood,LOINC,measurements,Alternative diagnoses
+3007263,Hemoglobin A1c/Hemoglobin.total in Blood by calculation,LOINC,measurements,Alternative diagnoses
+40762352,Hemoglobin A1c/Hemoglobin.total in Blood by IFCC protocol,LOINC,measurements,Alternative diagnoses
+4276028,Amylase measurement,SNOMED,measurements,Alternative diagnoses
+4178785,Iron measurement,SNOMED,measurements,Alternative diagnoses
+3009814,Iron saturation [Molar fraction] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3031616,Iron and Iron binding capacity panel - Serum or Plasma,LOINC,measurements,Alternative diagnoses
+4233623,Molecular genetic test,SNOMED,measurements,Alternative diagnoses
+3034739,Osmolality of Serum or Plasma by calculated by sum of electrolytes,LOINC,measurements,Alternative diagnoses
+3000551,Thyroxine (T4) free index in Serum or Plasma by calculation,LOINC,measurements,Alternative diagnoses
+3016451,Thyroxine (T4) [Mass/volume] in Blood,LOINC,measurements,Alternative diagnoses
+3016991,Thyroxine (T4) [Mass/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3001019,Free T4 and TSH panel - Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3010340,Triiodothyronine (T3) [Mass/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+42529253,Triiodothyronine (T3) [Mass/volume] in Serum or Plasma by Immunoassay,LOINC,measurements,Alternative diagnoses
+4215993,Administration of insulin,SNOMED,treatmentProcedures,Disease of interest
+4148762,"Printen and Mason operation, high gastric bypass",SNOMED,treatmentProcedures,Alternative diagnoses
+4143852,Laparoscopic sleeve gastrectomy,SNOMED,treatmentProcedures,Alternative diagnoses
+2002651,Laparoscopic gastric restrictive procedure,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2721104,Adjustment of gastric band diameter via subcutaneous port by injection or aspiration of saline,HCPCS,treatmentProcedures,Alternative diagnoses
+4132738,Therapeutic phlebotomy,SNOMED,treatmentProcedures,Alternative diagnoses
+2008381,Other therapeutic apheresis,ICD9Proc,treatmentProcedures,Alternative diagnoses
+4128540,Partial excision of pituitary gland by transsphenoidal approach,SNOMED,treatmentProcedures,Alternative diagnoses
+2000307,Unilateral adrenalectomy,ICD9Proc,treatmentProcedures,Alternative diagnoses
+4073199,Total thyroidectomy,SNOMED,treatmentProcedures,Alternative diagnoses
+2000272,Other partial thyroidectomy,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2108974,"Laparoscopy, surgical, gastric restrictive procedure; with gastric bypass and Roux-en-Y gastroenterostomy (roux limb 150 cm or less)",CPT4,treatmentProcedures,Alternative diagnoses
+2749004,"Bypass Stomach to Jejunum, Percutaneous Endoscopic Approach",ICD10PCS,treatmentProcedures,Alternative diagnoses
+2746766,"Excision of Stomach, Percutaneous Endoscopic Approach, Vertical",ICD10PCS,treatmentProcedures,Alternative diagnoses
+2109616,"Laparoscopy, surgical; radical nephrectomy (includes removal of Gerota's fascia and surrounding fatty tissue, removal of regional lymph nodes, and adrenalectomy)",CPT4,treatmentProcedures,Alternative diagnoses
+2000269,Unilateral thyroid lobectomy,ICD9Proc,treatmentProcedures,Alternative diagnoses
+24609,Hypoglycemia,SNOMED,complications,Disease of interest
+4214376,Hyperglycemia,SNOMED,complications,Disease of interest
+4032787,Hyperosmolarity,SNOMED,complications,Disease of interest
+4009573,Uninhibited neurogenic urinary bladder,SNOMED,complications,Disease of interest
+3655355,Erectile dysfunction,SNOMED,complications,Disease of interest
+134057,Disorder of cardiovascular system,SNOMED,complications,Disease of interest
+443454,Cerebral infarction,SNOMED,complications,Disease of interest
+74723,Arthropathy associated with a neurological disorder,SNOMED,complications,Disease of interest
+201093,Infection of skin and/or subcutaneous tissue,SNOMED,complications,Disease of interest
+201603,Disorder of teeth AND/OR supporting structures,SNOMED,complications,Disease of interest
+435517,Acidosis,SNOMED,complications,Disease of interest
+435788,Disorder of phosphorus metabolism,SNOMED,complications,Disease of interest
+132797,Sepsis,SNOMED,complications,Disease of interest
+4098604,Hypomagnesemia,SNOMED,complications,Disease of interest
+439777,Anemia,SNOMED,complications,Disease of interest
+432867,Hyperlipidemia,SNOMED,complications,Disease of interest
+442793,Complication due to diabetes mellitus,SNOMED,complications,Disease of interest
+375252,Disorder of eye,SNOMED,complications,Disease of interest
+374034,Visual disturbance,SNOMED,complications,Disease of interest
+2111054,"Treatment of extensive or progressive retinopathy (eg, diabetic retinopathy), photocoagulation",CPT4,complications,Disease of interest
+40483287,Disorder of kidney and/or ureter,SNOMED,complications,Disease of interest
+2106278,"Documentation of treatment for nephropathy (eg, patient receiving dialysis, patient being treated for ESRD, CRF, ARF, or renal insufficiency, any visit to a nephrologist) (DM)",CPT4,complications,Disease of interest
+44786436,"Documentation of end stage renal disease (esrd), dialysis, renal transplant before or during the measurement period or pregnancy during the measurement period",HCPCS,complications,Disease of interest
+199075,Neurogenic urinary bladder,SNOMED,complications,Disease of interest
+4176969,Sequelae of cardiovascular disorders,SNOMED,complications,Disease of interest
+4345577,Ischemic infarction of muscle,SNOMED,complications,Disease of interest
+443551,Apraxia due to cerebrovascular accident,SNOMED,complications,Disease of interest
+4112026,Sequelae of cerebral infarction,SNOMED,complications,Disease of interest
+4099214,Type 1 diabetes mellitus with ulcer,SNOMED,complications,Disease of interest
+197304,Ulcer of lower extremity,SNOMED,complications,Disease of interest
+4028237,Cellulitis of foot,SNOMED,complications,Disease of interest
+439928,Gangrenous disorder,SNOMED,complications,Disease of interest
+4029926,Ischemic ulcer,SNOMED,complications,Disease of interest
+133853,Osteomyelitis of ankle AND/OR foot,SNOMED,complications,Disease of interest
+321052,Peripheral vascular disease,SNOMED,complications,Alternative diagnoses
+374384,Cerebral ischemia,SNOMED,complications,Alternative diagnoses
+373503,Transient cerebral ischemia,SNOMED,complications,Alternative diagnoses
+24609,Hypoglycemia,SNOMED,complications,Alternative diagnoses
+195847,Gastroparesis syndrome,SNOMED,complications,Alternative diagnoses
+3655355,Erectile dysfunction,SNOMED,complications,Alternative diagnoses
+321588,Heart disease,SNOMED,complications,Alternative diagnoses
+73553,Arthropathy,SNOMED,complications,Alternative diagnoses
+4167354,Hypogonadism,SNOMED,complications,Alternative diagnoses
+4086587,Increased blood pressure,SNOMED,complications,Alternative diagnoses
+133436,Thyrotoxic crisis,SNOMED,complications,Alternative diagnoses
+375252,Disorder of eye,SNOMED,complications,Alternative diagnoses
+442793,Complication due to diabetes mellitus,SNOMED,complications,Alternative diagnoses
+198124,Kidney disease,SNOMED,complications,Alternative diagnoses
+80593,Urinary complication,SNOMED,complications,Alternative diagnoses
+4032787,Hyperosmolarity,SNOMED,complications,Alternative diagnoses
+376337,Disorder of nervous system,SNOMED,complications,Alternative diagnoses
+197331,Disorder of urinary tract,SNOMED,complications,Alternative diagnoses
+435517,Acidosis,SNOMED,complications,Alternative diagnoses
+435788,Disorder of phosphorus metabolism,SNOMED,complications,Alternative diagnoses
+132797,Sepsis,SNOMED,complications,Alternative diagnoses
+313928,Peripheral vascular complication,SNOMED,complications,Alternative diagnoses
+43530623,Sequela of cerebrovascular accident,SNOMED,complications,Alternative diagnoses
+443551,Apraxia due to cerebrovascular accident,SNOMED,complications,Alternative diagnoses
+4164092,Acute cerebrovascular insufficiency,SNOMED,complications,Alternative diagnoses
+4099651,Type 2 diabetes mellitus with ulcer,SNOMED,complications,Alternative diagnoses
+4093228,Disorder of soft tissue of lower limb,SNOMED,complications,Alternative diagnoses
+197304,Ulcer of lower extremity,SNOMED,complications,Alternative diagnoses
+4028237,Cellulitis of foot,SNOMED,complications,Alternative diagnoses
+439928,Gangrenous disorder,SNOMED,complications,Alternative diagnoses
+4029926,Ischemic ulcer,SNOMED,complications,Alternative diagnoses
+4093223,Vascular disorder of corpus cavernosum,SNOMED,complications,Alternative diagnoses
+45768812,Anemia in chronic kidney disease,SNOMED,complications,Alternative diagnoses
+192298,Hypersplenism,SNOMED,complications,Alternative diagnoses
+199863,Primary bacterial peritonitis,SNOMED,complications,Alternative diagnoses
+4223363,Aspiration of cataract by phacoemulsification,SNOMED,complications,Alternative diagnoses
+4078368,Extraction of secondary membrane by discission,SNOMED,complications,Alternative diagnoses
+40491916,One stage extracapsular extraction of lens and insertion of prosthetic intraocular lens,SNOMED,complications,Alternative diagnoses
+2111016,"Insertion of intraocular lens prosthesis (secondary implant), not associated with concurrent cataract removal",CPT4,complications,Alternative diagnoses
+2110979,Fistulization of sclera for glaucoma; trabeculectomy ab externo in absence of previous surgery,CPT4,complications,Alternative diagnoses
+2110980,Fistulization of sclera for glaucoma; trabeculectomy ab externo with scarring from previous ocular surgery or trauma (includes injection of antifibrotic agents),CPT4,complications,Alternative diagnoses
+2111000,"Iridotomy/iridectomy by laser surgery (eg, for glaucoma) (per session)",CPT4,complications,Alternative diagnoses
+194984,Disease of liver,SNOMED,complications,Alternative diagnoses
+200528,Ascites,SNOMED,complications,Alternative diagnoses
+4322024,Pulmonary hypertension,SNOMED,complications,Alternative diagnoses
+75909,Disorder of bone,SNOMED,complications,Alternative diagnoses
+4234997,Disorder of vein,SNOMED,complications,Alternative diagnoses
+4258295,Embolism from thrombosis of vein of distal lower extremity,SNOMED,complications,Alternative diagnoses
+4231363,Thrombosis,SNOMED,complications,Alternative diagnoses
+316866,Hypertensive disorder,SNOMED,complications,Alternative diagnoses
+437833,Hypokalemia,SNOMED,complications,Alternative diagnoses
+37311319,Hypovolemia,SNOMED,complications,Alternative diagnoses
+317002,Low blood pressure,SNOMED,complications,Alternative diagnoses
+42709887,Hypertensive complication,SNOMED,complications,Alternative diagnoses
+4023310,Blindness AND/OR vision impairment level,SNOMED,complications,Alternative diagnoses
+256449,Bronchiectasis,SNOMED,complications,Alternative diagnoses
+4170143,Respiratory tract infection,SNOMED,complications,Alternative diagnoses
+4177862,Chronic hypoxemic respiratory failure,SNOMED,complications,Alternative diagnoses
+192963,Disorder of pancreas,SNOMED,complications,Alternative diagnoses

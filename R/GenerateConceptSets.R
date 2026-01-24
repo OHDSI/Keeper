@@ -128,7 +128,7 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
     batch <- concepts[start:min(start + batchSize - 1, nrow(concepts)), ]
     
     prompt <- paste0(conditionPrompt,
-                    sprintf("\n\nConcepts:\n%s", jsonlite::toJSON(select(batch, "conceptId", "conceptName"))))
+                     sprintf("\n\nConcepts:\n%s", jsonlite::toJSON(select(batch, "conceptId", "conceptName"))))
     client$set_system_prompt(systemPrompt)
     client$set_turns(list())
     response <- client$chat(prompt, echo = "none")  
@@ -172,108 +172,142 @@ generateKeeperConceptSets <- function(
   yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
   # yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
   promptSets <- yaml::read_yaml(yamlFileName)
-  
-  conceptSets <- list()
-  
+  cost <- 0
+  table <- list()
   alternativeDiagnoses <- NULL
-  for (i in seq_along(promptSets)) {
+  # for (i in seq_along(promptSets)) {
+    for (i in 7:9){
     promptSet <- promptSets[[i]]
-    message(sprintf("Generating concept set: %s", promptSet$name))
+    message(sprintf("Generating concept set %s", promptSet$name))
     conceptSet <- generateConceptSet(
       condition = condition,
-      alternativeDiagnoses = alternativeDiagnoses,
       promptSet = promptSet,
       connection = connection,
       vocabDatabaseSchema = vocabDatabaseSchema,
       client = client
     )
+    cost <- cost + attr(conceptSet, "cost") 
+    conceptSet$conceptSetName <- promptSet$parameterName
+    conceptSet$target <- "Disease of interest"
+    table[[length(table) + 1]] <- conceptSet
+    
     if (promptSet$parameterName == "alternativeDiagnosis") {
       alternativeDiagnoses <- attr(conceptSet , "initialTerms")
+    } else if (!is.null(alternativeDiagnoses)) {
+      message(sprintf("Generating concept set %s for alternative diagnoses", promptSet$name))
+      
+      conceptSet <- generateConceptSet(
+        condition = paste0("\n- ", paste(alternativeDiagnoses, collapse = "\n- ")),
+        promptSet = promptSet,
+        connection = connection,
+        vocabDatabaseSchema = vocabDatabaseSchema,
+        client = client
+      )
+      cost <- cost + attr(conceptSet, "cost") 
+      conceptSet$conceptSetName <- promptSet$parameterName
+      conceptSet$target <- "Alternative diagnoses"
+      table[[length(table) + 1]] <- conceptSet
     }
-    conceptSets[[promptSet$parameterName]] <- conceptSet
   }
+  table <- bind_rows(table)
+  writeLines(sprintf("LLM cost: $%s", cost))
+  return(table)
 }
 
 
 generateConceptSet <- function(condition,
-                               alternativeDiagnoses = NULL,
                                promptSet,
                                client,
                                connection,
                                vocabDatabaseSchema) {
   conceptBatchSize <- 20
   minRecordCount <- 1e5
+  cost <- 0
   
-  if (is.null(alternativeDiagnoses)) {
-    conditionPrompt <- sprintf("Condition: %s", condition)
-  } else {
-    conditionPrompt <- sprintf("Conditions:\n- %s", paste(c(condition, alternativeDiagnoses), collapse = "\n- "))
-  }
+  conditionPrompt <- sprintf("Condition: %s", condition)
   
   message("- Generating initial term list using LLM")
   client$set_system_prompt(promptSet$systemPromptTerms)
   client$set_turns(list())
   prompt <- conditionPrompt
   response <- client$chat(prompt, echo = "none")  
+  cost <- cost + client$get_cost()
   #writeLines(response)
   terms <- extractAndParseJson(response)$terms
   message(sprintf("  Generated %d terms", length(terms)))
   
   message("- Searching standard concepts for terms using embedding vectors")
-  concepts <- lapply(terms, vectorSearch, domains = promptSet$domains)
-  concepts <- bind_rows(concepts) |>
-    distinct() |>
-    filter(.data$recordCount >= minRecordCount)
+  if (length(terms) == 0) {
+    concepts <- tibble()
+  } else {
+    concepts <- lapply(terms, vectorSearch, domains = promptSet$domains)
+    concepts <- bind_rows(concepts) |>
+      distinct() |>
+      filter(.data$recordCount >= minRecordCount)
+  }
   message(sprintf("  Found %d unique concepts", nrow(concepts)))
   
   message("- Removing non-relevant concepts using LLM")
-  concepts <- removeNonRelevantConcepts(
-    concepts = concepts,
-    conditionPrompt = conditionPrompt,
-    client = client,
-    systemPrompt = promptSet$systemPromptRemoveNonRelevant,
-    batchSize = conceptBatchSize
-  )
+  if (nrow(concepts) != 0) {
+    concepts <- removeNonRelevantConcepts(
+      concepts = concepts,
+      conditionPrompt = conditionPrompt,
+      client = client,
+      systemPrompt = promptSet$systemPromptRemoveNonRelevant,
+      batchSize = conceptBatchSize
+    )
+    cost <- cost + client$get_cost()
+  }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
   message("- Removing children of included concepts")
-  concepts <- removeChildren(concepts = concepts, 
-                             connection = connection,
-                             vocabDatabaseSchema = vocabDatabaseSchema)
+  if (nrow(concepts) != 0) {
+    concepts <- removeChildren(concepts = concepts, 
+                               connection = connection,
+                               vocabDatabaseSchema = vocabDatabaseSchema)
+  }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
   message("- Adding related concepts using Phoebe")
-  newConcepts <- lapply(concepts$conceptId, phoebeSearch)
-  newConcepts <- bind_rows(newConcepts) |>
-    filter(!duplicated(conceptId))  |>
-    filter(.data$recordCount >= minRecordCount)
-  newConcepts <- removeNonStandard(concepts = newConcepts, 
-                                   connection = connection,
-                                   vocabDatabaseSchema = vocabDatabaseSchema)
-  concepts <- addNonChildren(concepts = concepts, 
-                             newConcepts = newConcepts,
-                             connection = connection,
-                             vocabDatabaseSchema = vocabDatabaseSchema)
+  if (nrow(concepts) != 0) {
+    newConcepts <- lapply(concepts$conceptId, phoebeSearch)
+    newConcepts <- bind_rows(newConcepts) |>
+      filter(!duplicated(conceptId))  |>
+      filter(.data$recordCount >= minRecordCount)
+    newConcepts <- removeNonStandard(concepts = newConcepts, 
+                                     connection = connection,
+                                     vocabDatabaseSchema = vocabDatabaseSchema)
+    concepts <- addNonChildren(concepts = concepts, 
+                               newConcepts = newConcepts,
+                               connection = connection,
+                               vocabDatabaseSchema = vocabDatabaseSchema)
+  }
   message(sprintf("  Now have a total of %d unique concepts", nrow(concepts)))
   
   message("- Removing non-relevant concepts using LLM")
-  concepts <- removeNonRelevantConcepts(
-    concepts = concepts,
-    conditionPrompt = conditionPrompt,
-    client = client,
-    systemPrompt = promptSet$systemPromptRemoveNonRelevant,
-    batchSize = conceptBatchSize
-  )
+  if (nrow(concepts) != 0) {
+    concepts <- removeNonRelevantConcepts(
+      concepts = concepts,
+      conditionPrompt = conditionPrompt,
+      client = client,
+      systemPrompt = promptSet$systemPromptRemoveNonRelevant,
+      batchSize = conceptBatchSize
+    )
+    cost <- cost + client$get_cost()
+  }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
   message("- Removing children of included concepts")
-  concepts <- removeChildren(concepts = concepts, 
-                             connection = connection,
-                             vocabDatabaseSchema = vocabDatabaseSchema)
+  if (nrow(concepts) != 0) {
+    concepts <- removeChildren(concepts = concepts, 
+                               connection = connection,
+                               vocabDatabaseSchema = vocabDatabaseSchema)
+  }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
   concepts <- concepts |>
     select("conceptId", "conceptName", "vocabularyId")
   attr(concepts, "initialTerms") <- terms
+  attr(concepts, "cost") <- cost
   return(concepts)
 }

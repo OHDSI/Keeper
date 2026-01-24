@@ -83,8 +83,8 @@
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
     You are provided a list of Medical Conditions.
-    Provide a list of medical terms that describe **Symptoms** of one or more of the Medical Conditions.
-    
+    Provide a list of medical terms that describe **Symptoms** of one or more of the Medical Conditions. 
+
     Output Format:
     Provide your response in a single JSON object.
     Do not include any text outside of the JSON.
@@ -101,7 +101,7 @@
     You are a Clinical Coding Expert. 
     You are provided a list of Medical Conditions and a list of candidate Concepts.
     Your goal is to identify Concepts that describe possible **Symptoms** of one or more or more of the Medical Conditions.
-    
+   
     Rules for Selection: 
     Review each concept. 
     Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a symptom. 
@@ -297,7 +297,7 @@
       "conceptId": [integer, ...]
     }
     
-- name: Comnplications
+- name: Complications
   parameterName: complications
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
