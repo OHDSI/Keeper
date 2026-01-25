@@ -163,8 +163,6 @@ createKeeper <- function(connectionDetails = NULL,
   
   # checking parameters
   
-  checkmate::reportAssertions(collection = errorMessage)
-  
   checkmate::assertCharacter(
     x = cohortDatabaseSchema,
     min.len = 0,

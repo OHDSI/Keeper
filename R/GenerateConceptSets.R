@@ -193,13 +193,20 @@ generateKeeperConceptSets <- function(
     client,
     vocabConnectionDetails,
     vocabDatabaseSchema) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(condition, min.chars = 1, add = errorMessages)
+  checkmate::assertR6(client, "Chat", add = errorMessages)
+  checkmate::assertClass(vocabConnectionDetails, "ConnectionDetails", add = errorMessages)
+  checkmate::assertCharacter(vocabDatabaseSchema, min.chars = 1, add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  
   startTime <- Sys.time()
   
   connection <- DatabaseConnector::connect(vocabConnectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
   
-  yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
-  # yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
+  # yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
+  yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
   promptSets <- yaml::read_yaml(yamlFileName)
   cost <- 0
   table <- list()

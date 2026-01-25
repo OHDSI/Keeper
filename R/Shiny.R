@@ -24,8 +24,12 @@
 #' 
 #' @export
 launchReviewerApp <- function(keeper, decisionsFileName) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertDataFrame(keeper, add = errorMessages)
+  checkmate::assertNames(colnames(keeper), must.include = c("personId", "age"), add = errorMessages)
+  checkmate::assertCharacter(decisionsFileName, min.chars = 1, add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
   appDir <- system.file("shiny", package = "Keeper")
-  
   if (appDir == "") {
     stop("Could not find shiny directory. Try re-installing `Keeper`.", call. = FALSE)
   }
