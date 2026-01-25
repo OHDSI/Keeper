@@ -163,7 +163,7 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
     conceptIds <- c(conceptIds, extractAndParseJson(response)$conceptId)
   }
   concepts <- concepts |> 
-    filter(conceptId %in% conceptIds) |>
+    filter(.data$conceptId %in% conceptIds) |>
     filter(!duplicated(.data$conceptId))
   return(concepts)
 }
@@ -313,7 +313,7 @@ generateConceptSet <- function(condition,
   if (nrow(concepts) != 0) {
     newConcepts <- lapply(concepts$conceptId, phoebeSearch)
     newConcepts <- bind_rows(newConcepts) |>
-      filter(!duplicated(conceptId))  |>
+      filter(!duplicated(.data$conceptId))  |>
       filter(.data$recordCount >= minRecordCount)
     newConcepts <- removeNonStandard(concepts = newConcepts, 
                                      connection = connection,

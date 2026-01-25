@@ -7,3 +7,4 @@ extras
 man-roxygen
 .github
 docs
+cache.*
