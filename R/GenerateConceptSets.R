@@ -20,46 +20,73 @@ extractAndParseJson <- function(response) {
   return(parsed)
 }
 
-vectorSearch <- function(term, domains, limit = 10) {
+vectorSearch <- function(term, domains, limit = 10, maxRetries = 3, waitTime = 2) {
   params <- list(
     q = term,
     domain_id = paste(domains, collapse = ","),
     limit = limit
   )
   url <- "https://hecate.pantheon-hds.com/api/search_standard"
-  response <- httr::GET(url, query = params)
   
-  if (httr::status_code(response) == 200) {
-    content_text <- httr::content(response, "text", encoding = "UTF-8")
-    data <- jsonlite::fromJSON(content_text)
-    data <- bind_rows(data$concepts) |>
-      SqlRender::snakeCaseToCamelCaseNames()
-    return(data)
-  } else {
-    stop(sprintf("Error in vector search for term '%s': %s", 
-                 term,
-                 httr::status_code(response)))
+  for (attempt in 1:maxRetries) {
+    response <- tryCatch({
+      httr::GET(url, query = params)
+    }, error = function(e) {
+      message(paste("Attempt", attempt, "failed with error:", e$message))
+      return(NULL)
+    })
+    
+    if (!is.null(response) && httr::status_code(response) == 200) {
+      content_text <- httr::content(response, "text", encoding = "UTF-8")
+      data <- jsonlite::fromJSON(content_text)
+      
+      data <- dplyr::bind_rows(data$concepts) |>
+        SqlRender::snakeCaseToCamelCaseNames()
+      return(data)
+    }
+    if (attempt < maxRetries) {
+      message(sprintf("Search failed for '%s' (Status: %s). Retrying in %s seconds...", 
+                      term, 
+                      if (is.null(response)) "Connection Error" else httr::status_code(response), 
+                      waitTime))
+      Sys.sleep(waitTime)
+    }
   }
+  stop(sprintf("All %s attempts failed for term '%s'.", maxRetries, term))
 }
 
-phoebeSearch <- function(conceptId) {
+phoebeSearch <- function(conceptId, maxRetries = 3, waitTime = 2) {
   url <- sprintf("https://hecate.pantheon-hds.com/api/concepts/%d/phoebe", conceptId)
-  response <- httr::GET(url)
   
-  if (httr::status_code(response) == 200) {
-    contextText <- httr::content(response, "text", encoding = "UTF-8")
-    if (contextText == "[]") {
+  for (attempt in 1:maxRetries) {
+    response <- tryCatch({
+      httr::GET(url)
+    }, error = function(e) {
+      message(paste("Attempt", attempt, "failed with connection error for concept", conceptId))
       return(NULL)
+    })
+    
+    if (!is.null(response) && httr::status_code(response) == 200) {
+      contextText <- httr::content(response, "text", encoding = "UTF-8")
+      
+      if (contextText == "[]") {
+        return(NULL)
+      }
+      data <- jsonlite::fromJSON(contextText)
+      data <- data |>
+        SqlRender::snakeCaseToCamelCaseNames()
+      
+      return(data)
     }
-    data <- jsonlite::fromJSON(contextText)
-    data <- data |>
-      SqlRender::snakeCaseToCamelCaseNames()
-    return(data)
-  } else {
-    stop(sprintf("Error in phoebe search for concept %s: %s", 
-                 conceptId,
-                 httr::status_code(response)))
+    if (attempt < maxRetries) {
+      statusMsg <- if (is.null(response)) "Connection Error" else httr::status_code(response)
+      message(sprintf("Phoebe search failed (Status: %s). Retrying in %s seconds...", 
+                      statusMsg, waitTime))
+      Sys.sleep(waitTime)
+    }
   }
+  stop(sprintf("Error in phoebe search for concept %s after %s attempts.", 
+               conceptId, maxRetries))
 }
 
 removeChildren <- function(concepts, connection, vocabDatabaseSchema) {
@@ -175,8 +202,7 @@ generateKeeperConceptSets <- function(
   cost <- 0
   table <- list()
   alternativeDiagnoses <- NULL
-  # for (i in seq_along(promptSets)) {
-    for (i in 7:9){
+  for (i in seq_along(promptSets)) {
     promptSet <- promptSets[[i]]
     message(sprintf("Generating concept set %s", promptSet$name))
     conceptSet <- generateConceptSet(
