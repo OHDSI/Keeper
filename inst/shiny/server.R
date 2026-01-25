@@ -70,13 +70,8 @@ shinyServer(function(input, output, session) {
   
   shiny::observeEvent(input$indexDay, {
     req(!is.na(input$indexDay)) 
-    current_val <- decisions$decisions[person$index, "indexDay"]
-    
-    if (input$indexDay != current_val) {
-      decisions$decisions[person$index, "indexDay"] <- input$indexDay
-      # print(sprintf("Saving new day %s to CSV", input$indexDay))
-      write_csv(decisions$decisions, decisionsFileName)
-    }
+    decisions$decisions[person$index, "indexDay"] <- input$indexDay
+    write_csv(decisions$decisions, decisionsFileName)
   })
   
   observeEvent(input$theme_selector, {

@@ -19,6 +19,7 @@ personIds <- keeper |>
 if (file.exists(decisionsFileName)) {
   message("Loading existing decisions file")
   decisionsDataFrame <- read_csv(decisionsFileName, show_col_types = FALSE)
+  decisionsDataFrame <- as.data.frame(decisionsDataFrame)
 } else {
   decisionsDataFrame <- data.frame(personId = personIds,
                                    decision = NA,
