@@ -70,3 +70,12 @@ keeper <- createKeeper(
 )
 readr::write_csv(keeper, "e:/temp/Keeper.csv")
 
+
+# Run Shiny app ------------------------------------------------------------------------
+keeper <- readr::read_csv("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperCd.csv",
+                   show_col_types = FALSE)
+decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
+
+launchReviewerApp(keeper, decisionsFileName)
+
+
