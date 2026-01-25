@@ -193,6 +193,8 @@ generateKeeperConceptSets <- function(
     client,
     vocabConnectionDetails,
     vocabDatabaseSchema) {
+  startTime <- Sys.time()
+  
   connection <- DatabaseConnector::connect(vocabConnectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
   
@@ -236,7 +238,13 @@ generateKeeperConceptSets <- function(
     }
   }
   table <- bind_rows(table)
-  writeLines(sprintf("LLM cost: $%s", cost))
+  delta <- Sys.time() - startTime
+  message(paste0("Generating concept sets took ",
+                 round(delta,1), 
+                 " ",
+                 attr(delta, "units"),
+                 " and cost $",
+                 round(cost, 2)))
   return(table)
 }
 
