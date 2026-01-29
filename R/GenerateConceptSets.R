@@ -163,7 +163,7 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
     conceptIds <- c(conceptIds, extractAndParseJson(response)$conceptId)
   }
   concepts <- concepts |> 
-    filter(conceptId %in% conceptIds) |>
+    filter(.data$conceptId %in% conceptIds) |>
     filter(!duplicated(.data$conceptId))
   return(concepts)
 }
@@ -193,13 +193,20 @@ generateKeeperConceptSets <- function(
     client,
     vocabConnectionDetails,
     vocabDatabaseSchema) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(condition, min.chars = 1, add = errorMessages)
+  checkmate::assertR6(client, "Chat", add = errorMessages)
+  checkmate::assertClass(vocabConnectionDetails, "ConnectionDetails", add = errorMessages)
+  checkmate::assertCharacter(vocabDatabaseSchema, min.chars = 1, add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  
   startTime <- Sys.time()
   
   connection <- DatabaseConnector::connect(vocabConnectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
   
-  yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
-  # yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
+  # yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
+  yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
   promptSets <- yaml::read_yaml(yamlFileName)
   cost <- 0
   table <- list()
@@ -306,7 +313,7 @@ generateConceptSet <- function(condition,
   if (nrow(concepts) != 0) {
     newConcepts <- lapply(concepts$conceptId, phoebeSearch)
     newConcepts <- bind_rows(newConcepts) |>
-      filter(!duplicated(conceptId))  |>
+      filter(!duplicated(.data$conceptId))  |>
       filter(.data$recordCount >= minRecordCount)
     newConcepts <- removeNonStandard(concepts = newConcepts, 
                                      connection = connection,

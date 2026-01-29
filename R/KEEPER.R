@@ -19,7 +19,7 @@
 
 #' @import dplyr
 #' @importFrom stats runif
-#' @importFrom utils write.csv
+#' @importFrom utils write.csv install.packages installed.packages
 #' @import DatabaseConnector
 #' @import dplyr
 NULL
