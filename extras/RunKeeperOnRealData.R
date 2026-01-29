@@ -15,7 +15,7 @@ cohortDatabaseSchema <- "scratch.scratch_mschuemi"
 cohortTable  <- "keeper_test"
 options(sqlRenderTempEmulationSchema = "scratch.scratch_mschuemi")
 
-cohortDefinitionId <- 20892
+cohortDefinitionId <- 20765
 
 connection <- connect(connectionDetails)
 
@@ -40,7 +40,7 @@ getCohortCounts(connection = connection,
                 cohortTable = cohortTable)
 
 # Run KEEPER -------------------------------------------------------------------------------------
-conceptSets <- read_csv("extras/t1dmConceptSets.csv", show_col_types = FALSE)
+conceptSets <- read_csv("e:/temp/mmConceptSets.csv", show_col_types = FALSE)
 getConceptIds <- function(name) {
   conceptIds <- conceptSets |>
     filter(conceptSetName == name) |>
@@ -55,9 +55,9 @@ keeper <- createKeeper(
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortTable = cohortTable,
   cohortDefinitionId = cohortDefinitionId,
-  cohortName = "T1DM",
+  cohortName = "",
   sampleSize = 20,
-  databaseId = "CCAE",
+  databaseId = "",
   doi = getConceptIds("doi"), 
   comorbidities = getConceptIds("comorbidities"),
   symptoms = getConceptIds("symptoms"),
@@ -68,5 +68,5 @@ keeper <- createKeeper(
   treatmentProcedures = getConceptIds("treatmentProcedures"),
   complications = getConceptIds("complications")
 )
-readr::write_csv(keeper, "e:/temp/Keeper.csv")
+readr::write_csv(keeper, "e:/temp/KeeperMm.csv")
 
