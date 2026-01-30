@@ -7,7 +7,7 @@
 createPromptSettings(
   writeNarrative = TRUE,
   testingReminder = TRUE,
-  timingReminder = TRUE,
+  timingReminder = FALSE,
   missingReminder = FALSE,
   uncertaintyInstructions = TRUE,
   discussEvidence = TRUE,
