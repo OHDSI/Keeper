@@ -90,6 +90,16 @@ promptSettings <- createPromptSettings(timingReminder = FALSE)
 cacheFolder <- "cacheDeepSeek"
 resultsFile <- "extras/KeeperEvaluation/MetricsDeepSeekOldPrompt.xlsx"
 
+# GLM 4.7 Flash running on local LM Studio with original full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "zai-org/glm-4.7-flash"
+)
+promptSettings <- createPromptSettings(timingReminder = FALSE)
+cacheFolder <- "cacheGlm47"
+resultsFile <- "extras/KeeperEvaluation/MetricsGlm47OldPrompt.xlsx"
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
