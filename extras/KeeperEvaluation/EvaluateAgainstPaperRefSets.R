@@ -90,6 +90,19 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheDeepSeek"
 resultsFile <- "extras/KeeperEvaluation/MetricsDeepSeekOldPrompt.xlsx"
 
+
+# GPT-o3 running on Azure with new prompt
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheNewPrompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3NewPrompt.xlsx"
+
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
@@ -111,7 +124,7 @@ groups <- keeper |>
   group_split()
 
 allResults <- list()
-# group = groups[[3]]
+# group = groups[[6]]
 for (group in groups) {
   message("Evaluating ", group$cohortName[1])
   result <- reviewCases(keeper = group,

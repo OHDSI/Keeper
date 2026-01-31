@@ -76,7 +76,8 @@ reviewCases <- function(keeper,
   }
   result <- tibble(
     personId = keeper$personId,
-    isCase = as.character(NA)
+    isCase = as.character(NA),
+    indexDay = as.numeric(NA)
   )
   
   cost <- 0
@@ -88,6 +89,7 @@ reviewCases <- function(keeper,
     responseFileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder)
     if (file.exists(responseFileName)) {
       response <- readLines(responseFileName)
+      response <- paste(response, collapse = "\n")
     } else {
       prompt <- createPrompt(settings = settings, 
                              diseaseName = diseaseName,
@@ -103,8 +105,9 @@ reviewCases <- function(keeper,
       cost <- cost + client$get_cost()
       writeLines(response, responseFileName)
     }
-    isCase <- parseLlmResponse(response, noMatchIsDontKnow = FALSE)
-    result$isCase[i] <- isCase  
+    parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+    result$isCase[i] <- parsedResponse$isCase  
+    result$indexDay[i] <- parsedResponse$indexDay
   }
   delta <- Sys.time() - startTime
   message(paste0("Reviewing cases took ",

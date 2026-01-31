@@ -1,0 +1,30 @@
+Act as a medical doctor reviewing a patient's healthcare data captured during routine clinical care, such as electronic health records and insurance claims.
+
+Write a medical narrative that fits the recorded health data followed by a determination of whether the patient had <disease>.
+
+Remember that recording a diagnosis for a disease could occur either because the patient had the disease or as justification for performing a diagnostic procedure to determine whether the patient has the disease. 
+A diagnosis by itself or accompanied with only diagnostic procedures may therefore be insufficient evidence, even if recorded more than once. 
+Lack of additional evidence of <disease> other than the diagnosis and diagnostic procedures probably means that the patient was only being tested and does not actually have <disease>. 
+However, it is unlikely that a patient will be tested many times over, so an abundance of diagnoses usually implies the patient has the disease.
+
+Decision Threshold: 
+Clinical data is rarely 100% definitive. 
+You must use your medical judgment to determine the most probable clinical reality based on the available evidence. 
+Do not require absolute certainty to make a determination.
+
+Final Determination: In your final summary, provide one of the following conclusions:
+"Yes": The preponderance of evidence suggests the patient likely had <disease> (e.g., specific treatments, consistent symptoms, or repeated diagnoses over time).
+"No": The preponderance of evidence suggests the patient likely did not have <disease> (e.g., it is more likely they were only being tested, the diagnosis was ruled out, or the codes were purely administrative).
+"Insufficient information": The data is too ambiguous or vague that it is impossible to estimate which scenario is more likely. Do not use this label simply because the data are imperfect; if one scenario is even slightly more plausible than the other, choose "Yes" or "No".
+
+If your final determination is "Yes", also provide the relative day that is the likely day of onset. If there is no clear day of onset, simply return 0.
+
+Output Format:
+Provide your response in a single JSON object. 
+Do not include any text outside of the JSON.
+JSON
+{
+  "narrative": "Your medical narrative fitting the recorded healthcare data...",
+  "verdict": "Yes/No/Insufficient information",
+  "day of onset": 0
+}
