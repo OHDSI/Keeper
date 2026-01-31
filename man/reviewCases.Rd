@@ -9,7 +9,7 @@ reviewCases(
   settings = createPromptSettings(),
   diseaseName,
   client,
-  cacheFolder = NULL
+  cacheFolder
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ reviewCases(
 
 \item{client}{An LLM client created using the \code{ellmer} package.}
 
-\item{cacheFolder}{(Optional) A folder where the LLM responses are cached. If the process terminates for some
+\item{cacheFolder}{A folder where the LLM responses are cached. If the process terminates for some
 reason, it can pick up where it left off using the cache.}
 }
 \value{

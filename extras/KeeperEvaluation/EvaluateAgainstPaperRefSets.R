@@ -11,7 +11,7 @@ client <- chat_openai_compatible(
   credentials = function() "lm-studio",
   model = "nvidia/nemotron-3-nano"
 )
-promptSettings <- createPromptSettings(timingReminder = FALSE)
+promptSettings <- createPromptSettings()
 cacheFolder <- "cache"
 resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoOldPrompt.xlsx"
 
@@ -21,7 +21,7 @@ client <- chat_openai_compatible(
   credentials = function() "lm-studio",
   model = "nvidia/nemotron-3-nano"
 )
-promptSettings <- createPromptSettings(writeNarrative = FALSE)
+promptSettings <- createPromptSettings(timingReminder = TRUE, writeNarrative = FALSE)
 cacheFolder <- "cacheTiming"
 resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoTiming.xlsx"
 
@@ -31,7 +31,7 @@ client <- chat_openai_compatible(
   credentials = function() "lm-studio",
   model = "nvidia/nemotron-3-nano"
 )
-promptSettings <- createPromptSettings(missingReminder = TRUE, writeNarrative = FALSE)
+promptSettings <- createPromptSettings(missingReminder = TRUE, timingReminder = TRUE, writeNarrative = FALSE)
 cacheFolder <- "cacheTimingMissing"
 resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoTimingMissing.xlsx"
 
@@ -43,7 +43,7 @@ client <- chat_azure_openai(
   model = "o3",
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
-promptSettings <- createPromptSettings(timingReminder = FALSE)
+promptSettings <- createPromptSettings()
 cacheFolder <- "cache"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3OldPrompt.xlsx"
 
@@ -54,7 +54,7 @@ client <- chat_azure_openai(
   model = "o3",
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
-promptSettings <- createPromptSettings(writeNarrative = FALSE)
+promptSettings <- createPromptSettings(timingReminder = TRUE, writeNarrative = FALSE)
 cacheFolder <- "cacheTiming"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3Timing.xlsx"
 
@@ -65,7 +65,7 @@ client <- chat_azure_openai(
   model = "o3",
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
-promptSettings <- createPromptSettings()
+promptSettings <- createPromptSettings(timingReminder = TRUE)
 cacheFolder <- "cacheTimingNarrative"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3TimingNarrative.xlsx"
 
@@ -76,7 +76,7 @@ client <- chat_azure_openai(
   model = "o3",
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
-promptSettings <- createPromptSettings(timingReminder = FALSE, writeNarrative = FALSE)
+promptSettings <- createPromptSettings(writeNarrative = FALSE)
 cacheFolder <- "cacheNoNarrative"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3NoNarrative.xlsx"
 
@@ -86,7 +86,7 @@ client <- chat_openai_compatible(
   credentials = function() "lm-studio",
   model = "deepseek-r1-distill-llama-70b"
 )
-promptSettings <- createPromptSettings(timingReminder = FALSE)
+promptSettings <- createPromptSettings()
 cacheFolder <- "cacheDeepSeek"
 resultsFile <- "extras/KeeperEvaluation/MetricsDeepSeekOldPrompt.xlsx"
 
@@ -99,6 +99,17 @@ client <- chat_openai_compatible(
 promptSettings <- createPromptSettings(timingReminder = FALSE)
 cacheFolder <- "cacheGlm47"
 resultsFile <- "extras/KeeperEvaluation/MetricsGlm47OldPrompt.xlsx"
+
+# GPT-o3 running on Azure with new prompt
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheNewPrompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3NewPrompt.xlsx"
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
@@ -121,7 +132,7 @@ groups <- keeper |>
   group_split()
 
 allResults <- list()
-# group = groups[[3]]
+# group = groups[[6]]
 for (group in groups) {
   message("Evaluating ", group$cohortName[1])
   result <- reviewCases(keeper = group,

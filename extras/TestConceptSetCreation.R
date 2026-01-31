@@ -38,9 +38,9 @@ vocabDatabaseSchema <- "merative_mdcr.cdm_merative_mdcr_v3788"
 
 
 conceptSets <- generateKeeperConceptSets(
-  condition = "Type I Diabetes Mellitus (T1DM)",
+  condition = "Multiple myeloma",
   client = client,
   vocabConnectionDetails = vocabConnectionDetails,
   vocabDatabaseSchema = vocabDatabaseSchema
 )
-readr::write_csv(conceptSets, "extras/t1dmConceptSets.csv")
+readr::write_csv(conceptSets, "e:/temp/mmConceptSets.csv")

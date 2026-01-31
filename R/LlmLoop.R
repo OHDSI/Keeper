@@ -20,7 +20,7 @@
 #' @param settings    Prompt creating settings as created using the [createPromptSettings] function.
 #' @param diseaseName The name of the disease to use in the prompt.
 #' @param client      An LLM client created using the `ellmer` package.
-#' @param cacheFolder (Optional) A folder where the LLM responses are cached. If the process terminates for some
+#' @param cacheFolder A folder where the LLM responses are cached. If the process terminates for some
 #'                    reason, it can pick up where it left off using the cache.
 #'
 #' @returns
@@ -34,7 +34,7 @@ reviewCases <- function(keeper,
                         settings = createPromptSettings(),
                         diseaseName,
                         client,
-                        cacheFolder = NULL) {
+                        cacheFolder) {
   errorMessage <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(keeper, add = errorMessage)
   checkmate::assertNames(
@@ -64,27 +64,32 @@ reviewCases <- function(keeper,
   checkmate::assert_class(settings, "PromptSettings", add = errorMessage)
   checkmate::assert_character(diseaseName, add = errorMessage)
   checkmate::assertR6(client, "Chat", add = errorMessage)
-  checkmate::assert_character(cacheFolder, null.ok = TRUE, add = errorMessage)
+  checkmate::assert_character(cacheFolder, add = errorMessage)
   checkmate::reportAssertions(collection = errorMessage)
+  
+  startTime <- Sys.time()
   
   systemPrompt <- createSystemPrompt(settings = settings, diseaseName = diseaseName)  
   client$set_system_prompt(systemPrompt)
-  if (!is.null(cacheFolder) && !dir.exists(cacheFolder)) {
+  if (!dir.exists(cacheFolder)) {
     dir.create(cacheFolder)
   }
   result <- tibble(
     personId = keeper$personId,
-    isCase = as.character(NA)
+    isCase = as.character(NA),
+    indexDay = as.numeric(NA)
   )
   
+  cost <- 0
   nPersons <- nrow(keeper)
   for (i in seq_len(nPersons)) {
     message(sprintf("Reviewing person %d of %d", i, nPersons))
     row <- keeper[i, ]
+    
     responseFileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder)
-
     if (file.exists(responseFileName)) {
       response <- readLines(responseFileName)
+      response <- paste(response, collapse = "\n")
     } else {
       prompt <- createPrompt(settings = settings, 
                              diseaseName = diseaseName,
@@ -97,11 +102,20 @@ reviewCases <- function(keeper,
       
       client$set_turns(list())
       response <- client$chat(prompt, echo = "none")  
+      cost <- cost + client$get_cost()
       writeLines(response, responseFileName)
     }
-    isCase <- parseLlmResponse(response, noMatchIsDontKnow = FALSE)
-    result$isCase[i] <- isCase  
+    parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+    result$isCase[i] <- parsedResponse$isCase  
+    result$indexDay[i] <- parsedResponse$indexDay
   }
+  delta <- Sys.time() - startTime
+  message(paste0("Reviewing cases took ",
+                 round(delta,1), 
+                 " ",
+                 attr(delta, "units"),
+                 " and cost $",
+                 round(cost, 2)))
   return(result)
 }
 
