@@ -384,14 +384,12 @@ createKeeper <- function(connectionDetails = NULL,
     return(NULL)
   }
   
-  
   # keeperOutput code
-  pullDataSql <- SqlRender::readSql(system.file("sql/sql_server/pullData.sql", package = "Keeper", mustWork = TRUE))
-  
-  writeLines("Getting patient data for keeperOutput.")
-  DatabaseConnector::renderTranslateExecuteSql(
-    connection = connection,
-    sql = pullDataSql,
+  message("Getting patient data for keeperOutput.")
+  sql <- SqlRender::loadRenderTranslateSql(
+    sqlFilename = "pullData.sql", 
+    packageName = "Keeper", 
+    dbms = DatabaseConnector::dbms(connection),
     cdm_database_schema = cdmDatabaseSchema,
     tempEmulationSchema = tempEmulationSchema,
     use_ancestor = useAncestor,
@@ -404,6 +402,11 @@ createKeeper <- function(connectionDetails = NULL,
     treatment_procedures = treatmentProcedures,
     measurements = measurements,
     drugs = drugs
+  )
+
+  DatabaseConnector::executeSql(
+    connection = connection,
+    sql = sql
   ) 
   
   # loop for instantiating tables in R

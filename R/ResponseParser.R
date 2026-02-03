@@ -49,7 +49,7 @@ parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) 
     isCase <- NA
     warning("Unable to parse response: ", response)
   }
-  if (isCase == "yes") {
+  if (!is.na(isCase) && isCase == "yes") {
     indexDay = parsed$`day of onset`
   } else {
     indexDay = NA

@@ -116,7 +116,7 @@ writeLines(prompt)
 Next, we can use the system prompt and prompt together to query the LLM. Many LLMs are available, including open source ones. Setting up and interacting with the LLM is beyond the scope of this vignette. Here we assume a LLM was used to generate this response:
 
 ```{r}
-response <- "Summary: yes"
+response <- "{\"verdict\": \"Yes\", \"day of onset\": -6}"
 ```
 
 ## Parse the response

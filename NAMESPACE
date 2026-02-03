@@ -3,6 +3,7 @@
 export(createKeeper)
 export(createPrompt)
 export(createPromptSettings)
+export(createSensitiveCohort)
 export(createSystemPrompt)
 export(generateKeeperConceptSets)
 export(launchReviewerApp)

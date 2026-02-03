@@ -24,7 +24,14 @@ created using the \link[DatabaseConnector]{createConnectionDetails} function in 
 \item{vocabDatabaseSchema}{The name of the database schema on the server where the vocabulary tables are located.}
 }
 \value{
-A list of data frames.
+A data frame with the following columns:
+\itemize{
+\item \code{conceptId}
+\item \code{conceptName}
+\item \code{vocabularyId}
+\item \code{conceptSetName}: 'doi' or 'symptoms', ...
+\item \code{target}: 'Disease of interest' or 'Alternative diagnoses'.
+}
 }
 \description{
 Generate the concept sets used as input for KEEPER. This function uses LLMs, the OHDSI vocabulary vector store, and

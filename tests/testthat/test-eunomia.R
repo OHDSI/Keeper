@@ -28,7 +28,7 @@ test_that("Run Keeper on Eunomia", {
     complications = c(132797, 196152, 439777, 4192647)
   )
   expect_s3_class(keeper, "data.frame")
-  settings <- createPromptSettings(provideExamples = FALSE)
+  settings <- createPromptSettings()
   systempPrompt <- createSystemPrompt(settings, "GI bleed")
   prompt <- createPrompt(settings, "GI bleed", keeper[1, ])
   expect_type(systempPrompt, "character")

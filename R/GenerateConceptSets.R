@@ -185,7 +185,13 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
 #' @param vocabDatabaseSchema    The name of the database schema on the server where the vocabulary tables are located.
 #'
 #' @returns
-#' A list of data frames. 
+#' A data frame with the following columns:
+#' 
+#' - `conceptId`
+#' - `conceptName`
+#' - `vocabularyId`
+#' - `conceptSetName`: 'doi' or 'symptoms', ...
+#' - `target`: 'Disease of interest' or 'Alternative diagnoses'.
 #' 
 #' @export
 generateKeeperConceptSets <- function(
