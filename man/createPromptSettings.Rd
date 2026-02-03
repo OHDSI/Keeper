@@ -4,39 +4,9 @@
 \alias{createPromptSettings}
 \title{Create settings for generating prompts}
 \usage{
-createPromptSettings(
-  writeNarrative = TRUE,
-  testingReminder = TRUE,
-  timingReminder = FALSE,
-  missingReminder = FALSE,
-  uncertaintyInstructions = TRUE,
-  discussEvidence = TRUE,
-  provideExamples = FALSE,
-  maxParts = 100,
-  maxDays = 5
-)
+createPromptSettings(maxParts = 100, maxDays = 5)
 }
 \arguments{
-\item{writeNarrative}{Ask the LLM to write a clinical narrative matching
-the provided data?}
-
-\item{testingReminder}{Remind the LLM that a diagnosis can be recorded
-just to justify a test, and therefore by itself
-is not sufficient evidence?}
-
-\item{timingReminder}{Remind the LLM that the task is to evaluate the patient's status on day 0.}
-
-\item{missingReminder}{Remind the LLM that the absence of treatments and follow-up care indicates the patient
-didn't have the disease.}
-
-\item{uncertaintyInstructions}{Provide instructions to the LLM on how to deal
-with uncertainty?}
-
-\item{discussEvidence}{Prompt the LLM to first discuss evidence in favor
-and against the disease of interest?}
-
-\item{provideExamples}{Provide examples? (few-shot prompting)}
-
 \item{maxParts}{How many parts can a category have? For example,
 if \code{maxParts = 100} and there are more than 100
 measurements, a random sample of 100 will be

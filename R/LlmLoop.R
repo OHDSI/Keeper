@@ -69,6 +69,8 @@ reviewCases <- function(keeper,
   
   startTime <- Sys.time()
   
+  maxRetries <- 5
+  
   systemPrompt <- createSystemPrompt(settings = settings, diseaseName = diseaseName)  
   client$set_system_prompt(systemPrompt)
   if (!dir.exists(cacheFolder)) {
@@ -100,8 +102,24 @@ reviewCases <- function(keeper,
       promptFileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder, type = "prompt")
       writeLines(fullPrompt, promptFileName)
       
-      client$set_turns(list())
-      response <- client$chat(prompt, echo = "none")  
+      # Ellmer is supposed to retry automatically, but I haven't seen it work when using LM Studio, so using own retry loop:
+      for (j in seq_len(maxRetries)) {
+        response <- tryCatch({
+          client$set_turns(list())
+          client$chat(prompt, echo = "none")
+        }, error = function(e) {
+          message(paste("Attempt", j, "failed:", e$message))
+          if (j < maxRetries) {
+            Sys.sleep(30)
+            return(NULL)
+          } else {
+            stop("Exceeding maximum number of retries when calling LLM")
+          }
+        })
+        if (!is.null(response)) {
+          break
+        }
+      }
       cost <- cost + client$get_cost()
       writeLines(response, responseFileName)
     }

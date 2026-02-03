@@ -19,7 +19,6 @@ Imports:
   SqlRender,
   english,
   stringr,
-  ellmer,
   jsonlite,
   httr,
   yaml
@@ -28,7 +27,10 @@ Suggests:
   testthat,
   knitr,
   withr,
-  Eunomia
+  Eunomia,
+  shiny,
+  ellmer,
+  bslib
 License: Apache License
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
