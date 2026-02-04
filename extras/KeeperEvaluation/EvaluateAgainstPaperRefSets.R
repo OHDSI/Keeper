@@ -4,6 +4,7 @@ library(tidyr)
 library(ellmer)
 library(openxlsx)
 
+
 # Settings -------------------------------------------------------------------------------------------------------------
 # Nemotron 3 Nano running on local LM Studio with original full prompt
 client <- chat_openai_compatible(
@@ -110,6 +111,16 @@ client <- chat_azure_openai(
 promptSettings <- createPromptSettings()
 cacheFolder <- "cacheNewPrompt"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3NewPrompt.xlsx"
+
+# GLM 4.7 Flash running on local LM Studio with new prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "zai-org/glm-4.7-flash"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheGlm47NewPrompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsGlm47NewPrompt.xlsx"
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"

@@ -7,7 +7,7 @@
 launchReviewerApp(keeper, decisionsFileName)
 }
 \arguments{
-\item{keeper}{The output of the \code{\link[=createKeeper]{createKeeper()}} function.}
+\item{keeper}{The output of the \code{\link[=generateKeeper]{generateKeeper()}} function.}
 
 \item{decisionsFileName}{The location where the decisions made by the reviewer wil be written.}
 }

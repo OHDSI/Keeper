@@ -13,7 +13,7 @@ reviewCases(
 )
 }
 \arguments{
-\item{keeper}{Output from the \link{createKeeper} function.}
+\item{keeper}{Output from the \code{\link[=generateKeeper]{generateKeeper()}} function.}
 
 \item{settings}{Prompt creating settings as created using the \link{createPromptSettings} function.}
 

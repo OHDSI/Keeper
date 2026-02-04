@@ -16,7 +16,7 @@
 
 #' Review cases using an LLM
 #'
-#' @param keeper      Output from the [createKeeper] function.
+#' @param keeper      Output from the [generateKeeper()] function.
 #' @param settings    Prompt creating settings as created using the [createPromptSettings] function.
 #' @param diseaseName The name of the disease to use in the prompt.
 #' @param client      An LLM client created using the `ellmer` package.

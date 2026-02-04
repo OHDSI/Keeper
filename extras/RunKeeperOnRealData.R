@@ -49,7 +49,6 @@ keeper <- generateKeeper(
   cohortTable = cohortTable,
   cohortDefinitionId = cohortDefinitionId,
   sampleSize = 20,
-  personIds = personIds,
   keeperConceptSets = conceptSets
 )
 saveRDS(keeper, "e:/temp/KeeperMm.rds")
@@ -58,8 +57,7 @@ readr::write_csv(keeperTable, "e:/temp/KeeperMm.csv")
 
 
 # Run Shiny app ------------------------------------------------------------------------
-keeper <- readr::read_csv("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperCd.csv",
-                   show_col_types = FALSE)
+keeper <- readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperMm.rds")
 decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
 
 launchReviewerApp(keeper, decisionsFileName)

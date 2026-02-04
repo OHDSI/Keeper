@@ -16,7 +16,7 @@
 
 #' Launch the reviewer Shiny app
 #'
-#' @param keeper            The output of the [createKeeper()] function.
+#' @param keeper            The output of the [generateKeeper()] function.
 #' @param decisionsFileName The location where the decisions made by the reviewer wil be written.
 #'
 #' @returns
@@ -25,8 +25,21 @@
 #' @export
 launchReviewerApp <- function(keeper, decisionsFileName) {
   errorMessages <- checkmate::makeAssertCollection()
-  checkmate::assertDataFrame(keeper, add = errorMessages)
-  checkmate::assertNames(colnames(keeper), must.include = c("personId", "age"), add = errorMessages)
+  checkmate::assertList(keeper, add = errorMessages)
+  checkmate::assertNames(names(keeper), must.include = c("demographics",
+                                                         "presentation", 
+                                                         "visit",
+                                                         "symptoms",
+                                                         "priorDisease",
+                                                         "postDisease",
+                                                         "priorDrugs",
+                                                         "postDrugs",
+                                                         "priorTreatmentProcedures",
+                                                         "postTreatmentProcedures",
+                                                         "alternativeDiagnoses",
+                                                         "diagnosticProcedures",
+                                                         "measurements",
+                                                         "death"), add = errorMessages)
   checkmate::assertCharacter(decisionsFileName, min.chars = 1, add = errorMessages)
   checkmate::reportAssertions(errorMessages)
   appDir <- system.file("shiny", package = "Keeper")
