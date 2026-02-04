@@ -12,11 +12,22 @@ shinyUI(
         textOutput("personId"),
         actionButton("previousButton", "<"),
         actionButton("nextButton", ">"),
+        div(
         radioButtons("decision",
                      "Decision",
                      choices = c("Case", "Non case", "Insufficient information"),
                      selected = character(0)),
-        numericInput("indexDay", "Correct index day", value = NULL, step = 1)
+        numericInput("indexDay", "Correct index day", value = NULL, step = 1),
+        style = "border: 1px solid #DDDDDD; padding: 5px; margin-top: 4px; margin-bottom: 4px",
+        
+        )
+        ,
+        h3("Color legend"),
+        tags$ul(
+          tags$li(div("Disease of interest", style = "color: black")),
+          tags$li(div("Alternative diagnoses", style = "color: red")),
+          tags$li(div("Other", style = "color: gray"))
+        )
       )),
     theme = bslib::bs_theme(
       version = 5,
