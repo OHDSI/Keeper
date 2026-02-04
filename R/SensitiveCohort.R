@@ -108,25 +108,28 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     dropTableIfExists = TRUE,
     createTable = TRUE,
     tempTable = TRUE,
-    camelCaseToSnakeCase = TRUE
+    camelCaseToSnakeCase = TRUE,
+    tempEmulationSchema = tempEmulationSchema
   )
   
-  message("Computing concept ratios")
+  message("Computing concept positive predictive values")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "CreateSensCohortRatios.sql", 
     packageName = "Keeper", 
     dbms = DatabaseConnector::dbms(connection),
-    cdm_database_schema = cdmDatabaseSchema
+    cdm_database_schema = cdmDatabaseSchema,
+    tempEmulationSchema = tempEmulationSchema
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
   
   conceptRatios <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = "SELECT * FROM #concept_ratios",
-    snakeCaseToCamelCase = TRUE
+    snakeCaseToCamelCase = TRUE,
+    tempEmulationSchema = tempEmulationSchema
   )
   conceptRatios <- conceptRatios |>
-    filter(.data$ratio < 10) |>
+    filter(.data$ppv > 0.1) |>
     select("conceptId", "conceptName", "conceptSetName")
   
   message("Constructing sensitive cohort")
@@ -137,7 +140,8 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     cdm_database_schema = cdmDatabaseSchema,
     cohort_database_schema = cohortDatabaseSchema,
     cohort_table = cohortTable,
-    cohort_definition_id = cohortDefinitionId
+    cohort_definition_id = cohortDefinitionId,
+    tempEmulationSchema = tempEmulationSchema
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
   
@@ -154,7 +158,8 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   DatabaseConnector::renderTranslateExecuteSql(connection = connection,
                                                sql = sql, 
                                                progressBar = FALSE,
-                                               reportOverallTime = FALSE)
+                                               reportOverallTime = FALSE,
+                                               tempEmulationSchema = tempEmulationSchema)
   
   delta <- Sys.time() - startTime
   message(paste0("Generating sensitive cohort took ",
