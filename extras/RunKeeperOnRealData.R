@@ -15,7 +15,7 @@ cohortDatabaseSchema <- "scratch.scratch_mschuemi"
 cohortTable  <- "keeper_test"
 options(sqlRenderTempEmulationSchema = "scratch.scratch_mschuemi")
 
-cohortDefinitionId <- 20765
+cohortDefinitionId <- 20765 # MM
 
 connection <- connect(connectionDetails)
 
@@ -41,34 +41,20 @@ getCohortCounts(connection = connection,
 
 # Run KEEPER -------------------------------------------------------------------------------------
 conceptSets <- read_csv("e:/temp/mmConceptSets.csv", show_col_types = FALSE)
-getConceptIds <- function(name) {
-  conceptIds <- conceptSets |>
-    filter(conceptSetName == name) |>
-    pull(conceptId) |>
-    unique()
-  return(conceptIds)
-}
 
-keeper <- createKeeper(
+keeper <- generateKeeper(
   connection = connection,
   cohortDatabaseSchema = cohortDatabaseSchema,
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortTable = cohortTable,
   cohortDefinitionId = cohortDefinitionId,
-  cohortName = "",
   sampleSize = 20,
-  databaseId = "",
-  doi = getConceptIds("doi"), 
-  comorbidities = getConceptIds("comorbidities"),
-  symptoms = getConceptIds("symptoms"),
-  alternativeDiagnosis = getConceptIds("alternativeDiagnosis"),
-  drugs = getConceptIds("drugs"),
-  diagnosticProcedures = getConceptIds("diagnosticProcedures"),
-  measurements = getConceptIds("measurements"),
-  treatmentProcedures = getConceptIds("treatmentProcedures"),
-  complications = getConceptIds("complications")
+  personIds = personIds,
+  keeperConceptSets = conceptSets
 )
-readr::write_csv(keeper, "e:/temp/KeeperMm.csv")
+saveRDS(keeper, "e:/temp/KeeperMm.rds")
+keeperTable <- convertKeeperToTable(keeper)
+readr::write_csv(keeperTable, "e:/temp/KeeperMm.csv")
 
 
 # Run Shiny app ------------------------------------------------------------------------
