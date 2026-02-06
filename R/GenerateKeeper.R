@@ -411,6 +411,14 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
   output <- output %>% 
     mutate(across(-matches("generatedId"), ~ coalesce(as.character(.), "")))
   
+  if ("phenotype" %in% keeper$category) {
+    output <- keeper |>
+      filter(.data$category == "phenotype") |>
+      transmute(.data$generatedId,
+                phenotype = .data$conceptName) |>
+      inner_join(output, by = join_by("generatedId"))
+  }
+  
   if (!removePersonId && "personId" %in% keeper$category) {
     output <- keeper |>
       filter(.data$category =="personId") |>
@@ -418,5 +426,5 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
       inner_join(output, by = join_by("generatedId"))
   }
   
-  return(table)
+  return(output)
 }

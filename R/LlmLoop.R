@@ -37,22 +37,15 @@ reviewCases <- function(keeper,
                         client,
                         cacheFolder) {
   errorMessages <- checkmate::makeAssertCollection()
-  checkmate::assertList(keeper, add = errorMessages)
-  checkmate::assertNames(names(keeper), must.include = c("demographics",
-                                                         "presentation", 
-                                                         "visit",
-                                                         "symptoms",
-                                                         "priorDisease",
-                                                         "postDisease",
-                                                         "priorDrugs",
-                                                         "postDrugs",
-                                                         "priorTreatmentProcedures",
-                                                         "postTreatmentProcedures",
-                                                         "alternativeDiagnoses",
-                                                         "diagnosticProcedures",
-                                                         "measurements",
-                                                         "death",
-                                                         "metaData"), add = errorMessages)
+  checkmate::assertDataFrame(keeper, add = errorMessages)
+  checkmate::assertNames(colnames(keeper), must.include = c("generatedId",
+                                                            "startDay", 
+                                                            "endDay",
+                                                            "conceptId",
+                                                            "conceptName",
+                                                            "category",
+                                                            "target",
+                                                            "extraData"), add = errorMessages)
   checkmate::assert_class(settings, "PromptSettings", add = errorMessages)
   checkmate::assert_character(phenotypeName, null.ok = TRUE, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
@@ -65,7 +58,7 @@ reviewCases <- function(keeper,
   
   keeperTable <- convertKeeperToTable(keeper)
   if (!is.null(phenotypeName)) {
-    keeperTable$phenotypeName <- phenotypeName
+    keeperTable$phenotype <- phenotypeName
   }
 
   result <- tibble(
@@ -89,20 +82,20 @@ reviewCases <- function(keeper,
     }
     row <- keeperTable[i, ]
     
-    responseFileName <- generateCacheFileName(row$phenotypeName, row$generatedId, cacheFolder)
+    responseFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder)
     if (file.exists(responseFileName)) {
       response <- readLines(responseFileName)
       response <- paste(response, collapse = "\n")
       parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
     } else {
-      systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = row$phenotypeName)  
+      systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = row$phenotype)  
       prompt <- createPrompt(settings = settings, 
-                             phenotypeName = phenotypeName,
+                             phenotypeName = row$phenotype,
                              keeperRow = row)  
       
       # Store full prompt for easy review:
       fullPrompt <- sprintf("[System Prompt]\n%s\n[Prompt]\n%s", systemPrompt, prompt)
-      promptFileName <- generateCacheFileName(row$phenotypeName, row$generatedId, cacheFolder, type = "prompt")
+      promptFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder, type = "prompt")
       writeLines(fullPrompt, promptFileName)
       
       # Ellmer is supposed to retry automatically, but I haven't seen it work when using LM Studio, so using own retry loop:
