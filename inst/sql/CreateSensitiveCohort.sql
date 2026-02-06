@@ -3,26 +3,30 @@ DROP TABLE IF EXISTS #treatment_cohort;
 DROP TABLE IF EXISTS #symptom_plus_cohort;
 	
 -- #doi_cohort
-SELECT person_id AS subject_id,
+SELECT condition_occurrence.person_id AS subject_id,
 	MIN(condition_start_date) AS cohort_start_date
 INTO #doi_cohort
 FROM @cdm_database_schema.condition_occurrence
 INNER JOIN @cdm_database_schema.concept_ancestor
 	ON condition_concept_id = descendant_concept_id
+INNER JOIN @cdm_database_schema.observation_period
+	ON condition_occurrence.person_id = observation_period.person_id
+		AND condition_start_date >= observation_period_start_date
+		AND condition_start_date <= observation_period_end_date
 WHERE ancestor_concept_id IN (
 	SELECT concept_id
 	FROM #concept_sets
 	WHERE concept_set_name = 'doi'
 )
-GROUP BY person_id;
+GROUP BY condition_occurrence.person_id;
 
 -- #combi_cohort
-SELECT subject_id,
-	MIN(cohort_start_date) AS cohort_start_date
+SELECT events.person_id AS subject_id,
+	MIN(start_date) AS cohort_start_date
 INTO #combi_cohort
 FROM (
-	SELECT person_id AS subject_id,
-		MIN(drug_exposure_start_date) AS cohort_start_date,
+	SELECT person_id,
+		drug_exposure_start_date AS start_date,
 		'drugs' AS category
 	FROM @cdm_database_schema.drug_exposure
 	INNER JOIN @cdm_database_schema.concept_ancestor
@@ -31,12 +35,11 @@ FROM (
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('drugs')
 		AND ppv > 0.1
-	GROUP BY person_id
 	
 	UNION ALL
 	
-	SELECT person_id AS subject_id,
-		MIN(procedure_date) AS cohort_start_date,
+	SELECT person_id,
+		procedure_date AS start_date,
 		'treatmentProcedures' AS category
 	FROM @cdm_database_schema.procedure_occurrence
 	INNER JOIN @cdm_database_schema.concept_ancestor
@@ -45,12 +48,11 @@ FROM (
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('treatmentProcedures')
 		AND ppv > 0.1
-	GROUP BY person_id
 	
 	UNION ALL
 	
-	SELECT person_id AS subject_id,
-		MIN(observation_date) AS cohort_start_date,
+	SELECT person_id,
+		observation_date AS start_date,
 		'symptoms' AS category
 	FROM @cdm_database_schema.observation
 	INNER JOIN @cdm_database_schema.concept_ancestor
@@ -59,12 +61,11 @@ FROM (
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('symptoms')
 		AND ppv > 0.1
-	GROUP BY person_id
 
 	UNION ALL
 	
 	SELECT person_id,
-		MIN(condition_start_date) AS start_date,
+		condition_start_date AS start_date,
 		'symptoms' AS category
 	FROM @cdm_database_schema.condition_occurrence
 	INNER JOIN @cdm_database_schema.concept_ancestor
@@ -73,12 +74,11 @@ FROM (
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('symptoms')
 		AND ppv > 0.1
-	GROUP BY person_id
 	
 	UNION ALL
 	
 	SELECT person_id,
-		MIN(condition_start_date) AS start_date,
+		condition_start_date AS start_date,
 		'complications' AS category
 	FROM @cdm_database_schema.condition_occurrence
 	INNER JOIN @cdm_database_schema.concept_ancestor
@@ -87,12 +87,11 @@ FROM (
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('complications')
 		AND ppv > 0.1
-	GROUP BY person_id
 		
 	UNION ALL
 	
 	SELECT person_id,
-		MIN(procedure_date) AS start_date,
+		procedure_date AS start_date,
 		'diagnosticProcedures' AS category
 	FROM @cdm_database_schema.procedure_occurrence
 	INNER JOIN @cdm_database_schema.concept_ancestor
@@ -101,12 +100,11 @@ FROM (
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('diagnosticProcedures')
 		AND ppv > 0.1
-	GROUP BY person_id
 		
 	UNION ALL
 	
 	SELECT person_id,
-		MIN(measurement_date) AS start_date,
+		measurement_date AS start_date,
 		'measurements' AS category
 	FROM @cdm_database_schema.measurement
 	INNER JOIN @cdm_database_schema.concept_ancestor
@@ -115,10 +113,13 @@ FROM (
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('measurements')
 		AND ppv > 0.1
-	GROUP BY person_id
-	) plus
-WHERE subject_id NOT IN (SELECT subject_id FROM #doi_cohort)
-GROUP BY subject_id
+	) events
+INNER JOIN @cdm_database_schema.observation_period
+	ON events.person_id = observation_period.person_id
+		AND start_date >= observation_period_start_date
+		AND start_date <= observation_period_end_date
+WHERE events.person_id NOT IN (SELECT subject_id FROM #doi_cohort)
+GROUP BY events.person_id
 HAVING COUNT(DISTINCT category) >= 2;
 
 
@@ -138,8 +139,3 @@ FROM (
 		cohort_start_date
 	FROM #combi_cohort
 ) tmp;
-
-TRUNCATE TABLE #doi_cohort;
-TRUNCATE TABLE #combi_cohort;
-DROP TABLE #doi_cohort;
-DROP TABLE #combi_cohort;

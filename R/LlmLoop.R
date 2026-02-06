@@ -18,7 +18,8 @@
 #'
 #' @param keeper      Output from the [generateKeeper()] function.
 #' @param settings    Prompt creating settings as created using the [createPromptSettings] function.
-#' @param diseaseName The name of the disease to use in the prompt.
+#' @param phenotypeName The name of the disease to use in the prompt. If not provided, the name in the KEEPER input will
+#'                      be used.
 #' @param client      An LLM client created using the `ellmer` package.
 #' @param cacheFolder A folder where the LLM responses are cached. If the process terminates for some
 #'                    reason, it can pick up where it left off using the cache.
@@ -32,81 +33,91 @@
 #' @export
 reviewCases <- function(keeper,
                         settings = createPromptSettings(),
-                        diseaseName,
+                        phenotypeName = NULL,
                         client,
                         cacheFolder) {
-  errorMessage <- checkmate::makeAssertCollection()
-  checkmate::assertDataFrame(keeper, add = errorMessage)
-  checkmate::assertNames(
-    colnames(keeper),
-    must.include = c(
-      "personId",
-      "age",
-      "gender",
-      "observationPeriod",
-      "visitContext",
-      "presentation",
-      "comorbidities",
-      "symptoms",
-      "priorDisease",
-      "priorDrugs",
-      "priorTreatmentProcedures",
-      "diagnosticProcedures",
-      "measurements",
-      "alternativeDiagnosis",
-      "afterDisease",
-      "afterTreatmentProcedures",
-      "afterDrugs",
-      "death"
-    ),
-    add = errorMessage
-  )
-  checkmate::assert_class(settings, "PromptSettings", add = errorMessage)
-  checkmate::assert_character(diseaseName, add = errorMessage)
-  checkmate::assertR6(client, "Chat", add = errorMessage)
-  checkmate::assert_character(cacheFolder, add = errorMessage)
-  checkmate::reportAssertions(collection = errorMessage)
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertList(keeper, add = errorMessages)
+  checkmate::assertNames(names(keeper), must.include = c("demographics",
+                                                         "presentation", 
+                                                         "visit",
+                                                         "symptoms",
+                                                         "priorDisease",
+                                                         "postDisease",
+                                                         "priorDrugs",
+                                                         "postDrugs",
+                                                         "priorTreatmentProcedures",
+                                                         "postTreatmentProcedures",
+                                                         "alternativeDiagnoses",
+                                                         "diagnosticProcedures",
+                                                         "measurements",
+                                                         "death",
+                                                         "metaData"), add = errorMessages)
+  checkmate::assert_class(settings, "PromptSettings", add = errorMessages)
+  checkmate::assert_character(phenotypeName, null.ok = TRUE, add = errorMessages)
+  checkmate::assertR6(client, "Chat", add = errorMessages)
+  checkmate::assert_character(cacheFolder, add = errorMessages)
+  checkmate::reportAssertions(collection = errorMessages)
   
   startTime <- Sys.time()
   
   maxRetries <- 5
   
-  systemPrompt <- createSystemPrompt(settings = settings, diseaseName = diseaseName)  
-  client$set_system_prompt(systemPrompt)
-  if (!dir.exists(cacheFolder)) {
-    dir.create(cacheFolder)
+  keeperTable <- convertKeeperToTable(keeper)
+  if (!is.null(phenotypeName)) {
+    keeperTable$phenotypeName <- phenotypeName
   }
+
   result <- tibble(
-    personId = keeper$personId,
+    generatedId = keeperTable$generatedId,
     isCase = as.character(NA),
     indexDay = as.numeric(NA)
   )
+  if ("personId" %in% colnames(keeperTable)) {
+    result$personId <- keeperTable$personId
+  }
+  if (!dir.exists(cacheFolder)) {
+    dir.create(cacheFolder)
+  }
   
   cost <- 0
-  nPersons <- nrow(keeper)
+  nPersons <- nrow(keeperTable)
   for (i in seq_len(nPersons)) {
     message(sprintf("Reviewing person %d of %d", i, nPersons))
-    row <- keeper[i, ]
+    if (i %% 100 == 0 ) {
+      message(sprintf("- Cost so far: $%0.2f", cost))
+    }
+    row <- keeperTable[i, ]
     
-    responseFileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder)
+    responseFileName <- generateCacheFileName(row$phenotypeName, row$generatedId, cacheFolder)
     if (file.exists(responseFileName)) {
       response <- readLines(responseFileName)
       response <- paste(response, collapse = "\n")
+      parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
     } else {
+      systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = row$phenotypeName)  
       prompt <- createPrompt(settings = settings, 
-                             diseaseName = diseaseName,
+                             phenotypeName = phenotypeName,
                              keeperRow = row)  
       
       # Store full prompt for easy review:
       fullPrompt <- sprintf("[System Prompt]\n%s\n[Prompt]\n%s", systemPrompt, prompt)
-      promptFileName <- generateCacheFileName(diseaseName, row$personId, cacheFolder, type = "prompt")
+      promptFileName <- generateCacheFileName(row$phenotypeName, row$generatedId, cacheFolder, type = "prompt")
       writeLines(fullPrompt, promptFileName)
       
       # Ellmer is supposed to retry automatically, but I haven't seen it work when using LM Studio, so using own retry loop:
       for (j in seq_len(maxRetries)) {
-        response <- tryCatch({
+        parsedResponse <- tryCatch({
           client$set_turns(list())
-          client$chat(prompt, echo = "none")
+          client$set_system_prompt(systemPrompt)
+          response <- client$chat(prompt, echo = "none")
+        
+          parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+          
+          cost <- cost + client$get_cost()
+          writeLines(response, responseFileName)
+          
+          parsedResponse
         }, error = function(e) {
           message(paste("Attempt", j, "failed:", e$message))
           if (j < maxRetries) {
@@ -116,14 +127,11 @@ reviewCases <- function(keeper,
             stop("Exceeding maximum number of retries when calling LLM")
           }
         })
-        if (!is.null(response)) {
+        if (!is.null(parsedResponse)) {
           break
         }
       }
-      cost <- cost + client$get_cost()
-      writeLines(response, responseFileName)
     }
-    parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
     result$isCase[i] <- parsedResponse$isCase  
     result$indexDay[i] <- parsedResponse$indexDay
   }
@@ -137,10 +145,10 @@ reviewCases <- function(keeper,
   return(result)
 }
 
-generateCacheFileName <- function(diseaseName, personId, cacheFolder, type = "response") {
+generateCacheFileName <- function(phenotypeName, generatedId, cacheFolder, type = "response") {
   fileName <- sprintf("%s_p%s", 
-                      gsub("[^[:alnum:]]", "", diseaseName),
-                      personId)
+                      gsub("[^[:alnum:]]", "", phenotypeName),
+                      generatedId)
   if (type != "response") {
     fileName <- paste(fileName, type, sep = "_")
   }

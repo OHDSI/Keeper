@@ -8,6 +8,11 @@ shinyUI(
       ),
       column(
         2,
+        tags$label(class = "control-label", `for` = "database", "Database"),
+        textOutput("database"),
+        tags$label(class = "control-label", `for` = "phenotype", "Phenotype"),
+        textOutput("phenotype"),
+        textOutput("user"),
         tags$label(class = "control-label", `for` = "personId", "Person ID"),
         textOutput("personId"),
         actionButton("previousButton", "<"),

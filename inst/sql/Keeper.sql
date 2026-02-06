@@ -38,11 +38,14 @@ GROUP BY concept_id,
 SELECT CAST(subject_id AS VARCHAR) AS person_id,
 	generated_id,
 	FLOOR(DATEDIFF(DAY, DATEFROMPARTS(year_of_birth, COALESCE(month_of_birth, 1), COALESCE(day_of_birth, 1)), cohort_start_date) / 365.25) AS age,
-	CASE WHEN gender_concept_id = 8507 THEN 'Male' ELSE 'Female' END AS sex,
+	gender_concept_id,
+	gender_concept.concept_name AS gender_concept_name,
 	DATEDIFF(DAY, cohort_start_date, observation_period_start_date) AS observation_start_day,
 	DATEDIFF(DAY, cohort_start_date, observation_period_end_date) AS observation_end_day,
-	CASE WHEN race_concept.concept_name IS NULL THEN '' ELSE race_concept.concept_name END AS race,
-	CASE WHEN ethnicity_concept.concept_name IS NULL THEN '' ELSE ethnicity_concept.concept_name END AS ethnicity
+	race_concept_id,
+	CASE WHEN race_concept.concept_name IS NULL THEN '' ELSE race_concept.concept_name END AS race_concept_name,
+	ethnicity_concept_id,
+	CASE WHEN ethnicity_concept.concept_name IS NULL THEN '' ELSE ethnicity_concept.concept_name END AS ethnicity_concept_name
 INTO #demographics
 FROM #cohort cohort
 INNER JOIN @cdm_database_schema.person
@@ -51,6 +54,8 @@ INNER JOIN @cdm_database_schema.observation_period
 	ON observation_period.person_id = cohort.subject_id
 		AND observation_period_start_date <= cohort_start_date
 		AND observation_period_end_date >= cohort_start_date
+INNER JOIN @cdm_database_schema.concept gender_concept
+	ON gender_concept.concept_id = gender_concept_id
 LEFT JOIN @cdm_database_schema.concept race_concept
 	ON race_concept.concept_id = race_concept_id
 		AND race_concept_id != 0
@@ -62,7 +67,7 @@ LEFT JOIN @cdm_database_schema.concept ethnicity_concept
 SELECT generated_id,
 	concept_id,
 	concept_name,
-	meta_data,
+	extra_data,
 	MAX(COALESCE(target, -1)) AS target
 INTO #presentation
 FROM (
@@ -74,7 +79,7 @@ FROM (
 			WHEN type_concept.concept_name IS NOT NULL THEN type_concept.concept_name
 			WHEN status_concept.concept_name IS NOT NULL THEN status_concept.concept_name
 			ELSE ''
-		END AS meta_data,
+		END AS extra_data,
 		target
 	FROM #cohort cohort
 	INNER JOIN @cdm_database_schema.condition_occurrence
@@ -95,19 +100,19 @@ FROM (
 GROUP BY generated_id,
 	concept_id,
 	concept_name,
-	meta_data;
+	extra_data;
 	
 -- Visit
 SELECT generated_id,
-	visit_start_day,
-	visit_end_day,
+	start_day,
+	end_day,
 	concept_id,
 	CASE WHEN concept_id = 0 THEN '' ELSE concept_name END AS concept_name
-INTO #visit
+INTO #visit_context
 FROM ( 
 	SELECT generated_id,
-		DATEDIFF(DAY, cohort_start_date, visit_start_date) AS visit_start_day,
-		DATEDIFF(DAY, cohort_start_date, visit_end_date) AS visit_end_day,	
+		DATEDIFF(DAY, cohort_start_date, visit_start_date) AS start_day,
+		DATEDIFF(DAY, cohort_start_date, visit_end_date) AS end_day,	
 		visit_concept_id,
 		ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY visit_start_date, visit_concept_id DESC) rn
 	FROM #cohort cohort
@@ -347,7 +352,7 @@ SELECT  generated_id,
 	start_day,
 	concept_id,
 	concept_name,
-	measurement_value,
+	extra_data,
 	MAX(target) AS target
 INTO #measurements
 FROM (
@@ -372,7 +377,7 @@ FROM (
 				END
 			)
 			ELSE ''
-		END AS measurement_value,
+		END AS extra_data,
 		target
 	FROM #cohort cohort
 	INNER JOIN @cdm_database_schema.measurement
@@ -395,7 +400,7 @@ GROUP BY generated_id,
 	start_day,
 	concept_id,
 	concept_name,
-	measurement_value;
+	extra_data;
 
 -- Death
 SELECT generated_id,

@@ -115,43 +115,6 @@
       "conceptId": [integer, ...]
     }
 
-- name: Comorbidities
-  parameterName: comorbidities
-  systemPromptTerms: |
-    You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical terms that describe **Comorbidities** of one or more of the Medical Conditions.
-
-    Output Format:
-    Provide your response in a single JSON object. 
-    Do not include any text outside of the JSON.
-    JSON
-    {
-      "terms": ["string", ...]
-    }
-
-  domains:
-    - Condition
-    - Observation
-    
-  systemPromptRemoveNonRelevant: |
-    You are a Clinical Coding Expert. 
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe **Comorbidities** of one or more of the Medical Conditions.
-    
-    Rules for Selection: 
-    Review each concept. 
-    Select the concept ID ONLY if the clinical assertion of that code guarantees the presence of a Comorbidity. 
-    The concept does not need to imply one of the Conditions is present, just the Comorbidity.
-    
-    Output Format:
-    Provide your response in a single JSON object. 
-    Do not include any text outside of the JSON.
-    JSON
-    {
-      "conceptId": [integer, ...]
-    }
-
 - name: Drugs
   parameterName: drugs
   systemPromptTerms: |

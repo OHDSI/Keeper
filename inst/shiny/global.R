@@ -7,12 +7,18 @@ if (exists(".shinyArgs", envir = .GlobalEnv)) {
   keeper <- args$keeper
   decisionsFileName <- args$decisionsFileName
 } else {
-  keeper <- readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperMm.rds")
-  decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
+  # keeper <- readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperMm.rds")
+  # decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
+  keeper <- readRDS("data/KeeperMm.rds")
+  decisionsFileName <- "data/Decisions.csv"
 }
 
 generatedIds <- keeper$demographics |>
   pull(generatedId) 
+
+database <- keeper$metaData$cdmSourceAbbreviation
+phenotype <- keeper$metaData$phenotypeName
+keeper$metaData <- NULL
 
 nPersons <- length(generatedIds)
 

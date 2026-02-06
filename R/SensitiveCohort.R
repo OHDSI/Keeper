@@ -153,13 +153,19 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     cohort_table = cohortTable,
     cohort_definition_id = cohortDefinitionId
   )
+  sql <- "SELECT COUNT(*) FROM #doi_cohort;"
+  countDoi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
+  sql <- "SELECT COUNT(*) FROM #combi_cohort;"
+  countCombi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
   
-  sql <- "TRUNCATE TABLE #concept_sets; DROP TABLE #concept_sets;"
-  DatabaseConnector::renderTranslateExecuteSql(connection = connection,
-                                               sql = sql, 
-                                               progressBar = FALSE,
-                                               reportOverallTime = FALSE,
-                                               tempEmulationSchema = tempEmulationSchema)
+  message("Removing temp tables")
+  toDelete <- c("#concept_sets", "#doi_cohort", "#combi_cohort")
+  sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", toDelete, toDelete), collapse = "\n")  
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection, 
+    sql = sql,
+    tempEmulationSchema = tempEmulationSchema
+  )
   
   delta <- Sys.time() - startTime
   message(paste0("Generating sensitive cohort took ",
@@ -168,6 +174,10 @@ createSensitiveCohort <- function(connectionDetails = NULL,
                  attr(delta, "units"),
                  ". Cohort size is ",
                  format(count[1, 1], scientific = FALSE, big.mark = ","),
-                 " persons."))
+                 " persons, ",
+                 format(countDoi[1, 1], scientific = FALSE, big.mark = ","),
+                 " with the diagnosis, and ",
+                 format(countCombi[1, 1], scientific = FALSE, big.mark = ","),
+                 " with a combination of other markers."))
   invisible(conceptRatios)  
 }

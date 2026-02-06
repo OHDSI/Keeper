@@ -38,9 +38,9 @@ vocabDatabaseSchema <- "merative_mdcr.cdm_merative_mdcr_v3788"
 
 
 conceptSets <- generateKeeperConceptSets(
-  condition = "Multiple myeloma",
+  condition = "Atrial fibrillation",
   client = client,
   vocabConnectionDetails = vocabConnectionDetails,
   vocabDatabaseSchema = vocabDatabaseSchema
 )
-readr::write_csv(conceptSets, "e:/temp/mmConceptSets.csv")
+readr::write_csv(conceptSets, "e:/temp/afConceptSets.csv")

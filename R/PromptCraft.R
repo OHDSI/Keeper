@@ -40,34 +40,34 @@ createPromptSettings <- function(maxParts = 100,
 
 #' Create a system prompt for a LLM
 #'
-#' @param settings     A settings object as created using [createPromptSettings()].
-#' @param diseaseName  The name of the disease to use in the prompt.
+#' @param settings       A settings object as created using [createPromptSettings()].
+#' @param phenotypeName  The name of the disease to use in the prompt.
 #'
 #' @return
 #' A character string with the system prompt.
 #'
 #' @export
-createSystemPrompt <- function(settings, diseaseName) {
+createSystemPrompt <- function(settings, phenotypeName) {
   promptFile <- system.file("KeeperPrompt.txt", package = "Keeper")
   prompt <- readLines(promptFile)
   prompt <- paste(prompt, collapse = "\n")
-  prompt <- gsub("<disease>", diseaseName, prompt)
+  prompt <- gsub("<disease>", phenotypeName, prompt)
   return(prompt)
 }
 
 
 #' Create the main prompt based on a Keeper output row.
 #'
-#' @param settings     A settings object as created using `createPromptSettings()`.
-#' @param diseaseName  The name of the disease to use in the prompt.
-#' @param keeperRow    A single row from the output of `createKeeper()`.
+#' @param settings       A settings object as created using `createPromptSettings()`.
+#' @param phenotypeName  The name of the disease to use in the prompt.
+#' @param keeperRow      A single row from the output of `createKeeper()`.
 #'
 #' @return
 #' A character string containing the main prompt.
 #'
 #' @export
 createPrompt <- function(settings,
-                         diseaseName,
+                         phenotypeName,
                          keeperRow) {
   prompt <- c(
     "Healthcare data:",
@@ -88,7 +88,7 @@ createPrompt <- function(settings,
   ))
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded prior to the visit: %s",
-    formatList(keeperRow$priorDisease, keeperRow$symptoms, keeperRow$comorbidities,
+    formatList(keeperRow$priorDisease, keeperRow$symptoms,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
@@ -116,21 +116,21 @@ createPrompt <- function(settings,
   ))
   prompt <- c(prompt, sprintf(
     "Alternative diagnoses recorded proximal to the visit: %s",
-    formatList(keeperRow$alternativeDiagnosis,
+    formatList(keeperRow$alternativeDiagnoses,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded after the visit: %s",
-    formatList(keeperRow$afterDisease,
+    formatList(keeperRow$postDisease,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Treatments recorded during or after the visit: %s",
-    formatList(keeperRow$afterDrugs, keeperRow$afterTreatmentProcedures,
+    formatList(keeperRow$postDrugs, keeperRow$postTreatmentProcedures,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
@@ -140,7 +140,7 @@ createPrompt <- function(settings,
 }
 
 convertAgeToText <- function(age) {
-  return(english::as.english(age))
+  return(english::as.english(as.integer(age)))
 }
 
 formatVisitContext <- function(visitContext) {

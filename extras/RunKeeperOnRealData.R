@@ -15,7 +15,8 @@ cohortDatabaseSchema <- "scratch.scratch_mschuemi"
 cohortTable  <- "keeper_test"
 options(sqlRenderTempEmulationSchema = "scratch.scratch_mschuemi")
 
-cohortDefinitionId <- 20765 # MM
+cohortDefinitionId <- 20765 
+phenotypeName <- "Multple myeloma"
 
 connection <- connect(connectionDetails)
 
@@ -49,7 +50,8 @@ keeper <- generateKeeper(
   cohortTable = cohortTable,
   cohortDefinitionId = cohortDefinitionId,
   sampleSize = 20,
-  keeperConceptSets = conceptSets
+  keeperConceptSets = conceptSets,
+  phenotypeName = phenotypeName
 )
 saveRDS(keeper, "e:/temp/KeeperMm.rds")
 keeperTable <- convertKeeperToTable(keeper)

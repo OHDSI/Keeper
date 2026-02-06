@@ -13,6 +13,9 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  output$database <- shiny::renderText(database)
+  output$phenotype <- shiny::renderText(phenotype)
+  output$user <- shiny::renderText(session$user)
   observe({
     indexDay <- decisions$decisions[person$index, "indexDay"]
     if (!is.na(indexDay)) {
