@@ -25,6 +25,40 @@ generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable)
   }
 }
 
+getTooltipText <- function(section) {
+  if (section == "demographics") {
+    return("Patient demographics, including the age at day 0.")
+  } else if (section == "presentation") {
+    return("Any condition observed on day 0.")
+  } else if (section == "visitContext") {
+    return("Any visit that occurred on day 0 or included day 0.")
+  } else if (section == "symptoms") {
+    return("Symptoms that occurred in the 30 days prior, excluding day 0. Symptoms can be conditions or observations.")
+  } else if (section == "priorDisease") {
+    return("Conditions related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0.")
+  } else if (section == "postDisease") {
+    return("Conditions related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0.")
+  } else if (section == "priorDrugs") {
+    return("Drugs related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0.")
+  } else if (section == "postDrugs") {
+    return("Drugs related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0.")
+  } else if (section == "priorTreatmentProcedures") {
+    return("Treatment procedures related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0.")
+  } else if (section == "postTreatmentProcedures") {
+    return("Treatment procedures related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0.")
+  } else if (section == "alternativeDiagnoses") {
+    return("Alternative diagnoses (conditions) recorded in the 90 days prior to 90 days after.")
+  } else if (section == "diagnosticProcedures") {
+    return("Diagnostic procedures either for the disease of interest of alternative diagnoses recorded in the 30 days before to 30 days after.")
+  } else if (section == "measurements") {
+    return("Measurements related to either the disease of interest or alternative diagnoses recorded in the 30 days before to 30 days after.")
+  } else if (section == "death") {
+    return("Death recorded any time after, including day 0.")
+  } else {
+    return("Unknown section")
+  }
+}
+
 prettifyName <- function(name){
   name <- gsub("([A-Z])", " \\1", name)
   name <- tolower(name)
@@ -122,8 +156,15 @@ shinyServer(function(input, output, session) {
       formattedParts <- append(formattedParts, list(br(), sprintf("Ethnicity: %s", ethnicity)))
     }
     uiElements[[length(uiElements) + 1]] <- tagList(
-      h3("Demographics"),
-      p(formattedParts)
+      h3("Demographics",
+         tooltip(
+           icon("circle-info", style="font-size: 17px; color: #336b92"),
+           placement = "right",
+           getTooltipText("demographics")
+         )
+      ),
+      p(formattedParts),
+      
     )
     
     keeperTables <- c("presentation",
@@ -154,9 +195,9 @@ shinyServer(function(input, output, session) {
             .data$target == "Alternative diagnoses" ~ 0,
             TRUE ~ -1),
           style = case_when(
-            target == "Disease of interest" ~ "color: black",
-            target == "Alternative diagnoses" ~ "color: red",
-            TRUE ~ "color: gray"
+            target == "Disease of interest" ~ "color: #1F425A",
+            target == "Alternative diagnoses" ~ "color: #EB6622",
+            TRUE ~ "color: #5C9EC3"
           )
         ) |>
         arrange(desc(.data$sortOrder), .data$label) 
@@ -166,7 +207,12 @@ shinyServer(function(input, output, session) {
       })
       formattedParts <- tagList(formattedParts)
       uiElements[[length(uiElements) + 1]] <- tagList(
-        h3(prettifyName(keeperTable)),
+        h3(prettifyName(keeperTable),
+           tooltip(
+             icon("circle-info", style="font-size: 17px; color: #336b92"),
+             placement = "right",
+             getTooltipText(keeperTable)
+           )),
         p(formattedParts)
       )
     }

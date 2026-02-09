@@ -25,9 +25,9 @@ conceptSetsFileName <- "extras/t1dmConceptSets.csv"
 specConceptsFileName <- "e:/temp/t1dmSpecConcepts.csv"
 keeperFileName <- "e:/temp/t1dmKeeper10K.rds"
 
-conceptSetsFileName <- "e:/temp/afConceptSets.csv"
-specConceptsFileName <- "e:/temp/afSpecConcepts.csv"
-keeperFileName <- "e:/temp/afKeeper10K.rds"
+conceptSetsFileName <- "e:/KeeperSensitiveCohort/afConceptSets.csv"
+specConceptsFileName <- "e:/KeeperSensitiveCohort/afSpecConcepts.csv"
+keeperFileName <- "e:/KeeperSensitiveCohort/afKeeper10K.rds"
 
 # Create sensitive cohort  -----------------------------------------
 conceptSets <- readr::read_csv(conceptSetsFileName, show_col_types = FALSE)
@@ -84,7 +84,50 @@ client <- chat_azure_openai(
 )
 cacheFolder <- "cacheAf"
 keeper <- readRDS(keeperFileName)
-reviewCases(keeper = keeper,
-            client = client,
-            cacheFolder = cacheFolder)
+adjudications <- reviewCases(keeper = keeper,
+                             client = client,
+                             cacheFolder = cacheFolder)
+saveRDS(adjudications, "e:/temp/adjudications.rds")
 
+# Analyse LLM adjudication -----------------------------------------------
+adjudications <- readRDS("e:/temp/adjudications.rds")
+keeper <- readRDS(keeperFileName)
+conceptSets <- readr::read_csv(conceptSetsFileName, show_col_types = FALSE)
+
+adjudications |>
+  group_by(isCase) |>
+  count()
+
+
+doiConceptIds <- conceptSets |>
+  filter(conceptSetName == "doi") |>
+  pull(conceptId)
+hasDoiGeneratedId <- keeper |>
+  filter(conceptId %in% doiConceptIds) |>
+  distinct(generatedId) |>
+  pull()
+
+adjudications |>
+  mutate(hasDoi = generatedId %in% hasDoiGeneratedId) |>
+  group_by(isCase, hasDoi) |>
+  count()
+
+# Sample 
+sample <- bind_rows(
+  adjudications |>
+    filter(isCase == "yes") |>
+    slice_sample(n = 50),
+  adjudications |>
+    filter(isCase == "no") |>
+    slice_sample(n = 150),
+  adjudications |>
+    filter(isCase == "insufficient information") |>
+    slice_sample(n = 20),
+) |>
+  sample_frac()
+
+keeperSample <- keeper |>
+  filter(generatedId %in% sample$generatedId)
+  
+saveRDS(keeperSample, )
+  
