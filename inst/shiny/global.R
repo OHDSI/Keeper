@@ -4,7 +4,11 @@ library(shiny)
 library(bslib)
 library(pool)
 
+
+
 if (Sys.getenv("KEEPER_SERVER") != "") {
+  Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "data")
+
   writeLines("Opening connection pool")
   connectionPool <- pool::dbPool(
     drv = DatabaseConnector::DatabaseConnectorDriver(),
@@ -69,7 +73,7 @@ getDataList <- function(session) {
     
     if (is.null(session$user)) {
       writeLines("Could not detect user. Setting to default")
-      adjudicator <- "MSCHUEMI"
+      adjudicator <- "TEST_USER"
     } else {
       adjudicator <- session$user
     }
