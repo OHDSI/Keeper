@@ -1,5 +1,51 @@
+generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable) {
+  if (keeperTable == "presentation") {
+    return(paste0(conceptName, if_else(extraData == "",  "", sprintf(" (%s)", extraData))))
+  } else if (keeperTable == "visitContext") {
+    return(paste0(conceptName, if_else(startDay == endDay, "", sprintf(" (%d days)", endDay - startDay))))
+  } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
+    return(sprintf("%s (day %s)", 
+                   conceptName[1],
+                   paste(sprintf("%d for %d day%s", 
+                                 startDay, 
+                                 endDay - startDay + 1,
+                                 if_else(endDay == startDay, "", "s")),
+                         collapse = ", ")))
+  } else if (keeperTable == "measurements") {
+    return(sprintf("%s (day %s)", 
+                   conceptName[1],
+                   paste(if_else(extraData == "",
+                                 as.character(startDay),
+                                 sprintf("%d with value %s", startDay, extraData)),
+                         collapse = ", ")))     
+  } else {
+    return(sprintf("%s (day %s)", 
+                   conceptName[1],
+                   paste(startDay, collapse = ", ")))     
+  }
+}
+
+prettifyName <- function(name){
+  name <- gsub("([A-Z])", " \\1", name)
+  name <- tolower(name)
+  name <- gsub("([a-z])([0-9])", "\\1_\\2", name)
+  name <- tolower(name)
+  name <- gsub("\\b([a-z])", "\\U\\1", name, perl = TRUE)
+  return(name)
+}
+
 shinyServer(function(input, output, session) {
   person <- shiny::reactiveValues(index = 1)
+  
+  generatedId <- shiny::reactive({
+    return(generatedIds[person$index])
+  })
+  
+  keeperSubset <- shiny::reactive({
+    subset <- keeper |>
+      filter(generatedId == generatedId())
+    return(subset)
+  })
   
   decisions <- shiny::reactiveValues(
     decisions = decisionsDataFrame
@@ -7,15 +53,19 @@ shinyServer(function(input, output, session) {
   
   output$personId <- shiny::renderText({
     if (hasPersonIds) {
-      return(keeper$demographics$personId[person$index])
+      personId <- keeperSubset() |> 
+        filter(category == "personId") |>
+        pull("conceptName")
+      return(personId)
     } else {
-      return(keeper$demographics$generatedId[person$index])
+      return(generatedId())
     }
   })
   
   output$database <- shiny::renderText(database)
   output$phenotype <- shiny::renderText(phenotype)
   output$user <- shiny::renderText(session$user)
+  
   observe({
     indexDay <- decisions$decisions[person$index, "indexDay"]
     if (!is.na(indexDay)) {
@@ -40,148 +90,87 @@ shinyServer(function(input, output, session) {
   })
   
   output$profile <- shiny::renderUI({
-    generatedId <- generatedIds[person$index]
+    subset <- keeperSubset()
     uiElements <- list()
-    for (section in names(keeper)) {
-      rows <- keeper[[section]] |>
-        filter(generatedId == !!generatedId)
+    
+    age <- subset |>
+      filter(.data$category == "age") |>
+      pull(conceptName)
+    sex <- subset |>
+      filter(.data$category == "sex") |>
+      pull(conceptName)
+    observationPeriod <- subset |>
+      filter(.data$category == "observationPeriod") |>
+      select("startDay", "endDay")
+    race <- subset |>
+      filter(.data$category == "race") |>
+      pull(conceptName)
+    ethnicity <- subset |>
+      filter(.data$category == "ethnicity") |>
+      pull(conceptName)
+    formattedParts <- tagList(
+      sprintf("Age: %s", age),
+      br(),
+      sprintf("Sex: %s", sex),
+      br(),
+      sprintf("Observation period: day %d - day %d", observationPeriod$startDay, observationPeriod$endDay)
+    )
+    if (race != "") {
+      formattedParts <- append(formattedParts, list(br(), sprintf("Race: %s", race)))
+    }
+    if (ethnicity != "") {
+      formattedParts <- append(formattedParts, list(br(), sprintf("Ethnicity: %s", ethnicity)))
+    }
+    uiElements[[length(uiElements) + 1]] <- tagList(
+      h3("Demographics"),
+      p(formattedParts)
+    )
+    
+    keeperTables <- c("presentation",
+                      "visitContext",
+                      "symptoms",
+                      "priorDisease",
+                      "postDisease",
+                      "priorDrugs",
+                      "postDrugs",
+                      "priorTreatmentProcedures",
+                      "postTreatmentProcedures",
+                      "alternativeDiagnoses",
+                      "diagnosticProcedures",
+                      "measurements",
+                      "death")
+    
+    for (keeperTable in keeperTables) {
+      table <- subset |>
+        filter(category == keeperTable) |>
+        mutate(
+          extraGroup = if (keeperTable == "presentation") .data$extraData else "") |>
+        group_by(.data$conceptName, .data$target, .data$extraGroup) |>
+        arrange(.data$startDay) |>
+        summarise(label = generateLabel(.data$conceptName, .data$startDay, .data$endDay, .data$extraData, keeperTable), .groups = "drop") |>
+        mutate(          
+          sortOrder = case_when(
+            .data$target == "Disease of interest" ~ 1,
+            .data$target == "Alternative diagnoses" ~ 0,
+            TRUE ~ -1),
+          style = case_when(
+            target == "Disease of interest" ~ "color: black",
+            target == "Alternative diagnoses" ~ "color: red",
+            TRUE ~ "color: gray"
+          )
+        ) |>
+        arrange(desc(.data$sortOrder), .data$label) 
       
-      if (section == "demographics") {
-        formattedParts <- tagList(
-          sprintf("Age: %d", rows$age),
-          br(),
-          sprintf("Sex: %s", rows$sex),
-          br(),
-          sprintf("Observation period: day %d - day %d", rows$observationStartDay, rows$observationEndDay),
-        )
-        if (rows$race != "") {
-          formattedParts <- append(formattedParts, list(br(), sprintf("Race: %s", rows$race)))
-        }
-        if (rows$ethnicity != "") {
-          formattedParts <- append(formattedParts, list(br(), sprintf("Ethnicity: %s", rows$ethnicity)))
-        }
-      } else {
-        if (nrow(rows) == 0) {
-          formattedParts <- tagList("- None -")
-        } else if (section == "visit") {
-          if (rows$visitStartDay == rows$visitEndDay) {
-            formattedParts <- tagList(rows$conceptName)
-          } else {
-            formattedParts <- tagList(sprintf("%s (%d days)", rows$conceptName, rows$visitEndDay - rows$visitStartDay))
-          }
-        } else {
-          if (section == "presentation") {
-            text <- rows |>
-              mutate(
-                label = paste0(.data$conceptName,
-                               if_else(.data$metaData == "",
-                                       "",
-                                       sprintf(" (%s)", .data$metaData))
-                ),
-                style = case_when(
-                  target == "Disease of interest" ~ "color: black",
-                  target == "Alternative diagnoses" ~ "color: red",
-                  TRUE ~ "color: gray"
-                ),
-                order = case_when(
-                  target == "Disease of interest" ~ 1,
-                  target == "Alternative diagnoses" ~ 0,
-                  TRUE ~ -1
-                ) 
-              ) |>
-              arrange(desc(order), .data$label) 
-          } else if (section %in% c("symptoms", "priorDisease", "priorTreatmentProcedures", "diagnosticProcedures" , "postDisease" ,"postTreatmentProcedures")) {
-            text <- rows |>
-              group_by(.data$conceptName, .data$target) |>
-              arrange(.data$startDay) |>
-              summarise(days = paste(.data$startDay, collapse = ", "), .groups = "drop") |>
-              mutate(label = sprintf("%s (day %s)", .data$conceptName, .data$days),
-                     style = case_when(
-                       target == "Disease of interest" ~ "color: black",
-                       target == "Alternative diagnoses" ~ "color: red",
-                       TRUE ~ "color: gray"
-                     ),
-                     order = case_when(
-                       target == "Disease of interest" ~ 1,
-                       target == "Alternative diagnoses" ~ 0,
-                       TRUE ~ -1
-                     ) 
-              ) |>
-              arrange(desc(order), .data$label) 
-          } else if (section %in% c("priorDrugs", "postDrugs")) {
-            text <- rows |>
-              mutate(label = sprintf("%d for %d day%s", 
-                                     .data$startDay, 
-                                     .data$endDay - .data$startDay + 1,
-                                     if_else(.data$endDay == .data$startDay, "", "s"))) |>
-              group_by(.data$conceptName, .data$target) |>
-              arrange(.data$startDay) |>
-              summarise(days = paste(.data$label, collapse = ", "), .groups = "drop") |>
-              mutate(label = sprintf("%s (day %s)", .data$conceptName, .data$days),
-                     style = case_when(
-                       target == "Disease of interest" ~ "color: black",
-                       target == "Alternative diagnoses" ~ "color: red",
-                       TRUE ~ "color: gray"
-                     ),
-                     order = case_when(
-                       target == "Disease of interest" ~ 1,
-                       target == "Alternative diagnoses" ~ 0,
-                       TRUE ~ -1
-                     ) 
-              ) |>
-              arrange(desc(order), .data$label) 
-          } else if (section == "measurements") {
-            text <- rows |>
-              mutate(label = if_else(.data$measurementValue == "",
-                                     as.character(.data$startDay),
-                                     sprintf("%d with value %s", .data$startDay, .data$measurementValue))) |>
-              group_by(.data$conceptName, .data$target) |>
-              arrange(.data$startDay) |>
-              summarise(days = paste(.data$label, collapse = ", "), .groups = "drop") |>
-              mutate(label = sprintf("%s (day %s)", .data$conceptName, .data$days),
-                     style = case_when(
-                       target == "Disease of interest" ~ "color: black",
-                       target == "Alternative diagnoses" ~ "color: red",
-                       TRUE ~ "color: gray"
-                     ),
-                     order = case_when(
-                       target == "Disease of interest" ~ 1,
-                       target == "Alternative diagnoses" ~ 0,
-                       TRUE ~ -1
-                     ) 
-              ) |>
-              arrange(desc(order), .data$label) 
-          } else if (section == "alternativeDiagnoses") {
-            text <- rows |>
-              group_by(.data$conceptName) |>
-              arrange(.data$startDay) |>
-              summarise(days = paste(.data$startDay, collapse = ", "), .groups = "drop") |>
-              mutate(label = sprintf("%s (day %s)", .data$conceptName, .data$days),
-                     style = "color: red") |>
-              arrange(.data$label) 
-          } else {
-            stop("Unkown section: ", section)
-          }
-          formattedParts <- lapply(1:nrow(text), function(i) {
-            div(text$label[i], style = text$style[i])
-          })
-          formattedParts <- tagList(formattedParts)
-        }
-      }
-      
-      
-      name <- section
-      name <- gsub("([A-Z])", " \\1", name)
-      name <- tolower(name)
-      name <- gsub("([a-z])([0-9])", "\\1_\\2", name)
-      name <- tolower(name)
-      name <- gsub("\\b([a-z])", "\\U\\1", name, perl = TRUE)
-      
+      formattedParts <- lapply(1:nrow(table), function(i) {
+        div(table$label[i], style = table$style[i])
+      })
+      formattedParts <- tagList(formattedParts)
       uiElements[[length(uiElements) + 1]] <- tagList(
-        h3(name),
+        h3(prettifyName(keeperTable)),
         p(formattedParts)
       )
     }
+    
     return(do.call(tagList, uiElements))
   })
   

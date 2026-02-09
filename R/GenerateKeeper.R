@@ -385,7 +385,7 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
                      paste(startDay, collapse = ", ")))     
     }
   }
-  keeperTable = "presentation"
+
   for (keeperTable in keeperTables) {
     table <- keeper |>
       filter(.data$category == keeperTable) |>

@@ -7,22 +7,26 @@ if (exists(".shinyArgs", envir = .GlobalEnv)) {
   keeper <- args$keeper
   decisionsFileName <- args$decisionsFileName
 } else {
-  # keeper <- readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperMm.rds")
-  # decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
-  keeper <- readRDS("data/KeeperMm.rds")
-  decisionsFileName <- "data/Decisions.csv"
+  keeper <- readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperMm - Copy.rds")
+  decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
+  # keeper <- readRDS("data/KeeperMm.rds")
+  # decisionsFileName <- "data/Decisions.csv"
 }
 
-generatedIds <- keeper$demographics |>
-  pull(generatedId) 
+generatedIds <- unique(keeper$generatedId)
 
-database <- keeper$metaData$cdmSourceAbbreviation
-phenotype <- keeper$metaData$phenotypeName
-keeper$metaData <- NULL
+database <- keeper |>
+  filter(category == "cdmSourceAbbreviation") |>
+  head(1) |>
+  pull(conceptName)
+phenotype <- keeper |>
+  filter(category == "phenotype") |>
+  head(1) |>
+  pull(conceptName)
 
 nPersons <- length(generatedIds)
 
-hasPersonIds <- "personId" %in% colnames(keeper$demographics)
+hasPersonIds <- "personId" %in% keeper$category
 
 if (file.exists(decisionsFileName)) {
   message("Loading existing decisions file")
