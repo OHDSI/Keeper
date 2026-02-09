@@ -49,7 +49,11 @@ shinyUI(
         textOutput("database"),
         h3("Phenotype"),
         textOutput("phenotype"),
-        textOutput("user"),
+        conditionalPanel(
+          condition = "output.adjudicator != ''",
+          h3("Adjudicator"),
+          textOutput("adjudicator"),
+        ),
         h3("Person ID"),
         textOutput("personId"),
         h3("Color legend"),

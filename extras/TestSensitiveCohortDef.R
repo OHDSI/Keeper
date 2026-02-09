@@ -87,10 +87,10 @@ keeper <- readRDS(keeperFileName)
 adjudications <- reviewCases(keeper = keeper,
                              client = client,
                              cacheFolder = cacheFolder)
-saveRDS(adjudications, "e:/temp/adjudications.rds")
+saveRDS(adjudications, "e:/KeeperSensitiveCohort/adjudications.rds")
 
 # Analyse LLM adjudication -----------------------------------------------
-adjudications <- readRDS("e:/temp/adjudications.rds")
+adjudications <- readRDS("e:/KeeperSensitiveCohort/adjudications.rds")
 keeper <- readRDS(keeperFileName)
 conceptSets <- readr::read_csv(conceptSetsFileName, show_col_types = FALSE)
 
@@ -129,5 +129,53 @@ sample <- bind_rows(
 keeperSample <- keeper |>
   filter(generatedId %in% sample$generatedId)
   
-saveRDS(keeperSample, )
+saveRDS(keeperSample, "e:/KeeperSensitiveCohort/KeeperSample.rds")
   
+
+# Push to database server for adjudication by humans -----------------------
+library(DatabaseConnector)
+connectionDetails <- DatabaseConnector::createConnectionDetails(
+  dbms = "postgresql",
+  server = Sys.getenv("KEEPER_SERVER"),
+  user = Sys.getenv("KEEPER_USER"),
+  password = Sys.getenv("KEEPER_PASSWORD")
+)
+keeperDatabaseSchema <- Sys.getenv("KEEPER_DATABASE_SCHEMA")
+
+connection <- connect(connectionDetails)
+# renderTranslateExecuteSql(connection, "CREATE SCHEMA @keeper_database_schema;", keeper_database_schema = keeperDatabaseSchema)
+
+keeperSample <- readRDS("e:/KeeperSensitiveCohort/KeeperSample.rds")
+keeperSample <- keeperSample |>
+  inner_join(keeperSample |>
+               filter(category == "cdmSourceAbbreviation") |>
+               select(generatedId, databaseId = conceptName),
+             by = join_by(generatedId)) |>
+  inner_join(keeperSample |>
+               filter(category == "phenotype") |>
+               select(generatedId, phenotype = conceptName),
+             by = join_by(generatedId))
+
+insertTable(
+  connection = connection,
+  data = keeperSample,
+  databaseSchema = keeperDatabaseSchema,
+  tableName = "keeper",
+  camelCaseToSnakeCase = TRUE
+)
+
+adjudications <- keeperSample |>
+  distinct(databaseId, phenotype, generatedId) |>
+  mutate(decision = as.character(NA),
+         indexDay = 0,
+         adjudicator = "MSCHUEMI")
+
+insertTable(
+  connection = connection,
+  data = adjudications,
+  databaseSchema = keeperDatabaseSchema,
+  tableName = "adjudications",
+  camelCaseToSnakeCase = TRUE
+)
+
+disconnect(connection)

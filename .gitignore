@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 cache*
+inst/shiny/data
+inst/shiny/rsconnect

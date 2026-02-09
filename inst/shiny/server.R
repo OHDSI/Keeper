@@ -69,62 +69,78 @@ prettifyName <- function(name){
 }
 
 shinyServer(function(input, output, session) {
-  person <- shiny::reactiveValues(index = 1)
   
-  generatedId <- shiny::reactive({
-    return(generatedIds[person$index])
-  })
+  dataList <- getDataList(session)
   
+  decisions <- reactiveValues(decisionsDataFrame = dataList$decisions$decisionsDataFrame)
+
+  profile <- shiny::reactiveValues(index = 1)
+    
   keeperSubset <- shiny::reactive({
-    subset <- keeper |>
-      filter(generatedId == generatedId())
+    key <- isolate(decisions$decisionsDataFrame)[profile$index, ] |>
+      select(databaseId, phenotype, generatedId)
+    subset <- dataList$keeper |>
+      inner_join(key, by = join_by(databaseId, phenotype, generatedId))
     return(subset)
   })
   
-  decisions <- shiny::reactiveValues(
-    decisions = decisionsDataFrame
-  )
-  
   output$personId <- shiny::renderText({
-    if (hasPersonIds) {
+    if (dataList$hasPersonIds) {
       personId <- keeperSubset() |> 
         filter(category == "personId") |>
         pull("conceptName")
-      return(personId)
     } else {
-      return(generatedId())
+      personId <-  keeperSubset() |> 
+        head(1) |>
+        pull(generatedId)
     }
+    return(personId)
   })
   
-  output$database <- shiny::renderText(database)
-  output$phenotype <- shiny::renderText(phenotype)
-  output$user <- shiny::renderText(session$user)
+  output$database <- shiny::renderText({
+    keeperSubset() |> 
+      head(1) |>
+      pull(databaseId)
+  })
+  
+  output$phenotype <- shiny::renderText({
+    keeperSubset() |> 
+      head(1) |>
+      pull(phenotype)
+  })
+  
+  output$adjudicator <- shiny::renderText(dataList$decisions$adjudicator)
   
   observe({
-    indexDay <- decisions$decisions[person$index, "indexDay"]
+    indexDay <- decisions$decisionsDataFrame[profile$index, "indexDay"]
     if (!is.na(indexDay)) {
-      decision <- decisions$decisions[person$index, "decision"]
+      decision <- decisions$decisionsDataFrame[profile$index, "decision"]
       if (is.na(decision))
         decision <- character(0)
+      
       updateRadioButtons(session, "decision", selected = decision)
       updateNumericInput(session, "indexDay", value = indexDay)
     }
   })
   
   shiny::observeEvent(input$nextButton, {
-    if (person$index < nPersons) {
-      person$index <- person$index + 1
+    if (profile$index < dataList$nProfiles) {
+      profile$index <- profile$index + 1
     }
   })
   
   shiny::observeEvent(input$previousButton, {
-    if (person$index > 1) {
-      person$index <- person$index - 1
+    if (profile$index > 1) {
+      profile$index <- profile$index - 1
     }
   })
   
   output$profile <- shiny::renderUI({
     subset <- keeperSubset()
+    if (nrow(subset) == 0) {
+      return("No data")
+    }
+    
     uiElements <- list()
     
     age <- subset |>
@@ -221,19 +237,63 @@ shinyServer(function(input, output, session) {
   })
   
   shiny::observeEvent(input$decision, {
-    decisions$decisions[person$index, "decision"] <- input$decision
-    write_csv(decisions$decisions, decisionsFileName)
-  })
-  
+    decisions$decisionsDataFrame[profile$index, "decision"] <- input$decision
+    if (dataList$decisions$type == "file") {
+      write_csv(decisions$decisions, dataList$decisionsFileName)
+    } else if (dataList$decisions$type == "database") {
+      writeLines(sprintf("Updating database, setting decision to %s", input$decision))
+      key <- keeperSubset() |> 
+        head(1) |>
+        select(databaseId, phenotype, generatedId)
+      sql <- "UPDATE @database_schema.adjudications
+        SET decision = '@decision'
+        WHERE database_id = '@database_id'
+          AND phenotype = '@phenotype'
+          AND generated_id = @generated_id
+          AND adjudicator = '@adjudicator';"
+      DatabaseConnector::renderTranslateExecuteSql(
+        connection = connectionPool,
+        sql = sql,
+        database_schema = databaseSchema,
+        database_id = key$databaseId,
+        phenotype = key$phenotype,
+        generated_id = key$generatedId,
+        adjudicator = dataList$adjudicator,
+        decision = input$decision,
+        progressBar = FALSE,
+        reportOverallTime = FALSE
+      )
+    }
+  }, ignoreInit = TRUE)
+
   shiny::observeEvent(input$indexDay, {
-    req(!is.na(input$indexDay)) 
-    decisions$decisions[person$index, "indexDay"] <- input$indexDay
-    write_csv(decisions$decisions, decisionsFileName)
-  })
-  
-  observeEvent(input$theme_selector, {
-    new_theme <- bslib::bs_theme(version = 5, bootswatch = input$theme_selector)
-    session$setCurrentTheme(new_theme)
-  })
-  
+    req(!is.na(input$indexDay))
+    decisions$decisionsDataFrame[profile$index, "indexDay"] <- input$indexDay
+    if (dataList$decisions$type == "file") {
+      write_csv(decisions$decisions, dataList$decisionsFileName)
+    } else if (dataList$decisions$type == "database") {
+      writeLines(sprintf("Updating database, setting index_day to %s", input$indexDay))
+      key <- keeperSubset() |> 
+        head(1) |>
+        select(databaseId, phenotype, generatedId)
+      sql <- "UPDATE @database_schema.adjudications
+        SET index_day = @index_day
+        WHERE database_id = '@database_id'
+          AND phenotype = '@phenotype'
+          AND generated_id = @generated_id
+          AND adjudicator = '@adjudicator';"
+      DatabaseConnector::renderTranslateExecuteSql(
+        connection = connectionPool,
+        sql = sql,
+        database_schema = databaseSchema,
+        database_id = key$databaseId,
+        phenotype = key$phenotype,
+        generated_id = key$generatedId,
+        adjudicator = dataList$adjudicator,
+        index_day = input$indexDay,
+        progressBar = FALSE,
+        reportOverallTime = FALSE
+      )
+    }
+  }, ignoreInit = TRUE)
 })
