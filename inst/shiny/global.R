@@ -98,9 +98,7 @@ getDataList <- function(session) {
       SELECT * 
     FROM @database_schema.adjudications 
     WHERE adjudicator = '@adjudicator'
-    ORDER BY database_id,
-      phenotype,
-      generated_id;"
+    ORDER BY sort_order;"
     decisionsDataFrame <- DatabaseConnector::renderTranslateQuerySql(
       connection = connectionPool,
       sql = sql,

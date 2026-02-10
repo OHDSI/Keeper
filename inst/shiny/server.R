@@ -71,7 +71,7 @@ prettifyName <- function(name){
 shinyServer(function(input, output, session) {
   
   dataList <- getDataList(session)
-  
+
   decisions <- reactiveValues(decisionsDataFrame = dataList$decisions$decisionsDataFrame)
 
   profile <- shiny::reactiveValues(index = 1)
@@ -111,6 +111,8 @@ shinyServer(function(input, output, session) {
   
   output$adjudicator <- shiny::renderText(dataList$decisions$adjudicator)
   
+  output$maxLabel <- shiny::renderText(sprintf("/ %d", dataList$nProfiles))
+  
   observe({
     indexDay <- decisions$decisionsDataFrame[profile$index, "indexDay"]
     if (!is.na(indexDay)) {
@@ -126,14 +128,25 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(input$nextButton, {
     if (profile$index < dataList$nProfiles) {
       profile$index <- profile$index + 1
+      updateTextInput(session, "profileIndex", value = profile$index)
     }
   })
   
   shiny::observeEvent(input$previousButton, {
     if (profile$index > 1) {
       profile$index <- profile$index - 1
+      updateTextInput(session, "profileIndex", value = profile$index)
     }
   })
+  
+  shiny::observeEvent(input$profileIndex, {
+    if (!is.na(as.integer(input$profileIndex)) &&
+        as.numeric(input$profileIndex) >= 1 &&
+        as.numeric(input$profileIndex) <= dataList$nProfiles &&
+        as.numeric(input$profileIndex) != isolate(profile$index)) {
+      profile$index <- as.numeric(input$profileIndex)
+    }
+  }, ignoreInit = TRUE)
   
   output$profile <- shiny::renderUI({
     subset <- keeperSubset()

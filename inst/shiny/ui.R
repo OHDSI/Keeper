@@ -56,12 +56,6 @@ shinyUI(
         ),
         h3("Person ID"),
         textOutput("personId"),
-        h3("Color legend"),
-        tags$ul(
-          tags$li(div("Disease of interest", style = "color: #1F425A")),
-          tags$li(div("Alternative diagnoses", style = "color: #EB6622")),
-          tags$li(div("Other", style = "color: #5C9EC3"))
-        ),
         wellPanel(
           h3("Adjudication",
              tooltip(
@@ -76,8 +70,18 @@ shinyUI(
           numericInput("indexDay", "Correct index day", value = NULL, step = 1),
         ),
         h3("Patient selection"),
-        actionButton("previousButton", "<"),
-        actionButton("nextButton", ">")
+        tags$table(tags$tr(
+          tags$td(actionButton("previousButton", "<")),
+          tags$td(div(textInput("profileIndex", "", value = "1", width = 50, updateOn = "blur"), style = "margin-top: -10px"), align = "right"),
+          tags$td(textOutput("maxLabel")),
+          tags$td(actionButton("nextButton", ">"), align = "right"),
+        ), width = "100%"),
+        h3("Color legend"),
+        tags$ul(
+          tags$li(div("Disease of interest", style = "color: #1F425A")),
+          tags$li(div("Alternative diagnoses", style = "color: #EB6622")),
+          tags$li(div("Other", style = "color: #5C9EC3"))
+        ),
       )),
     theme = bslib::bs_theme(
       version = 5,

@@ -123,8 +123,7 @@ sample <- bind_rows(
   adjudications |>
     filter(isCase == "insufficient information") |>
     slice_sample(n = 20),
-) |>
-  sample_frac()
+)
 
 keeperSample <- keeper |>
   filter(generatedId %in% sample$generatedId)
@@ -161,20 +160,26 @@ insertTable(
   data = keeperSample,
   databaseSchema = keeperDatabaseSchema,
   tableName = "keeper",
+  createTable = TRUE,
+  dropTableIfExists = TRUE,
   camelCaseToSnakeCase = TRUE
 )
 
 adjudications <- keeperSample |>
   distinct(databaseId, phenotype, generatedId) |>
-  mutate(decision = as.character(NA),
-         indexDay = 0,
-         adjudicator = "MSCHUEMI")
+  sample_frac() |>
+  mutate(sortOrder = row_number(),
+         decision = as.character(NA),
+         indexDay = 0) |>
+  cross_join(tibble(adjudicator = c("MSCHUEMI", "PRYAN4", "AOSTROP1")))
 
 insertTable(
   connection = connection,
   data = adjudications,
   databaseSchema = keeperDatabaseSchema,
   tableName = "adjudications",
+  createTable = TRUE,
+  dropTableIfExists = TRUE,
   camelCaseToSnakeCase = TRUE
 )
 
