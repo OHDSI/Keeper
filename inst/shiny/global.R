@@ -4,8 +4,6 @@ library(shiny)
 library(bslib)
 library(pool)
 
-
-
 if (Sys.getenv("KEEPER_SERVER") != "") {
   Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "data")
 
@@ -62,6 +60,7 @@ getDataList <- function(session) {
     args <- get(".shinyArgs", envir = .GlobalEnv)
     keeper <- args$keeper
     keeper <- addDatabaseIdPhenotypeIfNeeded(keeper)
+    conceptSets <- args$conceptSets
     decisionsFileName <- args$decisionsFileName
     decisions <- list(
       type = "file",
@@ -121,6 +120,15 @@ getDataList <- function(session) {
       adjudicator = adjudicator,
       decisionsDataFrame = decisionsDataFrame
     )
+    
+    sql <- "SELECT * FROM @database_schema.concept_sets;"
+    conceptSets <- DatabaseConnector::renderTranslateQuerySql(
+      connection = connectionPool,
+      sql = sql,
+      database_schema = databaseSchema,
+      snakeCaseToCamelCase = TRUE
+    ) |>
+      as_tibble()
 
   } else {
     writeLines("Loading KEEPER data from data folder")
@@ -128,6 +136,7 @@ getDataList <- function(session) {
     # decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
     keeper <- readRDS("data/Keeper.rds")
     keeper <- addDatabaseIdPhenotypeIfNeeded(keeper)
+    conceptSets <- readRDS("data/ConceptSets.rds")
     decisionsFileName <- "data/Decisions.csv"
     decisions <- list(
       type = "file",
@@ -138,6 +147,7 @@ getDataList <- function(session) {
   
   return(list(keeper = keeper,
               decisions = decisions,
+              conceptSets = conceptSets,
               nProfiles = nrow(decisionsDataFrame),
               hasPersonIds = "personId" %in% keeper$category))
 }

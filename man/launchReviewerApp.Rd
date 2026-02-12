@@ -4,12 +4,14 @@
 \alias{launchReviewerApp}
 \title{Launch the reviewer Shiny app}
 \usage{
-launchReviewerApp(keeper, decisionsFileName)
+launchReviewerApp(keeper, keeperConceptSets, decisionsFileName)
 }
 \arguments{
 \item{keeper}{The output of the \code{\link[=generateKeeper]{generateKeeper()}} function.}
 
-\item{decisionsFileName}{The location where the decisions made by the reviewer wil be written.}
+\item{keeperConceptSets}{The output of the \code{\link[=generateKeeperConceptSets]{generateKeeperConceptSets()}} function.}
+
+\item{decisionsFileName}{The location of the CSV file where the decisions made by the reviewer will be written.}
 }
 \value{
 Returns nothing. Called for launching the Shiny app.

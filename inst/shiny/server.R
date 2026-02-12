@@ -25,38 +25,77 @@ generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable)
   }
 }
 
-getTooltipText <- function(section) {
+getPopoverContent <- function(section, conceptSets = NULL, phenotype = NULL) {
   if (section == "demographics") {
-    return("Patient demographics, including the age at day 0.")
+    return(tags$p("Patient demographics, including the age at day 0."))
   } else if (section == "presentation") {
-    return("Any condition observed on day 0.")
+    return(tags$p("Any condition observed on day 0."))
   } else if (section == "visitContext") {
-    return("Any visit that occurred on day 0 or included day 0.")
+    return(tags$p("Any visit that occurred on day 0 or included day 0."))
   } else if (section == "symptoms") {
-    return("Symptoms that occurred in the 30 days prior, excluding day 0. Symptoms can be conditions or observations.")
+    text <- "Symptoms that occurred in the 30 days prior, excluding day 0. Symptoms can be conditions or observations."
+    categories <- "symptoms"
   } else if (section == "priorDisease") {
-    return("Conditions related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0.")
+    text <- "Conditions related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0."
+    categories <- c("doi", "symptoms")
   } else if (section == "postDisease") {
-    return("Conditions related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0.")
+    text <- "Conditions related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0."
+    categories <- c("doi", "symptoms")
   } else if (section == "priorDrugs") {
-    return("Drugs related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0.")
+    text <- "Drugs related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0."
+    categories <- "drugs"
   } else if (section == "postDrugs") {
-    return("Drugs related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0.")
+    text <- "Drugs related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0."
+    categories <- "drugs"
   } else if (section == "priorTreatmentProcedures") {
-    return("Treatment procedures related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0.")
+    text <- "Treatment procedures related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0."
+    categories <- "treatmentProcedures"
   } else if (section == "postTreatmentProcedures") {
-    return("Treatment procedures related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0.")
+    text <- "Treatment procedures related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0."
+    categories <- "treatmentProcedures"
   } else if (section == "alternativeDiagnoses") {
-    return("Alternative diagnoses (conditions) recorded in the 90 days prior to 90 days after.")
+    text <- "Alternative diagnoses (conditions) recorded in the 90 days prior to 90 days after."
+    categories <- "alternativeDiagnosis"
   } else if (section == "diagnosticProcedures") {
-    return("Diagnostic procedures either for the disease of interest of alternative diagnoses recorded in the 30 days before to 30 days after.")
+    text <- "Diagnostic procedures either for the disease of interest of alternative diagnoses recorded in the 30 days before to 30 days after."
+    categories <- "diagnosticProcedures"
   } else if (section == "measurements") {
-    return("Measurements related to either the disease of interest or alternative diagnoses recorded in the 30 days before to 30 days after.")
+    text <- "Measurements related to either the disease of interest or alternative diagnoses recorded in the 30 days before to 30 days after."
+    categories <- "measurements"
   } else if (section == "death") {
-    return("Death recorded any time after, including day 0.")
+    return(tags$p("Death recorded any time after, including day 0."))
   } else {
     return("Unknown section")
   }
+  concepts <- conceptSets |>
+    filter(conceptSetName %in% categories, phenotype == !!phenotype) |>
+    mutate(conceptName = if_else(nchar(conceptName) > 50, paste0(substr(conceptName, 1, 47), "..."), conceptName)) |>
+    arrange(conceptName)
+  conceptsDoi <- concepts |> 
+    filter(target == "Disease of interest") |>
+    pull(conceptName)
+  if (length(conceptsDoi) == 0) {
+    conceptsDoi = "<none>"
+  }
+  conceptsAd <- concepts |>
+    filter(target == "Alternative diagnoses") |> 
+    pull(conceptName)
+  if (length(conceptsAd) == 0) {
+    conceptsDoi = "<none>"
+  }
+  content <- list(
+    tags$p(text),
+    "Restricted to the following concepts (or their descendants):",
+    div(class = "scroll-box",
+        tags$table(
+          tags$tr(tags$th("Disease of interest"), tags$th("Alternative diagnoses")),
+          tags$tr(tags$td(tags$ul(lapply(conceptsDoi, tags$li)), style = "vertical-align: top"), 
+                  tags$td(tags$ul(lapply(conceptsAd, tags$li)), style = "vertical-align: top")),
+          style = "width: 100%"
+        )
+    )
+  )
+  return(content)
 }
 
 prettifyName <- function(name){
@@ -71,11 +110,11 @@ prettifyName <- function(name){
 shinyServer(function(input, output, session) {
   
   dataList <- getDataList(session)
-
+  
   decisions <- reactiveValues(decisionsDataFrame = dataList$decisions$decisionsDataFrame)
-
+  
   profile <- shiny::reactiveValues(index = 1)
-    
+  
   keeperSubset <- shiny::reactive({
     key <- isolate(decisions$decisionsDataFrame)[profile$index, ] |>
       select(databaseId, phenotype, generatedId)
@@ -186,10 +225,10 @@ shinyServer(function(input, output, session) {
     }
     uiElements[[length(uiElements) + 1]] <- tagList(
       h3("Demographics",
-         tooltip(
+         popover(
            icon("circle-info", style="font-size: 17px; color: #336b92"),
-           placement = "right",
-           getTooltipText("demographics")
+           getPopoverContent("demographics"),
+           title = "Demographics"
          )
       ),
       p(formattedParts),
@@ -237,13 +276,20 @@ shinyServer(function(input, output, session) {
         div(table$label[i], style = table$style[i])
       })
       formattedParts <- tagList(formattedParts)
+      
       uiElements[[length(uiElements) + 1]] <- tagList(
         h3(prettifyName(keeperTable),
-           tooltip(
+
+           popover(
              icon("circle-info", style="font-size: 17px; color: #336b92"),
-             placement = "right",
-             getTooltipText(keeperTable)
-           )),
+             getPopoverContent(section = keeperTable, 
+                               conceptSets = dataList$conceptSets,    
+                               phenotype = keeperSubset() |> 
+                                 head(1) |>
+                                 pull(phenotype)),
+             title = prettifyName(keeperTable)
+           )
+        ),
         p(formattedParts)
       )
     }
@@ -280,7 +326,7 @@ shinyServer(function(input, output, session) {
       )
     }
   }, ignoreInit = TRUE)
-
+  
   shiny::observeEvent(input$indexDay, {
     req(!is.na(input$indexDay))
     decisions$decisionsDataFrame[profile$index, "indexDay"] <- input$indexDay

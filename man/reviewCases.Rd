@@ -7,7 +7,7 @@
 reviewCases(
   keeper,
   settings = createPromptSettings(),
-  diseaseName,
+  phenotypeName = NULL,
   client,
   cacheFolder
 )
@@ -17,7 +17,8 @@ reviewCases(
 
 \item{settings}{Prompt creating settings as created using the \link{createPromptSettings} function.}
 
-\item{diseaseName}{The name of the disease to use in the prompt.}
+\item{phenotypeName}{The name of the disease to use in the prompt. If not provided, the name in the KEEPER input will
+be used.}
 
 \item{client}{An LLM client created using the \code{ellmer} package.}
 

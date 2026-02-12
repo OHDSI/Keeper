@@ -18,14 +18,21 @@ Do not require absolute certainty to make a determination."),
   p("If your final determination is", tags$b("Yes"), ", also provide the relative day that is the likely day of onset. If there is no clear day of onset, simply enter 0.")
 )
 
-
 shinyUI(
   fluidPage(
     tags$style(HTML("
-    .tooltip-inner {
-      max-width: 500px;
-      white-space: normal;
-      text-align: left;
+    .popover {
+        max-width: 800px !important;
+         
+        --bs-popover-header-bg: #69AED5;  
+        --bs-popover-header-color: white;
+    }
+    .scroll-box {
+        height: 300px;       /* Fixed height */
+        overflow-y: auto;    /* Enable vertical scroll */
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: #f9f9f9;
     }
   ")),
     fluidRow(
@@ -36,32 +43,32 @@ shinyUI(
         ),
         width = "100%"),
         style = "background-color: #336b92; color: white")
-      ),
+    ),
     fluidRow(
       style = "margin-top: 20px",
       column(
-        10,
+        9,
         uiOutput("profile")
       ),
       column(
-        2,
+        3,
         h3("Database"),
         textOutput("database"),
         h3("Phenotype"),
         textOutput("phenotype"),
         conditionalPanel(
           condition = "output.adjudicator != ''",
-          h3("Adjudicator"),
+          h3("Reviewer"),
           textOutput("adjudicator"),
         ),
         h3("Person ID"),
         textOutput("personId"),
         wellPanel(
-          h3("Adjudication",
-             tooltip(
+          h3("Decision",
+             popover(
                icon("circle-info", style="font-size: 17px; color: #336b92"),
-               placement = "left",
-               instructions
+               instructions,
+               title = "Decision"
              )),
           radioButtons("decision",
                        "Decision",

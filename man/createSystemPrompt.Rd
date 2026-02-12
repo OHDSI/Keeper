@@ -4,12 +4,12 @@
 \alias{createSystemPrompt}
 \title{Create a system prompt for a LLM}
 \usage{
-createSystemPrompt(settings, diseaseName)
+createSystemPrompt(settings, phenotypeName)
 }
 \arguments{
 \item{settings}{A settings object as created using \code{\link[=createPromptSettings]{createPromptSettings()}}.}
 
-\item{diseaseName}{The name of the disease to use in the prompt.}
+\item{phenotypeName}{The name of the disease to use in the prompt.}
 }
 \value{
 A character string with the system prompt.
