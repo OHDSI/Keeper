@@ -234,6 +234,7 @@ generateKeeperConceptSets <- function(
     
     if (promptSet$parameterName == "alternativeDiagnosis") {
       alternativeDiagnoses <- attr(conceptSet , "initialTerms")
+      conceptSet$target <- "Alternative diagnoses"
     } else if (!is.null(alternativeDiagnoses)) {
       message(sprintf("Generating concept set %s for alternative diagnoses", promptSet$name))
       
