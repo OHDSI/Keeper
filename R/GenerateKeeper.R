@@ -178,17 +178,13 @@ generateKeeper <- function(connectionDetails = NULL,
       tempEmulationSchema = tempEmulationSchema
     ) |>
       as_tibble()
-    if ("target" %in% colnames(table)) {
-      table <- table |>
-        mutate(target = case_when(
-          .data$target == 1 ~ "Disease of interest",
-          .data$target == 0 ~ "Alternative diagnoses",
-          TRUE ~ "Other"
-        ))
-    } else {
-      table <- table |>
-        mutate(target = "Disease of interest")
-    }
+    table <- table |>
+      mutate(target = case_when(
+        .data$target == 2 ~ "Both",
+        .data$target == 1 ~ "Disease of interest",
+        .data$target == 0 ~ "Alternative diagnoses",
+        TRUE ~ "Other"
+      ))
     if (keeperTable == "demographics") {
       table <- tibble(
         generatedId = rep(table$generatedId, 6),
@@ -391,7 +387,8 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
       filter(.data$category == keeperTable) |>
       mutate(
         sortOrder = case_when(
-        .data$target == "Disease of interest" ~ 1,
+        .data$target == "Disease of interest" ~ 2,
+        .data$target == "Both" ~ 1,
         .data$target == "Alternative diagnoses" ~ 0,
         TRUE ~ -1),
         extraGroup = if (keeperTable == "presentation") .data$extraData else "") |>

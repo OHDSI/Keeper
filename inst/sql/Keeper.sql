@@ -17,7 +17,17 @@ DROP TABLE IF EXISTS #death;
 {@use_descendants} ? {
 SELECT descendant_concept_id AS concept_id,
 	concept_set_name,
-	MAX(target) AS target
+	CASE
+	  WHEN descendant_concept_id IN (
+	    SELECT DISTINCT descendant_concept_id
+	    FROM #concept_sets
+      INNER JOIN @cdm_database_schema.concept_ancestor
+	      ON concept_id = ancestor_concept_id
+	    WHERE concept_set_name = 'doi'
+	  ) THEN 1
+	  WHEN MIN(target) = 0 AND MAX(target) = 1 THEN 2
+	  ELSE MAX(target)
+	END AS target
 INTO #full_concept_sets
 FROM #concept_sets
 INNER JOIN @cdm_database_schema.concept_ancestor
@@ -27,7 +37,10 @@ GROUP BY descendant_concept_id,
 } : {
 SELECT concept_id,
 	concept_set_name,
-	MAX(target) AS target
+	CASE
+	  WHEN MIN(target) = 0 AND MAX(target) = 1 THEN 2
+	  ELSE MAX(target)
+	END AS target
 INTO #full_concept_sets
 FROM #concept_sets
 GROUP BY concept_id,
@@ -45,7 +58,8 @@ SELECT CAST(subject_id AS VARCHAR) AS person_id,
 	race_concept_id,
 	CASE WHEN race_concept.concept_name IS NULL THEN '' ELSE race_concept.concept_name END AS race_concept_name,
 	ethnicity_concept_id,
-	CASE WHEN ethnicity_concept.concept_name IS NULL THEN '' ELSE ethnicity_concept.concept_name END AS ethnicity_concept_name
+	CASE WHEN ethnicity_concept.concept_name IS NULL THEN '' ELSE ethnicity_concept.concept_name END AS ethnicity_concept_name,
+	1 AS target
 INTO #demographics
 FROM #cohort cohort
 INNER JOIN @cdm_database_schema.person
@@ -107,7 +121,8 @@ SELECT generated_id,
 	start_day,
 	end_day,
 	concept_id,
-	CASE WHEN concept_id = 0 THEN '' ELSE concept_name END AS concept_name
+	CASE WHEN concept_id = 0 THEN '' ELSE concept_name END AS concept_name,
+	1 AS target
 INTO #visit_context
 FROM ( 
 	SELECT generated_id,
@@ -308,7 +323,8 @@ GROUP BY generated_id,
 SELECT generated_id,
 	DATEDIFF(DAY, cohort_start_date, condition_era_start_date) AS start_day,
 	condition_concept_id AS concept_id,
-	concept_name
+	concept_name,
+	0 AS target
 INTO #alternative_diagnoses
 FROM #cohort cohort
 INNER JOIN @cdm_database_schema.condition_era
@@ -406,7 +422,8 @@ GROUP BY generated_id,
 SELECT generated_id,
 	DATEDIFF(DAY, cohort_start_date, death_date) AS start_day,
 	cause_concept_id AS concept_id,
-	CASE WHEN concept_name IS NULL THEN '' ELSE concept_name END AS concept_name
+	CASE WHEN concept_name IS NULL THEN '' ELSE concept_name END AS concept_name,
+	1 AS target
 INTO #death
 FROM #cohort cohort
 INNER JOIN @cdm_database_schema.death

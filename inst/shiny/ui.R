@@ -78,9 +78,10 @@ shinyUI(
         ), width = "100%"),
         h3("Color legend"),
         tags$ul(
-          tags$li(div("Disease of interest", style = "color: #1F425A")),
+          tags$li(div("Disease of interest", style = "color: #000000")),
+          tags$li(div("Both", style = "color: #11A08A")),
           tags$li(div("Alternative diagnoses", style = "color: #EB6622")),
-          tags$li(div("Other", style = "color: #5C9EC3"))
+          tags$li(div("Other", style = "color: #999999"))
         ),
       )),
     theme = bslib::bs_theme(

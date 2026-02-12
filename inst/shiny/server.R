@@ -220,13 +220,15 @@ shinyServer(function(input, output, session) {
         summarise(label = generateLabel(.data$conceptName, .data$startDay, .data$endDay, .data$extraData, keeperTable), .groups = "drop") |>
         mutate(          
           sortOrder = case_when(
-            .data$target == "Disease of interest" ~ 1,
+            .data$target == "Disease of interest" ~ 2,
+            .data$target == "Both" ~ 1,
             .data$target == "Alternative diagnoses" ~ 0,
             TRUE ~ -1),
           style = case_when(
-            target == "Disease of interest" ~ "color: #1F425A",
+            target == "Disease of interest" ~ "color: #000000",
+            target == "Both" ~ "color: #11A08A",
             target == "Alternative diagnoses" ~ "color: #EB6622",
-            TRUE ~ "color: #5C9EC3"
+            TRUE ~ "color: #999999"
           )
         ) |>
         arrange(desc(.data$sortOrder), .data$label) 

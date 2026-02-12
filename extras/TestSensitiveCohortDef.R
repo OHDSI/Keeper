@@ -44,8 +44,12 @@ concepts <- createSensitiveCohort(
 readr::write_csv(concepts, specConceptsFileName)
 
 # Run Keeper on sensitive cohort ----------------------------------------
+personIds <- NULL
 # keeper <- readRDS(keeperFileName)
-# personIds <- keeper$demographics$personId
+# personIds <- keeper |>
+#   filter(category == "personId") |>
+#   pull(conceptName)
+# oldKeeper <- keeper
 
 keeper <- generateKeeper(
   connectionDetails = connectionDetails,
@@ -58,21 +62,24 @@ keeper <- generateKeeper(
   phenotypeName = "Atrial Fibrillation",
   keeperConceptSets = conceptSets
 )
-# newIds <- keeper2 |>
+# newIds <- keeper |>
 #   filter(category == "personId") |>
 #   select(personId = "conceptName", "generatedId")
 # newToOldIds <- newIds |>
-#   inner_join(keeper$demographics |>
-#                select("personId", oldId = "generatedId"), by = join_by("personId"))
-# 
-# newKeeper <- keeper2 |>
+#   inner_join(oldKeeper  |>
+#                filter(category == "personId") |>
+#                select(personId = "conceptName", oldId = "generatedId"),
+#                by = join_by("personId"))
+# keeper <- keeper |>
 #   inner_join(newToOldIds, by = join_by("generatedId")) |>
 #   mutate(generatedId = oldId) |>
 #   select(-"oldId")
+# 
+# keeper |>
+#   distinct(generatedId) |>
+#   count()
 
 saveRDS(keeper, keeperFileName)
-# keeperTable <- convertKeeperToTable(keeper)
-# readr::write_csv(keeperTable, "e:/temp/KeeperMm.csv")
 
 # Use LLM to adjudicate cases -------------------------------------------
 library(ellmer)
@@ -108,6 +115,10 @@ hasDoiGeneratedId <- keeper |>
   pull()
 
 adjudications |>
+  group_by(isCase) |>
+  count() 
+
+adjudications |>
   mutate(hasDoi = generatedId %in% hasDoiGeneratedId) |>
   group_by(isCase, hasDoi) |>
   count()
@@ -124,9 +135,13 @@ sample <- bind_rows(
     filter(isCase == "insufficient information") |>
     slice_sample(n = 20),
 )
+# sample <- readRDS("e:/KeeperSensitiveCohort/KeeperSample.rds")
 
 keeperSample <- keeper |>
   filter(generatedId %in% sample$generatedId)
+# 
+# sample <- sample |> arrange(generatedId, category, conceptName, extraData)
+# keeperSample <- keeperSample |> arrange(generatedId, category, conceptName, extraData)
   
 saveRDS(keeperSample, "e:/KeeperSensitiveCohort/KeeperSample.rds")
   
@@ -145,6 +160,13 @@ connection <- connect(connectionDetails)
 # renderTranslateExecuteSql(connection, "CREATE SCHEMA @keeper_database_schema;", keeper_database_schema = keeperDatabaseSchema)
 
 keeperSample <- readRDS("e:/KeeperSensitiveCohort/KeeperSample.rds")
+# keeperSample <- keeperSample |>
+#   mutate(target = if_else(category == "alternativeDiagnoses", "Alternative diagnoses", target))
+# keeperSample |> filter(conceptName == "Supraventricular tachycardia")
+# keeperSample |>
+#   filter(category == "alternativeDiagnoses") |>
+#   distinct(conceptId, conceptName)
+
 keeperSample <- keeperSample |>
   inner_join(keeperSample |>
                filter(category == "cdmSourceAbbreviation") |>
@@ -183,4 +205,46 @@ insertTable(
   camelCaseToSnakeCase = TRUE
 )
 
+conceptSets <- readr::read_csv(conceptSetsFileName, show_col_types = FALSE)
+conceptSets <- conceptSets |>
+  mutate(phenotype = keeperSample |>
+           filter(category == "phenotype") |>
+           head(1) |>
+           pull(conceptName))
+insertTable(
+  connection = connection,
+  data = conceptSets,
+  databaseSchema = keeperDatabaseSchema,
+  tableName = "concept_sets",
+  createTable = TRUE,
+  dropTableIfExists = TRUE,
+  camelCaseToSnakeCase = TRUE
+)
+
 disconnect(connection)
+
+# Some debugging -------------------------
+conceptSets <- readr::read_csv(conceptSetsFileName, show_col_types = FALSE)
+doiConcepts <- conceptSets |>
+  filter(target == "Disease of interest")
+
+adConcepts <- conceptSets |>
+  filter(target == "Alternative diagnoses")
+# 4275423 SV
+
+sql <- "
+  SELECT ancestor_concept_id
+  FROM @cdm.concept_ancestor
+  WHERE ancestor_concept_id IN (@doi_concepts)
+    AND descendant_concept_id = 4275423;
+  "
+connection <- DatabaseConnector::connect(connectionDetails)
+DatabaseConnector::renderTranslateQuerySql(
+  connection = connection,
+  sql = sql,
+  cdm = cdmDatabaseSchema,
+  doi_concepts = doiConcepts$conceptId
+)
+
+doiConcepts |>
+  filter(conceptId == 444070)

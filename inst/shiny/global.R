@@ -75,7 +75,7 @@ getDataList <- function(session) {
       writeLines("Could not detect user. Setting to default")
       adjudicator <- "TEST_USER"
     } else {
-      adjudicator <- session$user
+      adjudicator <- toupper(session$user)
     }
     sql <- "
       SELECT keeper.* 
