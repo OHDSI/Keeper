@@ -35,6 +35,38 @@ shinyUI(
         background-color: #f9f9f9;
     }
   ")),
+  tags$script(HTML("
+    // Function to hide all Bootstrap popovers
+   function hideAllPopovers() {
+      var popovers = document.querySelectorAll('[data-bs-toggle=\"popover\"]');
+      popovers.forEach(function(el) {
+        var popoverInstance = bootstrap.Popover.getInstance(el);
+        if (popoverInstance) {
+          popoverInstance.hide();
+        }
+      });
+    }
+
+    // Close popovers when clicking anywhere outside them
+    document.addEventListener('click', function(e) {
+      // If click is NOT inside a popover or its trigger
+      if (!e.target.closest('.popover') && !e.target.closest('[data-bs-toggle=\"popover\"]')) {
+        hideAllPopovers();
+      }
+    });
+
+    // Close popovers on any input change (text, select, checkbox, etc.)
+    document.addEventListener('input', function(e) {
+      hideAllPopovers();
+    });
+
+    // Close popovers on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        hideAllPopovers();
+      }
+    });
+  ")),
     fluidRow(
       div(
         tags$table(tags$tr(
@@ -85,8 +117,8 @@ shinyUI(
         ), width = "100%"),
         h3("Color legend"),
         tags$ul(
-          tags$li(div("Disease of interest", style = "color: #000000")),
-          tags$li(div("Both", style = "color: #11A08A")),
+          tags$li(div("Disease of interest", style = "color: #11A08A")),
+          tags$li(div("Both", style = "color: #000000")),
           tags$li(div("Alternative diagnoses", style = "color: #EB6622")),
           tags$li(div("Other", style = "color: #999999"))
         ),

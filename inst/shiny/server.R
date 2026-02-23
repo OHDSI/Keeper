@@ -4,9 +4,9 @@ generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable)
   } else if (keeperTable == "visitContext") {
     return(paste0(conceptName, if_else(startDay == endDay, "", sprintf(" (%d days)", endDay - startDay))))
   } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
-    return(sprintf("%s (day %s)", 
+    return(sprintf("%s (%s)", 
                    conceptName[1],
-                   paste(sprintf("%d for %d day%s", 
+                   paste(sprintf("day %d for %d day%s", 
                                  startDay, 
                                  endDay - startDay + 1,
                                  if_else(endDay == startDay, "", "s")),
@@ -37,10 +37,10 @@ getPopoverContent <- function(section, conceptSets = NULL, phenotype = NULL) {
     categories <- "symptoms"
   } else if (section == "priorDisease") {
     text <- "Conditions related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0."
-    categories <- c("doi", "symptoms")
+    categories <- c("doi", "complications")
   } else if (section == "postDisease") {
     text <- "Conditions related to either the disease of interest or alternative diagnoses recorded any time after, excluding day 0."
-    categories <- c("doi", "symptoms")
+    categories <- c("doi", "complications")
   } else if (section == "priorDrugs") {
     text <- "Drugs related to either the disease of interest or alternative diagnoses recorded any time prior, excluding day 0."
     categories <- "drugs"
@@ -239,14 +239,14 @@ shinyServer(function(input, output, session) {
                       "visitContext",
                       "symptoms",
                       "priorDisease",
-                      "postDisease",
                       "priorDrugs",
-                      "postDrugs",
                       "priorTreatmentProcedures",
-                      "postTreatmentProcedures",
+                      "measurements",
                       "alternativeDiagnoses",
                       "diagnosticProcedures",
-                      "measurements",
+                      "postDisease",
+                      "postDrugs",
+                      "postTreatmentProcedures",
                       "death")
     
     for (keeperTable in keeperTables) {
@@ -264,8 +264,8 @@ shinyServer(function(input, output, session) {
             .data$target == "Alternative diagnoses" ~ 0,
             TRUE ~ -1),
           style = case_when(
-            target == "Disease of interest" ~ "color: #000000",
-            target == "Both" ~ "color: #11A08A",
+            target == "Disease of interest" ~ "color: #11A08A",
+            target == "Both" ~ "color: #000000",
             target == "Alternative diagnoses" ~ "color: #EB6622",
             TRUE ~ "color: #999999"
           )
