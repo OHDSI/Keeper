@@ -319,16 +319,21 @@ generateConceptSet <- function(condition,
   message("- Adding related concepts using Phoebe")
   if (nrow(concepts) != 0) {
     newConcepts <- lapply(concepts$conceptId, phoebeSearch)
-    newConcepts <- bind_rows(newConcepts) |>
+    newConcepts <- bind_rows(newConcepts) 
+    if (nrow(newConcepts) > 0) {
+      newConcepts <- newConcepts |>
       filter(!duplicated(.data$conceptId))  |>
       filter(.data$recordCount >= minRecordCount)
-    newConcepts <- removeNonStandard(concepts = newConcepts, 
-                                     connection = connection,
-                                     vocabDatabaseSchema = vocabDatabaseSchema)
-    concepts <- addNonChildren(concepts = concepts, 
-                               newConcepts = newConcepts,
-                               connection = connection,
-                               vocabDatabaseSchema = vocabDatabaseSchema)
+    }
+    if (nrow(newConcepts) > 0) {
+      newConcepts <- removeNonStandard(concepts = newConcepts, 
+                                       connection = connection,
+                                       vocabDatabaseSchema = vocabDatabaseSchema)
+      concepts <- addNonChildren(concepts = concepts, 
+                                 newConcepts = newConcepts,
+                                 connection = connection,
+                                 vocabDatabaseSchema = vocabDatabaseSchema)
+    }
   }
   message(sprintf("  Now have a total of %d unique concepts", nrow(concepts)))
   
