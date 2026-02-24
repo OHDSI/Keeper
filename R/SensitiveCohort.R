@@ -179,5 +179,8 @@ createSensitiveCohort <- function(connectionDetails = NULL,
                  " with the diagnosis, and ",
                  format(countCombi[1, 1], scientific = FALSE, big.mark = ","),
                  " with a combination of other markers."))
+  attr(conceptRatios, "count") <- count[1, 1]
+  attr(conceptRatios, "countDoi") <- countDoi[1, 1]
+  attr(conceptRatios, "countCombi") <- countCombi[1, 1]
   invisible(conceptRatios)  
 }

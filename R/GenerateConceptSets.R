@@ -228,13 +228,15 @@ generateKeeperConceptSets <- function(
       client = client
     )
     cost <- cost + attr(conceptSet, "cost") 
-    conceptSet$conceptSetName <- promptSet$parameterName
-    conceptSet$target <- "Disease of interest"
+    conceptSet <- conceptSet |>
+      mutate(conceptSetName = promptSet$parameterName,
+             target = "Disease of interest")
     table[[length(table) + 1]] <- conceptSet
     
     if (promptSet$parameterName == "alternativeDiagnosis") {
       alternativeDiagnoses <- attr(conceptSet , "initialTerms")
-      conceptSet$target <- "Alternative diagnoses"
+      conceptSet <- conceptSet |>
+        mutate(target = "Alternative diagnoses")
     } else if (!is.null(alternativeDiagnoses)) {
       message(sprintf("Generating concept set %s for alternative diagnoses", promptSet$name))
       
@@ -246,8 +248,9 @@ generateKeeperConceptSets <- function(
         client = client
       )
       cost <- cost + attr(conceptSet, "cost") 
-      conceptSet$conceptSetName <- promptSet$parameterName
-      conceptSet$target <- "Alternative diagnoses"
+      conceptSet <- conceptSet |>
+        mutate(conceptSetName = promptSet$parameterName,
+               target = "Alternative diagnoses")
       table[[length(table) + 1]] <- conceptSet
     }
   }
