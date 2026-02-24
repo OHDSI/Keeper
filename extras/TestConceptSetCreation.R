@@ -131,3 +131,5 @@ for (i in seq_along(phenotypes)) {
 }
 counts <- bind_rows(counts)
 specConcepts <- bind_rows(specConcepts)
+readr::write_csv(counts, file.path(folder, "CohortCounts.csv"))
+readr::write_csv(specConcepts, file.path(folder, "SpecConcepts.csv"))
