@@ -43,6 +43,17 @@ conceptSets <- generateKeeperConceptSets(
 )
 readr::write_csv(conceptSets, "e:/temp/afConceptSets.csv")
 
+# conceptSetsOld <- readr::read_csv("e:/temp/afConceptSetsOld.csv")
+# 
+# joined <- conceptSets |>
+#   mutate(new = TRUE) |>
+#   full_join(conceptSetsOld |>
+#               mutate(old = TRUE),
+#             by = join_by(conceptId, conceptName, vocabularyId, conceptSetName, target))|>
+#   mutate(new = if_else(is.na(new), FALSE, TRUE),
+#          old = if_else(is.na(old), FALSE, TRUE)) |>
+#   mutate(both = new & old)
+# readr::write_csv(joined, "e:/temp/afConceptSetsCompared.csv")
 
 # Create many concept sets -----------------------------------------------------
 phenotypes <- c("Thrombocytopenia",

@@ -29,9 +29,14 @@ SELECT descendant_concept_id AS concept_id,
 	  ELSE MAX(target)
 	END AS target
 INTO #full_concept_sets
-FROM #concept_sets
+FROM #concept_sets concept_sets
 INNER JOIN @cdm_database_schema.concept_ancestor
-	ON concept_id = ancestor_concept_id
+	ON concept_sets.concept_id = ancestor_concept_id
+INNER JOIN @cdm_database_schema.concept ancestor_concept
+  ON ancestor_concept.concept_id = ancestor_concept_id
+INNER JOIN @cdm_database_schema.concept descendant_concept
+  ON descendant_concept.concept_id = descendant_concept_id
+WHERE (concept_set_name != 'symptoms' OR ancestor_concept.concept_class_id = descendant_concept.concept_class_id)
 GROUP BY descendant_concept_id,
 	concept_set_name;
 } : {
