@@ -7,41 +7,6 @@ library(plotly)
 # subset <- keeper |>
 #   filter(generatedId == generatedIds[3])
 
-# prettifyName <- function(name){
-#   name <- gsub("([A-Z])", " \\1", name)
-#   name <- tolower(name)
-#   name <- gsub("([a-z])([0-9])", "\\1_\\2", name)
-#   name <- tolower(name)
-#   name <- gsub("\\b([a-z])", "\\U\\1", name, perl = TRUE)
-#   return(name)
-# }
-
-# generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable) {
-#   if (keeperTable == "presentation") {
-#     return(paste0(conceptName, if_else(extraData == "",  "", sprintf(" (%s)", extraData))))
-#   } else if (keeperTable == "visitContext") {
-#     return(paste0(conceptName, if_else(startDay == endDay, "", sprintf(" (%d days)", endDay - startDay))))
-#   } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
-#     return(sprintf("%s (%s)", 
-#                    conceptName[1],
-#                    paste(sprintf("day %d for %d day%s", 
-#                                  startDay, 
-#                                  endDay - startDay + 1,
-#                                  if_else(endDay == startDay, "", "s")),
-#                          collapse = ", ")))
-#   } else if (keeperTable == "measurements") {
-#     return(sprintf("%s (day %s)", 
-#                    conceptName[1],
-#                    paste(if_else(extraData == "",
-#                                  as.character(startDay),
-#                                  sprintf("%d with value %s", startDay, extraData)),
-#                          collapse = ", ")))     
-#   } else {
-#     return(sprintf("%s (day %s)", 
-#                    conceptName[1],
-#                    paste(startDay, collapse = ", ")))     
-#   }
-# }
 
 generateLabelForPlot <- function(conceptName, startDay, endDay, extraData, keeperTable) {
   conceptName <- if_else(nchar(conceptName) > 63, paste0(substr(conceptName, 1, 60), "..."), conceptName)
