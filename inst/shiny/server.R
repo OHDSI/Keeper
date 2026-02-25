@@ -1,3 +1,5 @@
+source("PlotKeeper.R")
+
 generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable) {
   if (keeperTable == "presentation") {
     return(paste0(conceptName, if_else(extraData == "",  "", sprintf(" (%s)", extraData))))
@@ -279,7 +281,7 @@ shinyServer(function(input, output, session) {
       
       uiElements[[length(uiElements) + 1]] <- tagList(
         h3(prettifyName(keeperTable),
-
+           
            popover(
              icon("circle-info", style="font-size: 17px; color: #336b92"),
              getPopoverContent(section = keeperTable, 
@@ -297,10 +299,52 @@ shinyServer(function(input, output, session) {
     return(do.call(tagList, uiElements))
   })
   
+  output$demographics <- renderUI({
+    if (nrow(subset) == 0) {
+      return("No data")
+    }
+    age <- subset |>
+      filter(.data$category == "age") |>
+      pull(conceptName)
+    sex <- subset |>
+      filter(.data$category == "sex") |>
+      pull(conceptName)
+    observationPeriod <- subset |>
+      filter(.data$category == "observationPeriod") |>
+      select("startDay", "endDay")
+    race <- subset |>
+      filter(.data$category == "race") |>
+      pull(conceptName)
+    ethnicity <- subset |>
+      filter(.data$category == "ethnicity") |>
+      pull(conceptName)
+    cells <- list(
+      tags$td(tags$b("Age"), tags$br(), age, align = "center"),
+      tags$td(tags$b("Sex"), tags$br(), sex, align = "center"),
+      tags$td(tags$b("Observation period"), tags$br(), sprintf("day %d - day %d", observationPeriod$startDay, observationPeriod$endDay), align = "center")
+    )
+    if (race != "") {
+      cells <- append(cells, tags$td(tags$b("Race"), tags$br(), race, align = "center"))
+    }
+    if (ethnicity != "") {
+      cells <- append(cells, tags$td(tags$b("Ethnicity"), tags$br(), ethnicity, align = "center"))
+    } 
+    
+    table <- tags$table(tags$tr(cells), 
+                        style = "border-collapse: separate; border-spacing: 20px; margin-right: auto; margin-top: -10px; margin-bottom: -20px;")
+
+    return(table)
+  })
+  
+  output$timeline <- renderPlotly({
+    subset <- keeperSubset()
+    return(plotTimeline(subset))
+  })
+  
   shiny::observeEvent(input$decision, {
     decisions$decisionsDataFrame[profile$index, "decision"] <- input$decision
     if (dataList$decisions$type == "file") {
-      write_csv(decisions$decisions, dataList$decisionsFileName)
+      write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting decision to %s", input$decision))
       key <- keeperSubset() |> 
@@ -331,7 +375,7 @@ shinyServer(function(input, output, session) {
     req(!is.na(input$indexDay))
     decisions$decisionsDataFrame[profile$index, "indexDay"] <- input$indexDay
     if (dataList$decisions$type == "file") {
-      write_csv(decisions$decisions, dataList$decisionsFileName)
+      write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting index_day to %s", input$indexDay))
       key <- keeperSubset() |> 

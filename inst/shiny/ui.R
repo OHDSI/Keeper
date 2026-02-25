@@ -80,7 +80,12 @@ shinyUI(
       style = "margin-top: 20px",
       column(
         9,
-        uiOutput("profile")
+        navset_tab(
+          nav_panel("Profile", uiOutput("profile")),
+          nav_panel("Timeline", 
+                    uiOutput("demographics"),
+                    plotlyOutput("timeline", height = "500px"))
+        )
       ),
       column(
         3,

@@ -3,6 +3,16 @@ library(readr)
 library(shiny)
 library(bslib)
 library(pool)
+library(plotly)
+
+
+
+# .shinyArgs <- list(
+#   keeper = readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperAf.rds"),
+#   conceptSets = readr::read_csv("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/afConceptSets.csv"),
+#   decisionsFileName = "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
+# )
+
 
 if (Sys.getenv("KEEPER_SERVER") != "") {
   Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "data")
@@ -148,6 +158,6 @@ getDataList <- function(session) {
   return(list(keeper = keeper,
               decisions = decisions,
               conceptSets = conceptSets,
-              nProfiles = nrow(decisionsDataFrame),
+              nProfiles = nrow(decisions$decisionsDataFrame),
               hasPersonIds = "personId" %in% keeper$category))
 }
