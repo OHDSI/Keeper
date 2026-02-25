@@ -20,12 +20,15 @@ extractAndParseJson <- function(response) {
   return(parsed)
 }
 
-vectorSearch <- function(term, domains, limit = 10, maxRetries = 3, waitTime = 2) {
+vectorSearch <- function(term, domains, conceptClasses, limit = 10, maxRetries = 3, waitTime = 2) {
   params <- list(
     q = term,
     domain_id = paste(domains, collapse = ","),
     limit = limit
   )
+  if (!is.null(conceptClasses)) {
+    params$concept_class_id = paste(conceptClasses, collapse = ",")
+  }
   url <- "https://hecate.pantheon-hds.com/api/search_standard"
   
   for (attempt in 1:maxRetries) {
@@ -130,18 +133,29 @@ WHERE ancestor_concept_id IN (@concept_ids)
   return(concepts)
 }
 
-removeNonStandard <- function(concepts, connection, vocabDatabaseSchema) {
+removeNonStandard <- function(concepts, connection, vocabDatabaseSchema, conceptClasses) {
   sql <- "
 SELECT concept_id
 FROM @database_schema.concept
 WHERE concept_id IN (@concept_ids)
-  AND standard_concept = 'S';
+  AND standard_concept = 'S'
+{@concept_classes != ''} ? {  AND concept_class_id IN (@concept_classes)}  
+;
 "
+  if (is.null(conceptClasses)) {
+    conceptClasses <- ""
+  } else {
+    conceptClasses <- paste0("'",
+                             paste(conceptClasses, collapse = "', '"),
+                             "'")
+  }
+  
   standardConceptIds <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = sql,
     database_schema = vocabDatabaseSchema,
     concept_ids = concepts$conceptId,
+    concept_classes = conceptClasses,
     snakeCaseToCamelCase = TRUE
   )$conceptId
   standardConcepts <- concepts |>
@@ -151,6 +165,7 @@ WHERE concept_id IN (@concept_ids)
 
 removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemPrompt, batchSize = 25) {
   conceptIds <- c()
+  cost <- 0
   for (start in seq(1, nrow(concepts), by = batchSize)) {
     batch <- concepts[start:min(start + batchSize - 1, nrow(concepts)), ]
     
@@ -158,13 +173,21 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
                      sprintf("\n\nConcepts:\n%s", jsonlite::toJSON(select(batch, "conceptId", "conceptName"))))
     client$set_system_prompt(systemPrompt)
     client$set_turns(list())
-    response <- client$chat(prompt, echo = "none")  
-    # writeLines(response)
-    conceptIds <- c(conceptIds, extractAndParseJson(response)$conceptId)
+    # response <- client$chat(prompt, echo = "none")  
+    # conceptIds <- c(conceptIds, extractAndParseJson(response)$conceptId)
+    response <- client$chat_structured(prompt, 
+                                       echo = "none",
+                                       type = type_object(
+                                         conceptId = type_array(type_number())
+                                       )) 
+    conceptIds <- c(conceptIds, response$conceptId)
+    cost <- cost + client$get_cost()
+    
   }
   concepts <- concepts |> 
     filter(.data$conceptId %in% conceptIds) |>
     filter(!duplicated(.data$conceptId))
+  attr(concepts, "cost") <- cost
   return(concepts)
 }
 
@@ -281,17 +304,24 @@ generateConceptSet <- function(condition,
   client$set_system_prompt(promptSet$systemPromptTerms)
   client$set_turns(list())
   prompt <- conditionPrompt
-  response <- client$chat(prompt, echo = "none")  
+  # response <- client$chat(prompt, echo = "none") 
+  # terms <- extractAndParseJson(response)$terms
+  response <- client$chat_structured(prompt,
+                                     echo = "none",
+                                     type = type_object(
+                                       terms = type_array(type_string())
+                                     ))
+  terms <- response$terms
   cost <- cost + client$get_cost()
   #writeLines(response)
-  terms <- extractAndParseJson(response)$terms
+  
   message(sprintf("  Generated %d terms", length(terms)))
   
   message("- Searching standard concepts for terms using embedding vectors")
   if (length(terms) == 0) {
     concepts <- tibble()
   } else {
-    concepts <- lapply(terms, vectorSearch, domains = promptSet$domains)
+    concepts <- lapply(terms, vectorSearch, domains = promptSet$domains, conceptClasses = promptSet$conceptClasses)
     concepts <- bind_rows(concepts) |>
       distinct() |>
       filter(.data$recordCount >= minRecordCount)
@@ -307,7 +337,7 @@ generateConceptSet <- function(condition,
       systemPrompt = promptSet$systemPromptRemoveNonRelevant,
       batchSize = conceptBatchSize
     )
-    cost <- cost + client$get_cost()
+    cost <- cost + attr(concepts, "cost")
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
@@ -325,13 +355,16 @@ generateConceptSet <- function(condition,
     newConcepts <- bind_rows(newConcepts) 
     if (nrow(newConcepts) > 0) {
       newConcepts <- newConcepts |>
-      filter(!duplicated(.data$conceptId))  |>
-      filter(.data$recordCount >= minRecordCount)
+        filter(!duplicated(.data$conceptId))  |>
+        filter(.data$recordCount >= minRecordCount)
     }
     if (nrow(newConcepts) > 0) {
       newConcepts <- removeNonStandard(concepts = newConcepts, 
                                        connection = connection,
-                                       vocabDatabaseSchema = vocabDatabaseSchema)
+                                       vocabDatabaseSchema = vocabDatabaseSchema,
+                                       conceptClasses = promptSet$conceptClasses)
+    }
+    if (nrow(newConcepts) > 0) {
       concepts <- addNonChildren(concepts = concepts, 
                                  newConcepts = newConcepts,
                                  connection = connection,
@@ -349,7 +382,7 @@ generateConceptSet <- function(condition,
       systemPrompt = promptSet$systemPromptRemoveNonRelevant,
       batchSize = conceptBatchSize
     )
-    cost <- cost + client$get_cost()
+    cost <- cost + attr(concepts, "cost")
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
