@@ -34,14 +34,14 @@
 #'
 #' @export
 parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) {
-  jsonPart <- sub('.*?(\\{.*\\}).*', '\\1', gsub(".*</think>", "", response))
-  jsonPart <- gsub("[\r\n]", " ", jsonPart)
-  parsed <- jsonlite::fromJSON(jsonPart)
-  if (tolower(parsed$verdict) == "no") {
+  # jsonPart <- sub('.*?(\\{.*\\}).*', '\\1', gsub(".*</think>", "", response))
+  # jsonPart <- gsub("[\r\n]", " ", jsonPart)
+  # parsed <- jsonlite::fromJSON(jsonPart)
+  if (tolower(response$verdict) == "no") {
     isCase <- "no"
-  } else if (tolower(parsed$verdict) == "yes") {
+  } else if (tolower(response$verdict) == "yes") {
     isCase <- "yes"
-  } else if (tolower(parsed$verdict) == "insufficient information") {
+  } else if (tolower(response$verdict) == "insufficient information") {
     isCase <- "insufficient information"
   } else if (noMatchIsInsufficientInformation) {
     isCase <- "insufficient information"
@@ -50,7 +50,7 @@ parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) 
     warning("Unable to parse response: ", response)
   }
   if (!is.na(isCase) && isCase == "yes") {
-    indexDay = parsed$`day of onset`
+    indexDay = response$`day of onset`
   } else {
     indexDay = NA
   }

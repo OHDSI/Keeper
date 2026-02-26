@@ -114,6 +114,9 @@ createPrompt <- function(settings,
       maxDays = settings$maxDays
     )
   ))
+  if ("alternativeDiagnosis" %in% colnames(keeperRow)) {
+    keeperRow$alternativeDiagnoses <- keeperRow$alternativeDiagnosis
+  }
   prompt <- c(prompt, sprintf(
     "Alternative diagnoses recorded proximal to the visit: %s",
     formatList(keeperRow$alternativeDiagnoses,
@@ -121,6 +124,9 @@ createPrompt <- function(settings,
       maxDays = settings$maxDays
     )
   ))
+  if ("afterDisease" %in% colnames(keeperRow)) {
+    keeperRow$postDisease <- keeperRow$afterDisease
+  }
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded after the visit: %s",
     formatList(keeperRow$postDisease,
@@ -128,6 +134,12 @@ createPrompt <- function(settings,
       maxDays = settings$maxDays
     )
   ))
+  if ("afterDisease" %in% colnames(keeperRow)) {
+    keeperRow$postDrugs <- keeperRow$afterDrugs
+  }
+  if ("afterDisease" %in% colnames(keeperRow)) {
+    keeperRow$postTreatmentProcedures <- keeperRow$afterTreatmentProcedures
+  }
   prompt <- c(prompt, sprintf(
     "Treatments recorded during or after the visit: %s",
     formatList(keeperRow$postDrugs, keeperRow$postTreatmentProcedures,

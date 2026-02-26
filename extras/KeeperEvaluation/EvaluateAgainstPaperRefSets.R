@@ -122,6 +122,16 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheGlm47NewPrompt"
 resultsFile <- "extras/KeeperEvaluation/MetricsGlm47NewPrompt.xlsx"
 
+# Medgemma 27B running on local LM Studio with new prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "medgemma-27b-text-it-mlx"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheMedgemma"
+resultsFile <- "extras/KeeperEvaluation/MetricsMedgemmaNewPrompt.xlsx"
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
@@ -148,7 +158,7 @@ for (group in groups) {
   message("Evaluating ", group$cohortName[1])
   result <- reviewCases(keeper = group,
                         settings = promptSettings,
-                        diseaseName = group$cohortName[1],
+                        phenotypeName = group$cohortName[1],
                         client = client,
                         cacheFolder = cacheFolder)
   allResults[[length(allResults) + 1]] <- result |>

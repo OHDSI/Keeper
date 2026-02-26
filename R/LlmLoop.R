@@ -36,31 +36,64 @@ reviewCases <- function(keeper,
                         phenotypeName = NULL,
                         client,
                         cacheFolder) {
+  if ("age" %in% colnames(keeper)) {
+    format <- "keeperTable"
+  } else {
+    format <- "keeper"
+  }
+  
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(keeper, add = errorMessages)
-  checkmate::assertNames(colnames(keeper), must.include = c("generatedId",
-                                                            "startDay", 
-                                                            "endDay",
-                                                            "conceptId",
-                                                            "conceptName",
-                                                            "category",
-                                                            "target",
-                                                            "extraData"), add = errorMessages)
-  checkmate::assert_class(settings, "PromptSettings", add = errorMessages)
-  checkmate::assert_character(phenotypeName, null.ok = TRUE, add = errorMessages)
+  if (format == "keeper") {
+    checkmate::assertNames(colnames(keeper), must.include = c("generatedId",
+                                                              "startDay", 
+                                                              "endDay",
+                                                              "conceptId",
+                                                              "conceptName",
+                                                              "category",
+                                                              "target",
+                                                              "extraData"), add = errorMessages)
+  } else {
+    checkmate::assertNames(colnames(keeper), must.include = c("age",
+                                                              "gender",
+                                                              "observationPeriod",
+                                                              "visitContext",
+                                                              "presentation",
+                                                              "comorbidities",
+                                                              "symptoms",
+                                                              "priorDisease",
+                                                              "priorDrugs",
+                                                              "priorTreatmentProcedures",
+                                                              "diagnosticProcedures",
+                                                              "measurements",
+                                                              "alternativeDiagnosis",
+                                                              "afterDisease",
+                                                              "afterTreatmentProcedures",
+                                                              "afterDrugs",
+                                                              "death"), add = errorMessages)
+  }
+  checkmate::assertClass(settings, "PromptSettings", add = errorMessages)
+  checkmate::assertCharacter(phenotypeName, null.ok = TRUE, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
-  checkmate::assert_character(cacheFolder, add = errorMessages)
+  checkmate::assertCharacter(cacheFolder, add = errorMessages)
   checkmate::reportAssertions(collection = errorMessages)
   
   startTime <- Sys.time()
   
   maxRetries <- 5
   
-  keeperTable <- convertKeeperToTable(keeper)
+  if (format == "keeper") {
+    keeperTable <- convertKeeperToTable(keeper)
+  } else {
+    keeperTable <- keeper
+    if (!"generatedId" %in% colnames(keeperTable)) {
+      keeperTable$generatedId <- keeperTable$personId
+    }
+  }
   if (!is.null(phenotypeName)) {
     keeperTable$phenotype <- phenotypeName
   }
-
+  
   result <- tibble(
     generatedId = keeperTable$generatedId,
     isCase = as.character(NA),
@@ -84,8 +117,7 @@ reviewCases <- function(keeper,
     
     responseFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder)
     if (file.exists(responseFileName)) {
-      response <- readLines(responseFileName)
-      response <- paste(response, collapse = "\n")
+      response <- jsonlite::read_json(responseFileName)
       parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
     } else {
       systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = row$phenotype)  
@@ -103,12 +135,18 @@ reviewCases <- function(keeper,
         parsedResponse <- tryCatch({
           client$set_turns(list())
           client$set_system_prompt(systemPrompt)
-          response <- client$chat(prompt, echo = "none")
-        
+          response <- client$chat_structured(prompt, 
+                                             echo = "none",
+                                             type = type_object(
+                                               narrative = type_string(),
+                                               verdict = type_string(),
+                                               `day of onset` = type_integer()
+                                             ))
+          
           parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
           
           cost <- cost + client$get_cost()
-          writeLines(response, responseFileName)
+          jsonlite::write_json(response, responseFileName)
           
           parsedResponse
         }, error = function(e) {
