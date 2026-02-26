@@ -123,7 +123,7 @@
     You are provided a list of Medical Conditions.
     Provide a list of (generic) drug names and drug classes that describe **Pharmaceutical Treatments** for one or more of the Medical Conditions.
     **Pharmaceutical Treatments** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
-    When listing a drug class, also include as many of the individual drug names in that class.
+    When listing a drug class, also include as many of the individual drug names in that class as separate terms.
 
     Output Format:
     Provide your response in a single JSON object. 
