@@ -7,11 +7,16 @@ library(plotly)
 # subset <- keeper |>
 #   filter(generatedId == generatedIds[3])
 
+truncateStrings <- function(strings, length) {
+  if_else(nchar(strings) > length, paste0(substr(strings, 1, length - 3), "..."), strings)
+}
 
 generateLabelForPlot <- function(conceptName, startDay, endDay, extraData, keeperTable) {
-  conceptName <- if_else(nchar(conceptName) > 63, paste0(substr(conceptName, 1, 60), "..."), conceptName)
+  conceptName <- truncateStrings(conceptName, 63)
   if (startDay[1] < -90 | startDay[1] > 90) {
-    return(paste(generateLabel(conceptName, startDay, endDay, extraData, keeperTable), collapse = "\n"))
+    lines <- generateLabel(conceptName, startDay, endDay, extraData, keeperTable)
+    lines <- truncateStrings(lines, 153)
+    return(paste(lines, collapse = "\n"))
   }
   
   if (keeperTable == "presentation") {
@@ -108,7 +113,7 @@ plotTimeline <- function(subset) {
                           -100,
                           if_else(endDay > 90, 100, endDay))) |>
     group_by(visualGroup, target, x) |>
-    arrange(conceptName, startDay) |>
+    arrange(startDay) |>
     summarise(nData = n_distinct(conceptName), 
               text = generateLabelForPlot(conceptName,
                                           startDay, 
