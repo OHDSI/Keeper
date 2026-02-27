@@ -11,7 +11,7 @@ parseLlmResponse(response, noMatchIsInsufficientInformation = TRUE)
 \code{createSystemPrompt()} and \code{createPrompt()}, respectively.}
 
 \item{noMatchIsInsufficientInformation}{If the response doesn't fit any predefined pattern, should we return
-"I don't know"?}
+"insufficient information"?}
 }
 \value{
 Returns a character string with one of the following values:

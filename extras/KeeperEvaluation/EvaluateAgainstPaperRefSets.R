@@ -132,6 +132,16 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheMedgemma"
 resultsFile <- "extras/KeeperEvaluation/MetricsMedgemmaNewPrompt.xlsx"
 
+# Medgemma 27B running on local LM Studio with legacy prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "medgemma-27b-text-it-mlx"
+)
+promptSettings <- createPromptSettings(legacy = TRUE)
+cacheFolder <- "cacheMedgemmaLegacy"
+resultsFile <- "extras/KeeperEvaluation/MetricsMedgemmaLegacyPrompt.xlsx"
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
@@ -153,7 +163,7 @@ groups <- keeper |>
   group_split()
 
 allResults <- list()
-# group = groups[[6]]
+# group = groups[[1]]
 for (group in groups) {
   message("Evaluating ", group$cohortName[1])
   result <- reviewCases(keeper = group,

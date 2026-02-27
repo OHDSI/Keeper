@@ -24,15 +24,18 @@
 #'                                if `maxDays = 5` and there is a measurement code
 #'                                that appears on more than 5 days, a random sample
 #'                                of 5 days will be taken. Set to `0` if there is no maximum.
+#' @param legacy                  IF TRUE, will use the prompt from the Nature Digital Medicine paper.
 #'
 #' @return A settings object, to be used in `createSystemPrompt()` and `createPrompt()`.
 #'
 #' @export
 createPromptSettings <- function(maxParts = 100,
-                                 maxDays = 5) {
+                                 maxDays = 5,
+                                 legacy = FALSE) {
   settings <- list(
     maxParts = maxParts,
-    maxDays = maxDays
+    maxDays = maxDays,
+    legacy = legacy
   )
   class(settings) <- "PromptSettings"
   return(settings)
@@ -48,7 +51,11 @@ createPromptSettings <- function(maxParts = 100,
 #'
 #' @export
 createSystemPrompt <- function(settings, phenotypeName) {
-  promptFile <- system.file("KeeperPrompt.txt", package = "Keeper")
+  if (settings$legacy) {
+    promptFile <- system.file("KeeperLegacyPrompt.txt", package = "Keeper")
+  } else {
+    promptFile <- system.file("KeeperPrompt.txt", package = "Keeper")
+  }
   prompt <- readLines(promptFile)
   prompt <- paste(prompt, collapse = "\n")
   prompt <- gsub("<disease>", phenotypeName, prompt)

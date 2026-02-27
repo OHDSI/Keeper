@@ -117,8 +117,13 @@ reviewCases <- function(keeper,
     
     responseFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder)
     if (file.exists(responseFileName)) {
-      response <- jsonlite::read_json(responseFileName)
-      parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+      if (settings$legacy) {
+        response <- paste(readLines(responseFileName), collapse = "\n")
+        parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+      } else {
+        response <- jsonlite::read_json(responseFileName)
+        parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+      }
     } else {
       systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = row$phenotype)  
       prompt <- createPrompt(settings = settings, 
@@ -135,19 +140,23 @@ reviewCases <- function(keeper,
         parsedResponse <- tryCatch({
           client$set_turns(list())
           client$set_system_prompt(systemPrompt)
-          response <- client$chat_structured(prompt, 
-                                             echo = "none",
-                                             type = type_object(
-                                               narrative = type_string(),
-                                               verdict = type_string(),
-                                               `day of onset` = type_integer()
-                                             ))
-          
-          parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
-          
+          if (settings$legacy) {
+            response <- client$chat(prompt, 
+                                    echo = "none")
+            writeLines(response, responseFileName)
+            parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+          } else {
+            response <- client$chat_structured(prompt, 
+                                               echo = "none",
+                                               type = type_object(
+                                                 narrative = type_string(),
+                                                 verdict = type_string(),
+                                                 `day of onset` = type_integer()
+                                               ))
+            jsonlite::write_json(response, responseFileName)
+            parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+          }
           cost <- cost + client$get_cost()
-          jsonlite::write_json(response, responseFileName)
-          
           parsedResponse
         }, error = function(e) {
           message(paste("Attempt", j, "failed:", e$message))

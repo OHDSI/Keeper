@@ -4,7 +4,7 @@
 \alias{createPromptSettings}
 \title{Create settings for generating prompts}
 \usage{
-createPromptSettings(maxParts = 100, maxDays = 5)
+createPromptSettings(maxParts = 100, maxDays = 5, legacy = FALSE)
 }
 \arguments{
 \item{maxParts}{How many parts can a category have? For example,
@@ -16,6 +16,8 @@ taken. Set to \code{0} if there is no maximum.}
 if \code{maxDays = 5} and there is a measurement code
 that appears on more than 5 days, a random sample
 of 5 days will be taken. Set to \code{0} if there is no maximum.}
+
+\item{legacy}{IF TRUE, will use the prompt from the Nature Digital Medicine paper.}
 }
 \value{
 A settings object, to be used in \code{createSystemPrompt()} and \code{createPrompt()}.

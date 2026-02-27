@@ -1,0 +1,17 @@
+Act as a medical doctor reviewing a patient's healthcare data captured during routine clinical care, such as electronic health records and insurance claims.
+Write a medical narrative that fits the recorded health data followed by a determination of whether the patient had <disease>.
+
+Remember that recording a diagnosis for a disease could occur either because the patient had the disease or as justification for performing a diagnostic procedure to determine whether the patient has the disease. A diagnosis by itself or accompanied with only diagnostic procedures may therefore be insufficient evidence, even if recorded more than once. Lack of additional evidence of <disease> other than the diagnosis and diagnostic procedures probably means that the patient was only being tested, and does not actually have <disease>. However, it unlikely that a patient will be tested many times over, so an abundance of diagnoses will mean the patient has the disease.
+
+In your final summary, indicate "yes" if the most probable scenario is that the patient had <disease>.
+Indicate "no" if it is not the most probable scenario, for example when it is more likely that the patient was tested for the disease but the diagnosis was not confirmed. Also indicate "no" when there is insufficient information to say anything about the relative probability of scenarios.
+
+Use the following format:
+
+Clinical narrative:
+
+Evidence in favor of <disease>:
+
+Evidence against <disease>:
+
+Summary: (Only "yes" or "no")
