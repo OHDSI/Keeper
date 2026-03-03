@@ -34,9 +34,6 @@
 #'
 #' @export
 parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) {
-  # jsonPart <- sub('.*?(\\{.*\\}).*', '\\1', gsub(".*</think>", "", response))
-  # jsonPart <- gsub("[\r\n]", " ", jsonPart)
-  # parsed <- jsonlite::fromJSON(jsonPart)
   if (tolower(response$verdict) == "no") {
     isCase <- "no"
   } else if (tolower(response$verdict) == "yes") {
@@ -54,7 +51,7 @@ parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) 
   } else {
     indexDay = NA
   }
-  return(tibble(isCase = isCase, indexDay = indexDay))
+  return(tibble(isCase = isCase, indexDay = indexDay, narrative = response$narrative))
 }
 
 parseLegacyLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) {
@@ -119,6 +116,6 @@ parseLegacyLlmResponse <- function(response, noMatchIsInsufficientInformation = 
     result <- NA
     warning("Unable to parse response")
   }
-  return(tibble(isCase = result, indexDay = NA))
+  return(tibble(isCase = result, indexDay = NA, narrative = NA))
 }
 

@@ -80,7 +80,9 @@ createPrompt <- function(settings,
     "Healthcare data:",
     ""
   )
-  
+  if ("sex" %in% colnames(keeperRow)) {
+    keeperRow$gender <- keeperRow$sex
+  }
   prompt <- c(prompt, sprintf(
     "Demographics and details about the visit: %s, %s yo; Visit: %s",
     keeperRow$gender,

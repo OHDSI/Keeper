@@ -97,7 +97,8 @@ reviewCases <- function(keeper,
   result <- tibble(
     generatedId = keeperTable$generatedId,
     isCase = as.character(NA),
-    indexDay = as.numeric(NA)
+    indexDay = as.numeric(NA),
+    narrative = as.character(NA)
   )
   if ("personId" %in% colnames(keeperTable)) {
     result$personId <- keeperTable$personId
@@ -174,6 +175,7 @@ reviewCases <- function(keeper,
     }
     result$isCase[i] <- parsedResponse$isCase  
     result$indexDay[i] <- parsedResponse$indexDay
+    result$narrative[i] <- parsedResponse$narrative
   }
   delta <- Sys.time() - startTime
   message(paste0("Reviewing cases took ",
