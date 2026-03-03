@@ -133,15 +133,23 @@ WHERE ancestor_concept_id IN (@concept_ids)
   return(concepts)
 }
 
-removeNonStandard <- function(concepts, connection, vocabDatabaseSchema, conceptClasses) {
+removeNonStandard <- function(concepts, connection, vocabDatabaseSchema, domainIds, conceptClasses) {
   sql <- "
 SELECT concept_id
 FROM @database_schema.concept
 WHERE concept_id IN (@concept_ids)
   AND standard_concept = 'S'
+{@domain_ids != ''} ? {  AND domain_id IN (@domain_ids)}
 {@concept_classes != ''} ? {  AND concept_class_id IN (@concept_classes)}  
 ;
 "
+  if (is.null(domainIds)) {
+    domainIds <- ""
+  } else {
+    domainIds <- paste0("'",
+                        paste(domainIds, collapse = "', '"),
+                        "'")
+  }
   if (is.null(conceptClasses)) {
     conceptClasses <- ""
   } else {
@@ -149,12 +157,12 @@ WHERE concept_id IN (@concept_ids)
                              paste(conceptClasses, collapse = "', '"),
                              "'")
   }
-  
   standardConceptIds <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = sql,
     database_schema = vocabDatabaseSchema,
     concept_ids = concepts$conceptId,
+    domain_ids = domainIds,
     concept_classes = conceptClasses,
     snakeCaseToCamelCase = TRUE
   )$conceptId
@@ -313,8 +321,7 @@ generateConceptSet <- function(condition,
                                      ))
   terms <- response$terms
   cost <- cost + client$get_cost()
-  #writeLines(response)
-  
+
   message(sprintf("  Generated %d terms", length(terms)))
   
   message("- Searching standard concepts for terms using embedding vectors")
@@ -362,6 +369,7 @@ generateConceptSet <- function(condition,
       newConcepts <- removeNonStandard(concepts = newConcepts, 
                                        connection = connection,
                                        vocabDatabaseSchema = vocabDatabaseSchema,
+                                       domainIds = promptSet$domains,
                                        conceptClasses = promptSet$conceptClasses)
     }
     if (nrow(newConcepts) > 0) {
