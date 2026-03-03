@@ -303,7 +303,7 @@ generateConceptSet <- function(condition,
                                connection,
                                vocabDatabaseSchema) {
   conceptBatchSize <- 20
-  minRecordCount <- 1e5
+  minRecordCount <- 25000
   cost <- 0
   
   conditionPrompt <- sprintf("Condition: %s", condition)
