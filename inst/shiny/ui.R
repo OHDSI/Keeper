@@ -18,8 +18,11 @@ Do not require absolute certainty to make a determination."),
   p("If your final determination is", tags$b("Yes"), ", also provide the relative day that is the likely day of onset. If there is no clear day of onset, simply enter 0.")
 )
 
+colorLegendText <- "The color coding is based on a prior classification of concepts. These should be considered as general guidance rather than absolute truth."
+
 shinyUI(
   fluidPage(
+    shinyjs::useShinyjs(),
     tags$style(HTML("
     .popover {
         max-width: 800px !important;
@@ -120,7 +123,12 @@ shinyUI(
           tags$td(textOutput("maxLabel")),
           tags$td(actionButton("nextButton", ">"), align = "right"),
         ), width = "100%"),
-        h3("Color legend"),
+        h3("Color legend",
+           popover(
+             icon("circle-info", style="font-size: 17px; color: #336b92"),
+             colorLegendText,
+             title = "Color legend"
+           )),
         tags$ul(
           tags$li(div("Disease of interest", style = "color: #11A08A")),
           tags$li(div("Both", style = "color: #000000")),

@@ -59,6 +59,8 @@ shinyServer(function(input, output, session) {
   })
   
   shiny::observeEvent(input$nextButton, {
+    shinyjs::disable("nextButton")
+    shinyjs::delay(500, shinyjs::enable("nextButton"))
     if (profile$index < dataList$nProfiles) {
       profile$index <- profile$index + 1
       updateTextInput(session, "profileIndex", value = profile$index)
@@ -66,6 +68,8 @@ shinyServer(function(input, output, session) {
   })
   
   shiny::observeEvent(input$previousButton, {
+    shinyjs::disable("previousButton")
+    shinyjs::delay(500, shinyjs::enable("previousButton"))
     if (profile$index > 1) {
       profile$index <- profile$index - 1
       updateTextInput(session, "profileIndex", value = profile$index)
@@ -264,13 +268,16 @@ shinyServer(function(input, output, session) {
     }
   }, ignoreInit = TRUE)
   
-  shiny::observeEvent(input$indexDay, {
-    req(!is.na(input$indexDay))
-    decisions$decisionsDataFrame[profile$index, "indexDay"] <- input$indexDay
+  # Using delay to avoid unstable behavior of numeric input when rapidly changing the index day:
+  delayedIndexDay <- debounce(reactive(input$indexDay), millis = 500)
+  
+  shiny::observeEvent(delayedIndexDay(), {
+    req(!is.na(delayedIndexDay()))
+    decisions$decisionsDataFrame[profile$index, "indexDay"] <- delayedIndexDay()
     if (dataList$decisions$type == "file") {
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
-      writeLines(sprintf("Updating database, setting index_day to %s", input$indexDay))
+      writeLines(sprintf("Updating database, setting index_day to %s", delayedIndexDay()))
       key <- keeperSubset() |> 
         head(1) |>
         select(databaseId, phenotype, generatedId)
@@ -288,7 +295,7 @@ shinyServer(function(input, output, session) {
         phenotype = key$phenotype,
         generated_id = key$generatedId,
         adjudicator = dataList$adjudicator,
-        index_day = input$indexDay,
+        index_day = delayedIndexDay(),
         progressBar = FALSE,
         reportOverallTime = FALSE
       )

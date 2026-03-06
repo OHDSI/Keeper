@@ -142,6 +142,17 @@ promptSettings <- createPromptSettings(legacy = TRUE)
 cacheFolder <- "cacheMedgemmaLegacy"
 resultsFile <- "extras/KeeperEvaluation/MetricsMedgemmaLegacyPrompt.xlsx"
 
+# GPT-o3 running on Azure with prompt per March 3, 2026
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheMarch3Prompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3March3Prompt.xlsx"
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
