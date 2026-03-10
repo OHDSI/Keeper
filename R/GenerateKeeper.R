@@ -359,7 +359,10 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
     if (keeperTable == "presentation") {
       return(paste0(conceptName, if_else(extraData == "",  "", sprintf(" (%s)", extraData))))
     } else if (keeperTable == "visitContext") {
-      return(paste0(conceptName, if_else(startDay == endDay, "", sprintf(" (%d days)", endDay - startDay))))
+      return(sprintf("%s%s%s",
+                     conceptName,
+                     if_else(extraData == "", "", sprintf(" - %s", extraData)),
+                     if_else(startDay == endDay, "",  sprintf(" (%d days)", endDay - startDay))))
     } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
       return(sprintf("%s (day %s)", 
                      conceptName[1],

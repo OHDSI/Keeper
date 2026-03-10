@@ -2,7 +2,10 @@ generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable)
   if (keeperTable == "presentation") {
     return(paste0(conceptName, if_else(extraData == "",  "", sprintf(" (%s)", extraData))))
   } else if (keeperTable == "visitContext") {
-    return(paste0(conceptName, if_else(startDay == endDay, "", sprintf(" (%d days)", endDay - startDay))))
+    return(sprintf("%s%s%s",
+                   conceptName,
+                   if_else(extraData == "", "", sprintf(" - %s", extraData)),
+                   if_else(startDay == endDay, "",  sprintf(" (%d days)", endDay - startDay))))
   } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
     return(sprintf("%s (%s)", 
                    conceptName[1],
@@ -72,13 +75,13 @@ getPopoverContent <- function(section, conceptSets = NULL, phenotype = NULL) {
     mutate(conceptName = if_else(nchar(conceptName) > 50, paste0(substr(conceptName, 1, 47), "..."), conceptName)) |>
     arrange(conceptName)
   conceptsDoi <- concepts |> 
-    filter(target == "Disease of interest") |>
+    filter(target == "Disease of interest" & conceptSetName != "alternativeDiagnosis") |>
     pull(conceptName)
   if (length(conceptsDoi) == 0) {
     conceptsDoi = "<none>"
   }
   conceptsAd <- concepts |>
-    filter(target == "Alternative diagnoses") |> 
+    filter(target == "Alternative diagnoses" | conceptSetName == "alternativeDiagnosis") |> 
     pull(conceptName)
   if (length(conceptsAd) == 0) {
     conceptsDoi = "<none>"

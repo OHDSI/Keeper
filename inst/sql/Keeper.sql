@@ -37,6 +37,13 @@ INNER JOIN @cdm_database_schema.concept ancestor_concept
 INNER JOIN @cdm_database_schema.concept descendant_concept
   ON descendant_concept.concept_id = descendant_concept_id
 WHERE (concept_set_name != 'symptoms' OR ancestor_concept.concept_class_id = descendant_concept.concept_class_id)
+  AND (concept_set_name != 'alternativeDiagnosis' OR descendant_concept_id NOT IN (
+    SELECT descendant_concept_id
+    FROM #concept_sets
+    INNER JOIN @cdm_database_schema.concept_ancestor
+      ON concept_id = ancestor_concept_id
+    WHERE concept_set_name = 'doi'
+  ))
 GROUP BY descendant_concept_id,
 	concept_set_name;
 } : {
@@ -125,8 +132,9 @@ GROUP BY generated_id,
 SELECT generated_id,
 	start_day,
 	end_day,
-	concept_id,
-	CASE WHEN concept_id = 0 THEN '' ELSE concept_name END AS concept_name,
+	visit_concept.concept_id,
+	CASE WHEN visit_concept.concept_id = 0 THEN '' ELSE visit_concept.concept_name END AS concept_name,
+	CASE WHEN specialty.concept_name IS NULL OR specialty.concept_id = 0 THEN '' ELSE specialty.concept_name END AS extra_data,
 	1 AS target
 INTO #visit_context
 FROM ( 
@@ -134,6 +142,7 @@ FROM (
 		DATEDIFF(DAY, cohort_start_date, visit_start_date) AS start_day,
 		DATEDIFF(DAY, cohort_start_date, visit_end_date) AS end_day,	
 		visit_concept_id,
+		provider_id,
 		ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY visit_start_date, visit_concept_id DESC) rn
 	FROM #cohort cohort
 	INNER JOIN @cdm_database_schema.visit_occurrence
@@ -141,8 +150,12 @@ FROM (
 			AND visit_start_date <= cohort_start_date
 			AND visit_end_date >= cohort_start_date
 	) visit
-INNER JOIN @cdm_database_schema.concept 
-	ON visit_concept_id = concept.concept_id
+INNER JOIN @cdm_database_schema.concept visit_concept
+	ON visit_concept_id = visit_concept.concept_id
+LEFT JOIN @cdm_database_schema.provider
+	ON visit.provider_id = provider.provider_id
+LEFT JOIN @cdm_database_schema.concept specialty
+	ON provider.specialty_concept_id = specialty.concept_id
 WHERE rn = 1;
 
 -- Prior symptoms [-30,0)
