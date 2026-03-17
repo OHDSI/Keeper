@@ -149,10 +149,10 @@ reviewCases <- function(keeper,
           } else {
             response <- client$chat_structured(prompt, 
                                                echo = "none",
-                                               type = type_object(
-                                                 narrative = type_string(),
-                                                 verdict = type_string(),
-                                                 `day of onset` = type_integer()
+                                               type = ellmer::type_object(
+                                                 narrative = ellmer::type_string(),
+                                                 verdict = ellmer::type_string(),
+                                                 `day of onset` = ellmer::type_integer()
                                                ))
             jsonlite::write_json(response, responseFileName)
             parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)

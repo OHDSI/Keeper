@@ -47,8 +47,7 @@ launchReviewerApp <- function(keeper, keeperConceptSets, decisionsFileName) {
   if (appDir == "") {
     stop("Could not find shiny directory. Try re-installing `Keeper`.", call. = FALSE)
   }
-  ensureInstalled("shiny")
-  ensureInstalled("bslib")
+  ensureInstalled(c("shiny", "bslib", "shinyjs", "pool", "readr", "plotly"))
   
   .GlobalEnv$.shinyArgs <- list(keeper = keeper,
                                 decisionsFileName = decisionsFileName,
@@ -58,9 +57,12 @@ launchReviewerApp <- function(keeper, keeperConceptSets, decisionsFileName) {
   shiny::runApp(appDir, display.mode = "normal")
 }
 
+isInstalled <- function(package) {
+  return(length(find.package(package, quiet = TRUE)) != 0)
+}
 
-ensureInstalled <- function(pkgs) {
-  notInstalled <- pkgs[!(pkgs %in% rownames(installed.packages()))]
+ensureInstalled <- function(packages) {
+  notInstalled <- packages[!sapply(packages, isInstalled)]
   
   if (interactive() & length(notInstalled) > 0) {
     message("Package(s): ", paste(notInstalled, collapse = ", "), " not installed")

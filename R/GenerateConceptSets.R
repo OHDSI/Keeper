@@ -185,8 +185,8 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
     # conceptIds <- c(conceptIds, extractAndParseJson(response)$conceptId)
     response <- client$chat_structured(prompt, 
                                        echo = "none",
-                                       type = type_object(
-                                         conceptId = type_array(type_number())
+                                       type = ellmer::type_object(
+                                         conceptId = ellmer::type_array(ellmer::type_number())
                                        )) 
     conceptIds <- c(conceptIds, response$conceptId)
     cost <- cost + client$get_cost()
@@ -316,8 +316,8 @@ generateConceptSet <- function(condition,
   # terms <- extractAndParseJson(response)$terms
   response <- client$chat_structured(prompt,
                                      echo = "none",
-                                     type = type_object(
-                                       terms = type_array(type_string())
+                                     type = ellmer::type_object(
+                                       terms = ellmer::type_array(ellmer::type_string())
                                      ))
   terms <- response$terms
   cost <- cost + client$get_cost()

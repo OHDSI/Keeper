@@ -153,6 +153,16 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheMarch3Prompt"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3March3Prompt.xlsx"
 
+# Qwen3.5 35B running on local LM Studio with current prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen3.5-35b-a3b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen35"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen35.xlsx"
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>

@@ -30,7 +30,11 @@ Suggests:
   Eunomia,
   shiny,
   ellmer,
-  bslib
+  bslib,
+  shinyjs,
+  readr,
+  plotly,
+  pool
 License: Apache License
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
