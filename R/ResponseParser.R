@@ -28,9 +28,9 @@ parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) 
     warning("Unable to parse response: ", response)
   }
   if (!is.na(isCase) && isCase == "yes") {
-    indexDay = response$`day of onset`
+    indexDay <- response$`day of onset`
   } else {
-    indexDay = NA
+    indexDay <- NA
   }
   return(tibble(isCase = isCase, indexDay = indexDay, narrative = response$narrative))
 }
@@ -99,4 +99,3 @@ parseLegacyLlmResponse <- function(response, noMatchIsInsufficientInformation = 
   }
   return(tibble(isCase = result, indexDay = NA, narrative = NA))
 }
-

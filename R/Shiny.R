@@ -17,30 +17,34 @@
 #' Launch the reviewer Shiny app
 #'
 #' @param keeper            The output of the [generateKeeper()] function.
-#' @param keeperConceptSets The output of the [generateKeeperConceptSets()] function. 
+#' @param keeperConceptSets The output of the [generateKeeperConceptSets()] function.
 #' @param decisionsFileName The location of the CSV file where the decisions made by the reviewer will be written.
 #'
 #' @returns
 #' Returns nothing. Called for launching the Shiny app.
-#' 
+#'
 #' @export
 launchReviewerApp <- function(keeper, keeperConceptSets, decisionsFileName) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(keeper, add = errorMessages)
-  checkmate::assertNames(colnames(keeper), must.include = c("generatedId",
-                                                            "startDay", 
-                                                            "endDay",
-                                                            "conceptId",
-                                                            "conceptName",
-                                                            "category",
-                                                            "target",
-                                                            "extraData"), add = errorMessages)
+  checkmate::assertNames(colnames(keeper), must.include = c(
+    "generatedId",
+    "startDay",
+    "endDay",
+    "conceptId",
+    "conceptName",
+    "category",
+    "target",
+    "extraData"
+  ), add = errorMessages)
   checkmate::assertDataFrame(keeperConceptSets, min.rows = 1, add = errorMessages)
-  checkmate::assertNames(colnames(keeperConceptSets), must.include = c("conceptId",
-                                                                       "conceptName", 
-                                                                       "vocabularyId",
-                                                                       "conceptSetName",
-                                                                       "target"), add = errorMessages) 
+  checkmate::assertNames(colnames(keeperConceptSets), must.include = c(
+    "conceptId",
+    "conceptName",
+    "vocabularyId",
+    "conceptSetName",
+    "target"
+  ), add = errorMessages)
   checkmate::assertCharacter(decisionsFileName, min.chars = 1, add = errorMessages)
   checkmate::reportAssertions(errorMessages)
   appDir <- system.file("shiny", package = "Keeper")
@@ -48,12 +52,14 @@ launchReviewerApp <- function(keeper, keeperConceptSets, decisionsFileName) {
     stop("Could not find shiny directory. Try re-installing `Keeper`.", call. = FALSE)
   }
   ensureInstalled(c("shiny", "bslib", "shinyjs", "pool", "readr", "plotly"))
-  
-  .GlobalEnv$.shinyArgs <- list(keeper = keeper,
-                                decisionsFileName = decisionsFileName,
-                                conceptSets = keeperConceptSets)
+
+  .GlobalEnv$.shinyArgs <- list(
+    keeper = keeper,
+    decisionsFileName = decisionsFileName,
+    conceptSets = keeperConceptSets
+  )
   on.exit(rm(".shinyArgs", envir = .GlobalEnv))
-  
+
   shiny::runApp(appDir, display.mode = "normal")
 }
 
@@ -63,7 +69,7 @@ isInstalled <- function(package) {
 
 ensureInstalled <- function(packages) {
   notInstalled <- packages[!sapply(packages, isInstalled)]
-  
+
   if (interactive() & length(notInstalled) > 0) {
     message("Package(s): ", paste(notInstalled, collapse = ", "), " not installed")
     if (!isTRUE(utils::askYesNo("Would you like to install them?"))) {

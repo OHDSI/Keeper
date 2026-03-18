@@ -67,10 +67,12 @@ We also need access to a database containing the OHDSI Vocabulary tables. We spe
 
 ```{r eval = FALSE}
 library(DatabaseConnector)
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
-                                             server = "localhost/ohdsi",
-                                             user = "joe",
-                                             password = "supersecret")
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost/ohdsi",
+  user = "joe",
+  password = "supersecret"
+)
 vocabularyDatabaseSchema <- "cdm"
 ```
 
@@ -119,10 +121,10 @@ keeper <- createKeeper(
   comorbidities = c(141253, 432867, 436670, 433736, 255848),
   drugs = c(21600712, 21602728, 21603531),
   diagnosticProcedures = c(0),
-  measurements	= c(3004410,3005131,3005673,3010084,3033819,4149519,4229110, 4020120),
-  alternativeDiagnosis = c(192963,201826,441267,40443308),
+  measurements = c(3004410, 3005131, 3005673, 3010084, 3033819, 4149519, 4229110, 4020120),
+  alternativeDiagnosis = c(192963, 201826, 441267, 40443308),
   treatmentProcedures = c(4242748),
-  complications =  c(201820,375545,380834,433968,442793,4016045,4209145,4299544)                             
+  complications = c(201820, 375545, 380834, 433968, 442793, 4016045, 4209145, 4299544)
 )
 ```
 
