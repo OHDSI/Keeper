@@ -178,7 +178,7 @@ keeper <- keeper |>
   select(-"personid") |>
   mutate(personId = as.character(row_number())) 
 
-# Run KEEPER LLM review ------------------------------------------------------------------------------------------------
+# Run Keeper LLM review ------------------------------------------------------------------------------------------------
 groups <- keeper |>
   group_by(cohortName) |>
   group_split()

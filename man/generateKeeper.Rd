@@ -61,7 +61,7 @@ use only the verbatim concepts?}
 \item{removePersonId}{Remove person IDs from the output? Can be set to \code{TRUE} for privacy reasons.}
 }
 \value{
-Returns a list of tibbles with data in the various KEEPER categories.
+Returns a list of tibbles with data in the various Keeper categories.
 }
 \description{
 Creates a cohort that is highly sensitive. Nobody outside the cohort is expected to have the disease. As a

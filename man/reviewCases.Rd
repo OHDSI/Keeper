@@ -17,7 +17,7 @@ reviewCases(
 
 \item{settings}{Prompt creating settings as created using the \link{createPromptSettings} function.}
 
-\item{phenotypeName}{The name of the disease to use in the prompt. If not provided, the name in the KEEPER input will
+\item{phenotypeName}{The name of the disease to use in the prompt. If not provided, the name in the Keeper input will
 be used.}
 
 \item{client}{An LLM client created using the \code{ellmer} package.}

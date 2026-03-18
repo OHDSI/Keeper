@@ -36,7 +36,7 @@ vocabDatabaseSchema <- "merative_mdcr.cdm_merative_mdcr_v3788"
 
 
 conceptSets <- generateKeeperConceptSets(
-  condition = "Atrial fibrillation",
+  phenotype = "Atrial fibrillation",
   client = client,
   vocabConnectionDetails = vocabConnectionDetails,
   vocabDatabaseSchema = vocabDatabaseSchema

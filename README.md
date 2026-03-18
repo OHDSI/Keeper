@@ -12,34 +12,38 @@ An R package for reviewing patient profiles for phenotype validation.
 
 Features
 ========
+
 - Extracts patient level data for a) a random sample of patients in a cohort or b) patients in a user-specified list and formats it according to the KEEPER principles. 
-- Allows additional de-identification through replacing OMOP personId with a new random id.
+
+- Supports review of patient profiles by humans through an interactive Shiny app.
+
+- Supports review of patient profiles by large language models.
+
 
 Examples
 ========
 
 ```r
-keeper <- createKeeper(
+keeperConceptSets <- generateKeeperConceptSets(
+  phenotype = "Gastrointestinal bleeding",
+  client = ellmer::chat_openai_compatible(),
+  vocabConnectionDetails = connectionDetails,
+  vocabDatabaseSchema = "cdm"
+)
+
+keeper <- generateKeeper(
   connectionDetails = connectionDetails,
-  databaseId = "Synpuf",
-  cdmDatabaseSchema = "dbo",
+  cdmDatabaseSchema = "cdm",
   cohortDatabaseSchema = "results",
   cohortTable = "cohort",
   cohortDefinitionId = 1234,
-  cohortName = "DM type I",
   sampleSize = 100,
-  assignNewId = TRUE,
-  useAncestor = TRUE,
-  doi = c(435216, 201254),
-  symptoms = c(79936, 432454, 4232487, 4229881, 254761),
-  comorbidities = c(141253, 432867, 436670, 433736, 255848),
-  drugs = c(21600712, 21602728, 21603531),
-  diagnosticProcedures = c(0),
-  measurements	= c(3004410,3005131,3005673,3010084,3033819,4149519,4229110, 4020120),
-  alternativeDiagnosis = c(192963,201826,441267,40443308),
-  treatmentProcedures = c(4242748),
-  complications =  c(201820,375545,380834,433968,442793,4016045,4209145,4299544)                             
+  removePersonId = TRUE,
+  phenotypeName = "Gastrointestinal bleeding",
+  keeperConceptSets = keeperConceptSets
 )
+
+keeperTable <- convertKeeperToTable(keeper)
 ```
 
 
@@ -78,8 +82,8 @@ Documentation can be found on the [package website](https://ohdsi.github.io/Keep
 
 PDF versions of the documentation are also available:
 
+* Vignette: [Generating KEEPER profiles for review](https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/GeneratingKeeper.pdf)
 * Vignette: [Using Keeper with Large Language Models](https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/UsingKeeperWithLlms.pdf)
-* Vignette: [Setting parameters for Keeper](https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/SettingKeeperParameters.pdf)
 * Package manual: [Keeper manual](https://raw.githubusercontent.com/OHDSI/Keeper/main/extras/Keeper.pdf) 
 
 

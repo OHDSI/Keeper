@@ -40,7 +40,7 @@ getCohortCounts(connection = connection,
                 cohortDatabaseSchema = cohortDatabaseSchema,
                 cohortTable = cohortTable)
 
-# Run KEEPER -------------------------------------------------------------------------------------
+# Run Keeper -------------------------------------------------------------------------------------
 conceptSets <- read_csv("e:/temp/mmConceptSets.csv", show_col_types = FALSE)
 
 keeper <- generateKeeper(

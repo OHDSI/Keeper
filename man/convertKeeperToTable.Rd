@@ -2,18 +2,18 @@
 % Please edit documentation in R/GenerateKeeper.R
 \name{convertKeeperToTable}
 \alias{convertKeeperToTable}
-\title{Covert KEEPER profiles to a table}
+\title{Covert Keeper profiles to a table}
 \usage{
 convertKeeperToTable(keeper, removePersonId = FALSE)
 }
 \arguments{
-\item{keeper}{KEEPER profiles as created using the \code{\link[=generateKeeper]{generateKeeper()}} function.}
+\item{keeper}{Keeper profiles as created using the \code{\link[=generateKeeper]{generateKeeper()}} function.}
 
 \item{removePersonId}{Remove person IDs from the output? Can be set to \code{TRUE} for privacy reasons.}
 }
 \value{
-A tibble with one row per person, and text columns for each KEEPER category. Can be used for manual review.
+A tibble with one row per person, and text columns for each Keeper category. Can be used for manual review.
 }
 \description{
-Covert KEEPER profiles to a table
+Covert Keeper profiles to a table
 }

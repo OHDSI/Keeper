@@ -66,7 +66,7 @@ addDatabaseIdPhenotypeIfNeeded <- function(keeper) {
 
 getDataList <- function(session) {
   if (exists(".shinyArgs", envir = .GlobalEnv)) {
-    writeLines("Using user-provided KEEPER data")
+    writeLines("Using user-provided Keeper data")
     args <- get(".shinyArgs", envir = .GlobalEnv)
     keeper <- args$keeper
     keeper <- addDatabaseIdPhenotypeIfNeeded(keeper)
@@ -78,7 +78,7 @@ getDataList <- function(session) {
       decisionsDataFrame = loadDecisionsFromFile(decisionsFileName, keeper)
     )
   } else if (Sys.getenv("KEEPER_SERVER") != "") {
-    writeLines("Loading KEEPER data from database server")
+    writeLines("Loading Keeper data from database server")
     
     if (is.null(session$user)) {
       writeLines("Could not detect user. Setting to default")
@@ -141,7 +141,7 @@ getDataList <- function(session) {
       as_tibble()
 
   } else {
-    writeLines("Loading KEEPER data from data folder")
+    writeLines("Loading Keeper data from data folder")
     # keeper <- readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperMm - Copy.rds")
     # decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
     keeper <- readRDS("data/Keeper.rds")

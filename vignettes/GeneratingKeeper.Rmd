@@ -1,5 +1,5 @@
 ---
-title: "Setting KEEPER parameters"
+title: "Generating KEEPER profiles for review"
 author: "Anna Ostropolets"
 date: "`r Sys.Date()`"
 output:
@@ -10,7 +10,7 @@ output:
     number_sections: yes
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{Setting Keeper parameters}
+  %\VignetteIndexEntry{Generating KEEPER profiles for review}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,29 +18,89 @@ vignette: >
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 library(Keeper)
 ```
+
 # Introduction
 
-This vignette describes how one sets input parameters for Keeper to generate patient summaries.
+This vignette describes how one runs Keeper to generate patient summaries for case adjudication.
 
-# Executing phenotype definition of interest
+Keeper extracts and summarizes patient level data for patients in a given cohort to enable examination of patient summaries. 
+Such examination can be used to interatively develop a phenotype (cohort definition) of a disease or (primary use case) determine if patients have the disease and subsequently calculate positive predictive value. 
+The review should be done by a person familiar with the disease of interest. 
+Alternatively, it can be done by large language models (LLMs), which additionally enables calculation of sensitivity and specificity. 
+Please refer to the Using Keeper with LLMs vignette for the latter use case.
 
-Keeper extracts and summarizes patient level data for patients in a given cohort to enable examination of patient summaries. Such examination can be used to interatively develop a phenotype (cohort definition) of a disease or (primary use case) determine if patients have the disease and subsequently calculate positive predictive value. The review should be done by a person familiar with the disease of interest. Alternatively, it can be done by LLM, which additionally enables calculation of sensitivity and specificity. Please refer to the Using Keeper with LLMs vignette for the latter use case.
+# Clinical definition
 
-First step is to create a phenotype of interest and execute it against database(s). Cohorts can be created using ATLAS, R or SQL.
-The cohort table should contain cohort_id (number of cohort), subject_id (patient identifier), cohort_start_date and cohort_end_date and will be subsequently fed into KEEPER input. More information on creating cohorts can be found [here](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
-One can then specify a sample size to randomly select a given number of patients from the cohort (parameter sample_size) or input a comma-separated vector of person_ids to select specific patients (parameter personIds). One can further de-identify patients by replacing OMOP personId with new random ids (paramether assignNewId = TRUE).
+The first step is to create a [clinical definition](https://ohdsi.github.io/PhenotypeLibrary/articles/GuidanceOnClinicalDescriptionForConditionPhenotypes.html). 
+For this exercise, we will use a brief version.
+We will use example of Type I Diabetes Mellitus (T1DM) as an example phenotype.
 
+[T1DM](https://www.ncbi.nlm.nih.gov/books/NBK507713/) is an autoimmune condition characterized by decreased production of insulin by pancreas. 
+Common onset is in childhood or adolescence but can occurr in adults. 
+Symptoms include weight loss, polyuria and polydipsia, fatigue and others. 
+Common differential diagnoses (those that need to be ruled out) include type II diabetes, pancreatic disorders such as cystic fibrosis, pancreanecrosis, steroid-induced diabetes, renal glucosuria and other conditions. 
+Diagnostic procedures include glucose measurements, C-peptide, pancreatic and insulin antibodies as well as HbA1C. 
+It is primarily treated with insulin. Complications include hypo and hyperglycemia, neuropathy, nephrophaty, cerebrovascular disease and peripheral arthery disease. 
 
-# Creating concept code vectors 
-
-KEEPER extracts data based on user input. If a code is found in patient data, KEEPER will extract it along with the date relative to the index date (cohort_start_date). Therefore, code selection is very important.
-
-We will use example of Type I Diabetes Mellitus (T1DM) to illustrate a strategy for code selection.
-The first step is to create a [clinical definition](https://ohdsi.github.io/PhenotypeLibrary/articles/GuidanceOnClinicalDescriptionForConditionPhenotypes.html). For this exercise, we will use a brief version of it.
-[T1DM](https://www.ncbi.nlm.nih.gov/books/NBK507713/) is an autoimmune condition characterized by decreased production of insulin by pancreas. Common onset is in childhood or adolescence but can occurr in adults. Symptoms include weight loss, polyuria and polydipsia, fatigue and others. Common differential diagnoses (those that need to be ruled out) include type II diabetes, pancreatic disorders such as cystic fibrosis, pancreanecrosis, steroid-induced diabetes, renal glucosuria and other conditions. Diagnostic procedures include glucose measurements, C-peptide, pancreatic and insulin antibodies as well as HbA1C. It is primarily treated with insulin. Complications include hypo and hyperglycemia, neuropathy, nephrophaty, cerebrovascular disease and peripheral arthery disease. 
 We will use this definition to construct our inputs. The notion of differential diagnosis is important as for each input except for disease of interest we will consider T1DM and differential diagnoses to be able to see evidence for and rule out other diagnoses.
 
-The full iput we will use as an example looks as follows:
+# Creating input concept sets
+
+KEEPER extracts data based on concept sets defined by the user. 
+If a concept belonging to an input concept set is found in the patient data, KEEPER will extract it along with the date relative to the index date. 
+Therefore, concept set selection is very important.
+The input concept sets can be created by hand, but this is quite hard and a lot of work. 
+Alternatively, we can use large language models (LLMs) to generate initial concept sets.
+
+## Using LLMs to generate concept sets
+
+We use the `ellmer` package to connect to an LLM by your provider of choice, including Anthropic, Google, OpenAI, or even a local LLM. For example, we can connect to OpenAI's ChatGPT using:
+
+```{r eval = FALSE}
+library(ellmer)
+client <- chat_openai()
+```
+
+This assumes you have set the  `OPENAI_API_KEY` environmental variable. See the [ellmer package](https://ellmer.tidyverse.org) for details on how to connect to various providers.
+
+We also need access to a database containing the OHDSI Vocabulary tables. We specify the connection details:
+
+```{r eval = FALSE}
+library(DatabaseConnector)
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
+                                             server = "localhost/ohdsi",
+                                             user = "joe",
+                                             password = "supersecret")
+vocabularyDatabaseSchema <- "cdm"
+```
+
+See the [`createConnectionDetails()`](https://ohdsi.github.io/DatabaseConnector/reference/createConnectionDetails.html) documentation for connecting to your database server.
+
+Next, we can generate the concept sets:
+
+```{r eval = FALSE}
+conceptSets <- generateKeeperConceptSets(
+  phenotype = "Type I Diabetes Mellitus (T1DM)",
+  client = client,
+  vocabConnectionDetails = connectionDetails,
+  vocabDatabaseSchema = vocabDatabaseSchema
+)
+conceptSets
+```
+```{r eval=TRUE, echo=FALSE, message=FALSE}
+conceptSets <- read.csv(system.file("gibConceptSets.csv", package = "Keeper"))
+conceptSets <- dplyr::as_tibble(conceptSets)
+conceptSets
+```
+
+
+
+
+
+
+
+
+The full input we will use as an example looks as follows:
 
 ```{r eval = FALSE, echo = FALSE, warning=FALSE, message=FALSE}
 keeper <- createKeeper(
@@ -199,3 +259,11 @@ The output and it looks as follows:
 * after_drugs: same as prior_drugs but after day 0;
 * after_treatment_procedures: same as prior_treatment_procedures but after day 0;
 * death: death record any time after day 0.
+
+
+# Executing phenotype definition of interest
+
+The first step is to create a phenotype of interest and execute it against database(s). Cohorts can be created using ATLAS, R or SQL.
+The cohort table should contain cohort_definition_id (number of cohort), subject_id (patient identifier), cohort_start_date and cohort_end_date and will be subsequently fed into KEEPER input. More information on creating cohorts can be found [here](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
+
+One can then specify a sample size to randomly select a given number of patients from the cohort (parameter `sampleSize`) or input a vector of person_ids to select specific patients (parameter `personIds`). One can further de-identify patients by removing the person IDs from the output (see parameter `removePersonIds`).

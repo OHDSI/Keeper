@@ -4,14 +4,14 @@
 \alias{createPrompt}
 \title{Create the main prompt based on a Keeper output row.}
 \usage{
-createPrompt(settings, phenotypeName, keeperRow)
+createPrompt(settings, phenotypeName, keeperTableRow)
 }
 \arguments{
-\item{settings}{A settings object as created using \code{createPromptSettings()}.}
+\item{settings}{A settings object as created using \link{createPromptSettings}.}
 
 \item{phenotypeName}{The name of the disease to use in the prompt.}
 
-\item{keeperRow}{A single row from the output of \code{createKeeper()}.}
+\item{keeperTableRow}{A single row from the output of \link{convertKeeperToTable}.}
 }
 \value{
 A character string containing the main prompt.

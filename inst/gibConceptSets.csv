@@ -1,0 +1,460 @@
+conceptId,conceptName,vocabularyId,conceptSetName,target
+192671,Gastrointestinal hemorrhage,SNOMED,doi,Disease of interest
+4103703,Melena,SNOMED,doi,Disease of interest
+4027663,Peptic ulcer,SNOMED,alternativeDiagnosis,Disease of interest
+24966,Esophageal varices,SNOMED,alternativeDiagnosis,Disease of interest
+4310024,Angiodysplasia of stomach,SNOMED,alternativeDiagnosis,Disease of interest
+441394,Meckel's diverticulum,SNOMED,alternativeDiagnosis,Disease of interest
+198798,Dieulafoy's vascular malformation,SNOMED,alternativeDiagnosis,Disease of interest
+30753,Esophagitis,SNOMED,alternativeDiagnosis,Disease of interest
+318800,Gastroesophageal reflux disease,SNOMED,alternativeDiagnosis,Disease of interest
+443344,Barrett's esophagus,SNOMED,alternativeDiagnosis,Disease of interest
+201061,Diaphragmatic hernia,SNOMED,alternativeDiagnosis,Disease of interest
+433516,Duodenitis,SNOMED,alternativeDiagnosis,Disease of interest
+201340,Gastritis,SNOMED,alternativeDiagnosis,Disease of interest
+196463,Alcoholic cirrhosis,SNOMED,alternativeDiagnosis,Disease of interest
+194692,Cirrhosis - non-alcoholic,SNOMED,alternativeDiagnosis,Disease of interest
+192680,Portal hypertension,SNOMED,alternativeDiagnosis,Disease of interest
+4134603,Vascular disorder of intestine,SNOMED,alternativeDiagnosis,Disease of interest
+4316228,Congenital arteriovenous malformation of gastrointestinal tract,SNOMED,alternativeDiagnosis,Disease of interest
+37110322,Diverticulosis of large intestine,SNOMED,alternativeDiagnosis,Disease of interest
+4285898,Polyp of colon,SNOMED,alternativeDiagnosis,Disease of interest
+4216644,Rectal polyp,SNOMED,alternativeDiagnosis,Disease of interest
+75580,Chronic ulcerative proctitis,SNOMED,alternativeDiagnosis,Disease of interest
+4272488,Colitis,SNOMED,alternativeDiagnosis,Disease of interest
+4319280,Acute bowel infarction,SNOMED,alternativeDiagnosis,Disease of interest
+4113547,Lesion of stomach,SNOMED,alternativeDiagnosis,Disease of interest
+46269837,Gastric hemorrhage due to chronic superficial gastritis,SNOMED,alternativeDiagnosis,Disease of interest
+4028253,Neoplasm of digestive system,SNOMED,alternativeDiagnosis,Disease of interest
+4101344,Finding of vomiting,SNOMED,symptoms,Disease of interest
+4223938,Dizziness,SNOMED,symptoms,Disease of interest
+4229392,Giddiness,SNOMED,symptoms,Disease of interest
+4090431,Discomfort,SNOMED,symptoms,Disease of interest
+4223659,Fatigue,SNOMED,symptoms,Disease of interest
+4041664,Difficulty breathing,SNOMED,symptoms,Disease of interest
+315078,Palpitations,SNOMED,symptoms,Disease of interest
+437312,Bleeding,SNOMED,symptoms,Disease of interest
+376961,Disturbance of consciousness,SNOMED,symptoms,Disease of interest
+4272240,Malaise,SNOMED,symptoms,Disease of interest
+259153,Pain in throat,SNOMED,symptoms,Disease of interest
+4262562,Abnormal heart beat,SNOMED,symptoms,Disease of interest
+31967,Nausea,SNOMED,symptoms,Alternative diagnoses
+4101344,Finding of vomiting,SNOMED,symptoms,Alternative diagnoses
+4223659,Fatigue,SNOMED,symptoms,Alternative diagnoses
+4223938,Dizziness,SNOMED,symptoms,Alternative diagnoses
+4229392,Giddiness,SNOMED,symptoms,Alternative diagnoses
+75635,Cramp,SNOMED,symptoms,Alternative diagnoses
+196523,Diarrhea,SNOMED,symptoms,Alternative diagnoses
+4134010,Weight decreased,SNOMED,symptoms,Alternative diagnoses
+40481819,Early satiety,SNOMED,symptoms,Alternative diagnoses
+4023572,Abdominal bloating,SNOMED,symptoms,Alternative diagnoses
+4275273,Decrease in appetite,SNOMED,symptoms,Alternative diagnoses
+442165,Loss of appetite,SNOMED,symptoms,Alternative diagnoses
+315078,Palpitations,SNOMED,symptoms,Alternative diagnoses
+4152351,"Abdominal distension, gaseous",SNOMED,symptoms,Alternative diagnoses
+134765,Cachexia,SNOMED,symptoms,Alternative diagnoses
+4090431,Discomfort,SNOMED,symptoms,Alternative diagnoses
+4116811,Pain of truncal structure,SNOMED,symptoms,Alternative diagnoses
+197981,Abdominal tenderness,SNOMED,symptoms,Alternative diagnoses
+437312,Bleeding,SNOMED,symptoms,Alternative diagnoses
+4272240,Malaise,SNOMED,symptoms,Alternative diagnoses
+376961,Disturbance of consciousness,SNOMED,symptoms,Alternative diagnoses
+4338120,Altered bowel function,SNOMED,symptoms,Alternative diagnoses
+4111297,Bowel sounds hyperactive,SNOMED,symptoms,Alternative diagnoses
+948078,pantoprazole,RxNorm,drugs,Disease of interest
+923645,omeprazole,RxNorm,drugs,Disease of interest
+904453,esomeprazole,RxNorm,drugs,Disease of interest
+929887,lansoprazole,RxNorm,drugs,Disease of interest
+911735,rabeprazole,RxNorm,drugs,Disease of interest
+43009052,ilaprazole,RxNorm Extension,drugs,Disease of interest
+19039926,dexlansoprazole,RxNorm,drugs,Disease of interest
+961047,ranitidine,RxNorm,drugs,Disease of interest
+953076,famotidine,RxNorm,drugs,Disease of interest
+997276,cimetidine,RxNorm,drugs,Disease of interest
+950696,nizatidine,RxNorm,drugs,Disease of interest
+1522957,octreotide,RxNorm,drugs,Disease of interest
+1507835,vasopressin (USP),RxNorm,drugs,Disease of interest
+2028021,5 ML terlipressin 0.2 MG/ML Injectable Solution [Glypressin] by Ferring,RxNorm Extension,drugs,Disease of interest
+1313200,nadolol,RxNorm,drugs,Disease of interest
+1353766,propranolol,RxNorm,drugs,Disease of interest
+1346823,carvedilol,RxNorm,drugs,Disease of interest
+46287328,ceftriaxone 1000 MG Injection,RxNorm,drugs,Disease of interest
+19074977,ceftriaxone 250 MG Injection,RxNorm,drugs,Disease of interest
+1303425,tranexamic acid,RxNorm,drugs,Disease of interest
+19054702,fibrinogen,RxNorm,drugs,Disease of interest
+1300673,thrombin,RxNorm,drugs,Disease of interest
+1369939,6-aminocaproic acid,RxNorm,drugs,Disease of interest
+1517147,desmopressin acetate 0.1 MG Oral Tablet,RxNorm,drugs,Disease of interest
+19133766,desmopressin acetate 0.2 MG Oral Tablet,RxNorm,drugs,Disease of interest
+19135597,desmopressin acetate 0.004 MG/ML Injectable Solution,RxNorm,drugs,Disease of interest
+19135602,desmopressin acetate 0.01 MG/ACTUAT Nasal Spray,RxNorm,drugs,Disease of interest
+35606202,1 ML desmopressin acetate 0.004 MG/ML Injection,RxNorm,drugs,Disease of interest
+19044727,vitamin K1,RxNorm,drugs,Disease of interest
+19010128,vitamin K,RxNorm,drugs,Disease of interest
+44785022,factor X,RxNorm,drugs,Disease of interest
+44785020,factor VII,RxNorm,drugs,Disease of interest
+1351935,factor IX,RxNorm,drugs,Disease of interest
+44507865,prothrombin,RxNorm,drugs,Disease of interest
+1352213,factor VIII,RxNorm,drugs,Disease of interest
+19130384,eptacog alfa activated 0.001 MG Injection [Novoseven],RxNorm,drugs,Disease of interest
+1036228,sucralfate,RxNorm,drugs,Disease of interest
+1721543,norfloxacin,RxNorm,drugs,Disease of interest
+923645,omeprazole,RxNorm,drugs,Alternative diagnoses
+904453,esomeprazole,RxNorm,drugs,Alternative diagnoses
+948078,pantoprazole,RxNorm,drugs,Alternative diagnoses
+929887,lansoprazole,RxNorm,drugs,Alternative diagnoses
+911735,rabeprazole,RxNorm,drugs,Alternative diagnoses
+43009052,ilaprazole,RxNorm Extension,drugs,Alternative diagnoses
+19039926,dexlansoprazole,RxNorm,drugs,Alternative diagnoses
+953076,famotidine,RxNorm,drugs,Alternative diagnoses
+950696,nizatidine,RxNorm,drugs,Alternative diagnoses
+997276,cimetidine,RxNorm,drugs,Alternative diagnoses
+961047,ranitidine,RxNorm,drugs,Alternative diagnoses
+1036228,sucralfate,RxNorm,drugs,Alternative diagnoses
+1150871,misoprostol,RxNorm,drugs,Alternative diagnoses
+19025138,bismuth,RxNorm,drugs,Alternative diagnoses
+937791,bismuth subsalicylate,RxNorm,drugs,Alternative diagnoses
+19035704,calcium carbonate,RxNorm,drugs,Alternative diagnoses
+958134,bismuth subcitrate,RxNorm,drugs,Alternative diagnoses
+1750500,clarithromycin,RxNorm,drugs,Alternative diagnoses
+1713332,amoxicillin,RxNorm,drugs,Alternative diagnoses
+1707164,metronidazole,RxNorm,drugs,Alternative diagnoses
+1836948,tetracycline,RxNorm,drugs,Alternative diagnoses
+1742253,levofloxacin,RxNorm,drugs,Alternative diagnoses
+1777417,rifabutin,RxNorm,drugs,Alternative diagnoses
+1313200,nadolol,RxNorm,drugs,Alternative diagnoses
+1353766,propranolol,RxNorm,drugs,Alternative diagnoses
+1346823,carvedilol,RxNorm,drugs,Alternative diagnoses
+1522957,octreotide,RxNorm,drugs,Alternative diagnoses
+1507835,vasopressin (USP),RxNorm,drugs,Alternative diagnoses
+2028021,5 ML terlipressin 0.2 MG/ML Injectable Solution [Glypressin] by Ferring,RxNorm Extension,drugs,Alternative diagnoses
+1383815,isosorbide,RxNorm,drugs,Alternative diagnoses
+1383925,isosorbide dinitrate,RxNorm,drugs,Alternative diagnoses
+1303425,tranexamic acid,RxNorm,drugs,Alternative diagnoses
+19049228,estrogens,RxNorm,drugs,Alternative diagnoses
+1549080,"estrogens, conjugated (USP)",RxNorm,drugs,Alternative diagnoses
+1500211,medroxyprogesterone,RxNorm,drugs,Alternative diagnoses
+1551673,"estrogens, esterified (USP)",RxNorm,drugs,Alternative diagnoses
+1548195,estradiol,RxNorm,drugs,Alternative diagnoses
+1549254,estrone,RxNorm,drugs,Alternative diagnoses
+941258,docusate,RxNorm,drugs,Alternative diagnoses
+911891,fiber,RxNorm,drugs,Alternative diagnoses
+19074641,calcium polycarbophil 625 MG Oral Tablet,RxNorm,drugs,Alternative diagnoses
+957797,psyllium,RxNorm,drugs,Alternative diagnoses
+19132967,ispaghula extract,RxNorm,drugs,Alternative diagnoses
+19137031,ispaghula husk,RxNorm,drugs,Alternative diagnoses
+19132965,Plantago seed,RxNorm,drugs,Alternative diagnoses
+1507705,cortisone,RxNorm,drugs,Alternative diagnoses
+975125,hydrocortisone,RxNorm,drugs,Alternative diagnoses
+959196,witch hazel,RxNorm,drugs,Alternative diagnoses
+968426,mesalamine,RxNorm,drugs,Alternative diagnoses
+964339,sulfasalazine,RxNorm,drugs,Alternative diagnoses
+934262,balsalazide,RxNorm,drugs,Alternative diagnoses
+40175280,olsalazine sodium 250 MG Oral Capsule,RxNorm,drugs,Alternative diagnoses
+939259,budesonide,RxNorm,drugs,Alternative diagnoses
+1551099,prednisone,RxNorm,drugs,Alternative diagnoses
+1550557,prednisolone,RxNorm,drugs,Alternative diagnoses
+1506270,methylprednisolone,RxNorm,drugs,Alternative diagnoses
+19014878,azathioprine,RxNorm,drugs,Alternative diagnoses
+1436650,mercaptopurine,RxNorm,drugs,Alternative diagnoses
+1305058,methotrexate,RxNorm,drugs,Alternative diagnoses
+937368,infliximab,RxNorm,drugs,Alternative diagnoses
+1119119,adalimumab,RxNorm,drugs,Alternative diagnoses
+19041065,golimumab,RxNorm,drugs,Alternative diagnoses
+45774639,vedolizumab,RxNorm,drugs,Alternative diagnoses
+40161532,ustekinumab,RxNorm,drugs,Alternative diagnoses
+42904205,tofacitinib,RxNorm,drugs,Alternative diagnoses
+955632,fluorouracil,RxNorm,drugs,Alternative diagnoses
+1337620,capecitabine,RxNorm,drugs,Alternative diagnoses
+1397599,cisplatin,RxNorm,drugs,Alternative diagnoses
+1344905,carboplatin,RxNorm,drugs,Alternative diagnoses
+1318011,oxaliplatin,RxNorm,drugs,Alternative diagnoses
+1315942,docetaxel,RxNorm,drugs,Alternative diagnoses
+1378382,paclitaxel,RxNorm,drugs,Alternative diagnoses
+1344354,epirubicin,RxNorm,drugs,Alternative diagnoses
+1367268,irinotecan,RxNorm,drugs,Alternative diagnoses
+1387104,trastuzumab,RxNorm,drugs,Alternative diagnoses
+44818489,ramucirumab,RxNorm,drugs,Alternative diagnoses
+45892628,nivolumab,RxNorm,drugs,Alternative diagnoses
+45775965,pembrolizumab,RxNorm,drugs,Alternative diagnoses
+1304107,imatinib,RxNorm,drugs,Alternative diagnoses
+1336539,sunitinib,RxNorm,drugs,Alternative diagnoses
+42903460,regorafenib,RxNorm,drugs,Alternative diagnoses
+989878,lidocaine,RxNorm,drugs,Alternative diagnoses
+19037794,bismuth subnitrate,RxNorm,drugs,Alternative diagnoses
+19097016,"calcium carbonate, precipitated",RxNorm,drugs,Alternative diagnoses
+1774470,cefotaxime,RxNorm,drugs,Alternative diagnoses
+1721543,norfloxacin,RxNorm,drugs,Alternative diagnoses
+966913,silver nitrate,RxNorm,drugs,Alternative diagnoses
+1361711,nitroglycerin,RxNorm,drugs,Alternative diagnoses
+1596779,"synthetic conjugated estrogens, A",RxNorm,drugs,Alternative diagnoses
+1586808,"synthetic conjugated estrogens, B",RxNorm,drugs,Alternative diagnoses
+1549786,ethinyl estradiol,RxNorm,drugs,Alternative diagnoses
+43012918,polyethylene glycol 1450,RxNorm,drugs,Alternative diagnoses
+908523,mineral oil,RxNorm,drugs,Alternative diagnoses
+960820,Senna leaf extract,RxNorm,drugs,Alternative diagnoses
+920458,betamethasone,RxNorm,drugs,Alternative diagnoses
+1518254,dexamethasone,RxNorm,drugs,Alternative diagnoses
+1361580,upadacitinib,RxNorm,drugs,Alternative diagnoses
+1716903,moxifloxacin,RxNorm,drugs,Alternative diagnoses
+903963,triamcinolone,RxNorm,drugs,Alternative diagnoses
+1314924,gemcitabine,RxNorm,drugs,Alternative diagnoses
+1350504,etoposide,RxNorm,drugs,Alternative diagnoses
+1338512,doxorubicin,RxNorm,drugs,Alternative diagnoses
+35602757,tipiracil,RxNorm,drugs,Alternative diagnoses
+4313889,Endoscopy,SNOMED,diagnosticProcedures,Disease of interest
+2109025,"Biopsy of intestine by capsule, tube, peroral (1 or more specimens)",CPT4,diagnosticProcedures,Disease of interest
+3046366,CT Abdomen and Pelvis,LOINC,diagnosticProcedures,Disease of interest
+4061009,CT of abdomen,SNOMED,diagnosticProcedures,Disease of interest
+4058336,CT of pelvis,SNOMED,diagnosticProcedures,Disease of interest
+3031563,CT Abdomen and Pelvis WO and W contrast IV,LOINC,diagnosticProcedures,Disease of interest
+4313889,Endoscopy,SNOMED,diagnosticProcedures,Alternative diagnoses
+3046366,CT Abdomen and Pelvis,LOINC,diagnosticProcedures,Alternative diagnoses
+4241851,Open biopsy of stomach,SNOMED,diagnosticProcedures,Alternative diagnoses
+4345928,Upper gastrointestinal tract series,SNOMED,diagnosticProcedures,Alternative diagnoses
+2617463,"BLOOD OCCULT TEST (E.G., GUAIAC), FECES, FOR SINGLE DETERMINATION FOR COLORECTAL NEOPLASM (I.E., PATIENT WAS PROVIDED THREE CARDS OR SINGLE TRIPLE CARD FOR CONSECUTIVE COLLECTION) (Deprecated)",HCPCS,diagnosticProcedures,Alternative diagnoses
+4058336,CT of pelvis,SNOMED,diagnosticProcedures,Alternative diagnoses
+3031563,CT Abdomen and Pelvis WO and W contrast IV,LOINC,diagnosticProcedures,Alternative diagnoses
+40481384,Imaging of abdomen,SNOMED,diagnosticProcedures,Alternative diagnoses
+4013636,Magnetic resonance imaging,SNOMED,diagnosticProcedures,Alternative diagnoses
+4132152,Complete blood count,SNOMED,measurements,Disease of interest
+4035541,"Blood cell count, automated",SNOMED,measurements,Disease of interest
+40480067,Measurement of total hemoglobin concentration,SNOMED,measurements,Disease of interest
+4153000,Hemoglobin level estimation,SNOMED,measurements,Disease of interest
+46235392,Hemoglobin [Mass/volume] in Venous blood by Oximetry,LOINC,measurements,Disease of interest
+3027484,Hemoglobin [Mass/volume] in Blood by calculation,LOINC,measurements,Disease of interest
+3007302,Hemoglobin [Mass/volume] in Mixed venous blood,LOINC,measurements,Disease of interest
+4151358,Hematocrit determination,SNOMED,measurements,Disease of interest
+3050746,Hematocrit [Volume Fraction] of Blood by Estimated,LOINC,measurements,Disease of interest
+3023230,Hematocrit [Volume Fraction] of Arterial blood by calculation,LOINC,measurements,Disease of interest
+4018619,Screening for occult blood in feces,SNOMED,measurements,Disease of interest
+3016251,Hemoglobin.gastrointestinal [Presence] in Stool,LOINC,measurements,Disease of interest
+3030153,Occult blood panel - Stool,LOINC,measurements,Disease of interest
+40760912,Occult blood panel - Stool by Immunoassay,LOINC,measurements,Disease of interest
+4091292,Occult blood screening,SNOMED,measurements,Disease of interest
+2617406,"Colorectal cancer screening; fecal occult blood test, immunoassay, 1-3 simultaneous",HCPCS,measurements,Disease of interest
+4235028,Total iron binding capacity measurement,SNOMED,measurements,Disease of interest
+4097596,Serum iron measurement,SNOMED,measurements,Disease of interest
+4198598,Saturation of iron binding capacity,SNOMED,measurements,Disease of interest
+4035540,"Blood cell count, manual",SNOMED,measurements,Disease of interest
+4030871,Red blood cell count,SNOMED,measurements,Disease of interest
+40760140,CBC W Auto Differential panel - Blood,LOINC,measurements,Disease of interest
+40760892,CBC W Ordered Manual Differential panel - Blood,LOINC,measurements,Disease of interest
+3004119,Hemoglobin [Mass/volume] in Venous blood,LOINC,measurements,Disease of interest
+3006184,Hemoglobin [Mass/volume] in Capillary blood,LOINC,measurements,Disease of interest
+40762351,Hemoglobin [Moles/volume] in Blood,LOINC,measurements,Disease of interest
+3019909,Hematocrit [Volume Fraction] of Blood by Centrifugation,LOINC,measurements,Disease of interest
+3013752,Hematocrit [Volume Fraction] of Blood by Impedance,LOINC,measurements,Disease of interest
+3034976,Hematocrit [Volume Fraction] of Venous blood by calculation,LOINC,measurements,Disease of interest
+3001643,Hemoglobin and Hematocrit panel - Blood,LOINC,measurements,Disease of interest
+3028813,Hematocrit [Volume Fraction] of Capillary blood by calculation,LOINC,measurements,Disease of interest
+42870592,"CBC W Differential panel, method unspecified - Blood",LOINC,measurements,Disease of interest
+3037713,Hemogram without Platelets panel - Blood,LOINC,measurements,Disease of interest
+3018311,Urea nitrogen/Creatinine [Mass Ratio] in Serum or Plasma,LOINC,measurements,Disease of interest
+3024966,Hemoglobin.gastrointestinal [Mass/mass] in Stool,LOINC,measurements,Disease of interest
+3027299,Hemoglobin.gastrointestinal [Presence] in Stool --4th specimen,LOINC,measurements,Disease of interest
+46236058,Noninvasive colorectal cancer DNA and occult blood screening [Interpretation] in Stool Narrative,LOINC,measurements,Disease of interest
+46236059,Noninvasive colorectal cancer DNA and occult blood screening [Presence] in Stool,LOINC,measurements,Disease of interest
+4304824,Helicobacter pylori antigen assay,SNOMED,measurements,Alternative diagnoses
+3013139,Helicobacter pylori Ag [Presence] in Stool,LOINC,measurements,Alternative diagnoses
+3016100,Helicobacter pylori Ag [Presence] in Stool by Immunoassay,LOINC,measurements,Alternative diagnoses
+4018470,Measurement of Helicobacter pylori antibody,SNOMED,measurements,Alternative diagnoses
+44790227,Urea breath test,SNOMED,measurements,Alternative diagnoses
+3011630,Helicobacter pylori [Presence] in Stomach by urea breath test,LOINC,measurements,Alternative diagnoses
+4215465,Urease test,SNOMED,measurements,Alternative diagnoses
+3004806,Helicobacter pylori IgG Ab [Units/volume] in Serum,LOINC,measurements,Alternative diagnoses
+3013058,Helicobacter pylori IgG Ab [Presence] in Serum,LOINC,measurements,Alternative diagnoses
+3027491,Helicobacter pylori IgG Ab [Units/volume] in Serum by Immunoassay,LOINC,measurements,Alternative diagnoses
+3023871,Helicobacter pylori IgG Ab [Presence] in Serum or Plasma by Immunoassay,LOINC,measurements,Alternative diagnoses
+4336961,Gastrin measurement,SNOMED,measurements,Alternative diagnoses
+4212065,Erythrocyte sedimentation rate measurement,SNOMED,measurements,Alternative diagnoses
+4208414,C-reactive protein measurement,SNOMED,measurements,Alternative diagnoses
+3048689,Calprotectin [Mass/mass] in Stool,LOINC,measurements,Alternative diagnoses
+44793002,Calprotectin level,SNOMED,measurements,Alternative diagnoses
+4135820,Antineutrophil cytoplasmic antibody measurement,SNOMED,measurements,Alternative diagnoses
+3020138,Lactate [Mass/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+3014111,Lactate [Moles/volume] in Serum or Plasma,LOINC,measurements,Alternative diagnoses
+4213582,Lactic acid measurement,SNOMED,measurements,Alternative diagnoses
+3047181,Lactate [Moles/volume] in Blood,LOINC,measurements,Alternative diagnoses
+3024966,Hemoglobin.gastrointestinal [Mass/mass] in Stool,LOINC,measurements,Alternative diagnoses
+3024098,Hemoglobin.gastrointestinal [Presence] in Stool --1st specimen,LOINC,measurements,Alternative diagnoses
+3024622,Hemoglobin.gastrointestinal [Presence] in Stool --2nd specimen,LOINC,measurements,Alternative diagnoses
+3011473,Hemoglobin.gastrointestinal [Presence] in Stool --3rd specimen,LOINC,measurements,Alternative diagnoses
+3027299,Hemoglobin.gastrointestinal [Presence] in Stool --4th specimen,LOINC,measurements,Alternative diagnoses
+46236058,Noninvasive colorectal cancer DNA and occult blood screening [Interpretation] in Stool Narrative,LOINC,measurements,Alternative diagnoses
+46236059,Noninvasive colorectal cancer DNA and occult blood screening [Presence] in Stool,LOINC,measurements,Alternative diagnoses
+2211959,"Urea breath test, C-14 (isotopic); analysis",CPT4,measurements,Alternative diagnoses
+3021457,Helicobacter pylori Ab [Units/volume] in Serum by Immunoassay,LOINC,measurements,Alternative diagnoses
+3018195,Helicobacter pylori IgA Ab [Units/volume] in Serum,LOINC,measurements,Alternative diagnoses
+3016410,Helicobacter pylori IgA Ab [Units/volume] in Serum by Immunoassay,LOINC,measurements,Alternative diagnoses
+3007894,Helicobacter pylori IgM Ab [Units/volume] in Serum,LOINC,measurements,Alternative diagnoses
+3035561,Lactate [Mass/volume] in Arterial blood,LOINC,measurements,Alternative diagnoses
+40762125,Lactate [Mass/volume] in Blood,LOINC,measurements,Alternative diagnoses
+3028271,Lactate [Moles/volume] in Capillary blood,LOINC,measurements,Alternative diagnoses
+3018405,Lactate [Moles/volume] in Arterial blood,LOINC,measurements,Alternative diagnoses
+3005949,Lactate [Moles/volume] in Mixed venous blood,LOINC,measurements,Alternative diagnoses
+3008037,Lactate [Moles/volume] in Venous blood,LOINC,measurements,Alternative diagnoses
+4353605,Tumor marker measurement,SNOMED,measurements,Alternative diagnoses
+4284254,Ligation of esophageal varices,SNOMED,treatmentProcedures,Disease of interest
+2002622,Endoscopic control of gastric or duodenal bleeding,ICD9Proc,treatmentProcedures,Disease of interest
+2108311,"Insertion of transvenous intrahepatic portosystemic shunt(s) (TIPS) (includes venous access, hepatic and portal vein catheterization, portography with hemodynamic evaluation, intrahepatic tract formation/dilatation, stent placement and all associated imag",CPT4,treatmentProcedures,Disease of interest
+44816404,"Vascular embolization or occlusion, inclusive of all radiological supervision and interpretation, intraprocedural roadmapping, and imaging guidance necessary to complete the intervention; for arterial or venous hemorrhage or lymphatic extravasation",CPT4,treatmentProcedures,Disease of interest
+4232840,Oversewing of peptic ulcer crater,SNOMED,treatmentProcedures,Disease of interest
+4139402,Suture of gastric ulcer,SNOMED,treatmentProcedures,Disease of interest
+2109093,"Small intestinal endoscopy, enteroscopy beyond second portion of duodenum, not including ileum; with control of bleeding (eg, injection, bipolar cautery, unipolar cautery, laser, heater probe, stapler, plasma coagulator)",CPT4,treatmentProcedures,Disease of interest
+46257518,"Colonoscopy, flexible; with band ligation(s) (eg, hemorrhoids)",CPT4,treatmentProcedures,Disease of interest
+2108900,"Esophagogastroduodenoscopy, flexible, transoral; with control of bleeding, any method",CPT4,treatmentProcedures,Disease of interest
+4249893,Colonoscopy,SNOMED,treatmentProcedures,Disease of interest
+40485932,Endoscopy and biopsy of upper gastrointestinal tract,SNOMED,treatmentProcedures,Disease of interest
+4125928,Packed blood cell transfusion,SNOMED,treatmentProcedures,Disease of interest
+43016301,"Bypass Portal Vein to Hepatic Vein with Synthetic Substitute, Percutaneous Approach",ICD10PCS,treatmentProcedures,Disease of interest
+2735681,"Bypass Portal Vein to Lower Vein with Intraluminal Device, Percutaneous Approach (Deprecated)",ICD10PCS,treatmentProcedures,Disease of interest
+43016387,"Occlusion of Esophageal Vein with Extraluminal Device, Via Natural or Artificial Opening Endoscopic",ICD10PCS,treatmentProcedures,Disease of interest
+4080760,Intra-abdominal venous shunt,SNOMED,treatmentProcedures,Disease of interest
+2788711,"Transfusion of Nonautologous Frozen Plasma into Peripheral Vein, Percutaneous Approach",ICD10PCS,treatmentProcedures,Disease of interest
+2788973,"Transfusion of Nonautologous Red Blood Cells into Central Vein, Percutaneous Approach",ICD10PCS,treatmentProcedures,Disease of interest
+4139403,Suture of ulcer of duodenum,SNOMED,treatmentProcedures,Disease of interest
+2108966,"Gastrectomy, partial, distal; with gastrojejunostomy",CPT4,treatmentProcedures,Disease of interest
+2108967,"Gastrectomy, partial, distal; with Roux-en-Y reconstruction",CPT4,treatmentProcedures,Disease of interest
+2002545,Local excision of other lesion or tissue of stomach,ICD9Proc,treatmentProcedures,Disease of interest
+2002562,Open and other partial gastrectomy,ICD9Proc,treatmentProcedures,Disease of interest
+2109043,"Colectomy, partial; with end colostomy and closure of distal segment (Hartmann type procedure)",CPT4,treatmentProcedures,Disease of interest
+2109044,"Colectomy, partial; with resection, with colostomy or ileostomy and creation of mucofistula",CPT4,treatmentProcedures,Disease of interest
+2109048,"Colectomy, total, abdominal, without proctectomy; with ileostomy or ileoproctostomy",CPT4,treatmentProcedures,Disease of interest
+2109029,"Enterectomy, resection of small intestine; each additional resection and anastomosis (List separately in addition to code for primary procedure)",CPT4,treatmentProcedures,Disease of interest
+2109028,"Enterectomy, resection of small intestine; single resection and anastomosis",CPT4,treatmentProcedures,Disease of interest
+2109067,"Laparoscopy, surgical; colectomy, partial, with end colostomy and closure of distal segment (Hartmann type procedure)",CPT4,treatmentProcedures,Disease of interest
+44816419,"Esophagogastroduodenoscopy, flexible, transoral; with ablation of tumor(s), polyp(s), or other lesion(s) (includes pre- and post-dilation and guide wire passage, when performed)",CPT4,treatmentProcedures,Disease of interest
+2109094,"Small intestinal endoscopy, enteroscopy beyond second portion of duodenum, not including ileum; with ablation of tumor(s), polyp(s), or other lesion(s) not amenable to removal by hot biopsy forceps, bipolar cautery or snare technique",CPT4,treatmentProcedures,Disease of interest
+2779051,"Control Bleeding in Gastrointestinal Tract, Via Natural or Artificial Opening Endoscopic",ICD10PCS,treatmentProcedures,Disease of interest
+2747749,"Destruction of Duodenum, Via Natural or Artificial Opening Endoscopic",ICD10PCS,treatmentProcedures,Disease of interest
+2747734,"Destruction of Stomach, Via Natural or Artificial Opening Endoscopic",ICD10PCS,treatmentProcedures,Disease of interest
+46257514,"Colonoscopy, flexible; with ablation of tumor(s), polyp(s), or other lesion(s) (includes pre- and post-dilation and guide wire passage, when performed)",CPT4,treatmentProcedures,Disease of interest
+2109296,"Destruction of internal hemorrhoid(s) by thermal energy (eg, infrared coagulation, cautery, radiofrequency)",CPT4,treatmentProcedures,Disease of interest
+2109258,"Injection of sclerosing solution, hemorrhoids",CPT4,treatmentProcedures,Disease of interest
+4224173,Hemorrhoidectomy by simple ligature,SNOMED,treatmentProcedures,Disease of interest
+2002622,Endoscopic control of gastric or duodenal bleeding,ICD9Proc,treatmentProcedures,Alternative diagnoses
+4284254,Ligation of esophageal varices,SNOMED,treatmentProcedures,Alternative diagnoses
+2002544,Endoscopic excision or destruction of lesion or tissue of stomach,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2108311,"Insertion of transvenous intrahepatic portosystemic shunt(s) (TIPS) (includes venous access, hepatic and portal vein catheterization, portography with hemodynamic evaluation, intrahepatic tract formation/dilatation, stent placement and all associated imag",CPT4,treatmentProcedures,Alternative diagnoses
+4035620,Truncal vagotomy,SNOMED,treatmentProcedures,Alternative diagnoses
+44816404,"Vascular embolization or occlusion, inclusive of all radiological supervision and interpretation, intraprocedural roadmapping, and imaging guidance necessary to complete the intervention; for arterial or venous hemorrhage or lymphatic extravasation",CPT4,treatmentProcedures,Alternative diagnoses
+2109198,"Colonoscopy, flexible; with control of bleeding, any method",CPT4,treatmentProcedures,Alternative diagnoses
+4224173,Hemorrhoidectomy by simple ligature,SNOMED,treatmentProcedures,Alternative diagnoses
+4133515,Stapling of hemorrhoid,SNOMED,treatmentProcedures,Alternative diagnoses
+46257518,"Colonoscopy, flexible; with band ligation(s) (eg, hemorrhoids)",CPT4,treatmentProcedures,Alternative diagnoses
+46257706,"Sigmoidoscopy, flexible; with band ligation(s) (eg, hemorrhoids)",CPT4,treatmentProcedures,Alternative diagnoses
+2109296,"Destruction of internal hemorrhoid(s) by thermal energy (eg, infrared coagulation, cautery, radiofrequency)",CPT4,treatmentProcedures,Alternative diagnoses
+4074077,Hemorrhoidectomy,SNOMED,treatmentProcedures,Alternative diagnoses
+4250795,Multiple segmental resections of small intestine,SNOMED,treatmentProcedures,Alternative diagnoses
+2002747,Other partial resection of small intestine,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2002562,Open and other partial gastrectomy,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2002724,"Local excision of lesion or tissue of small intestine, except duodenum",ICD9Proc,treatmentProcedures,Alternative diagnoses
+4232840,Oversewing of peptic ulcer crater,SNOMED,treatmentProcedures,Alternative diagnoses
+4139402,Suture of gastric ulcer,SNOMED,treatmentProcedures,Alternative diagnoses
+2107427,"Endovascular repair of descending thoracic aorta (eg, aneurysm, pseudoaneurysm, dissection, penetrating ulcer, intramural hematoma, or traumatic disruption); not involving coverage of left subclavian artery origin, initial endoprosthesis plus descendin...",CPT4,treatmentProcedures,Alternative diagnoses
+2002547,Partial gastrectomy with anastomosis to esophagus,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2108900,"Esophagogastroduodenoscopy, flexible, transoral; with control of bleeding, any method",CPT4,treatmentProcedures,Alternative diagnoses
+2002729,Endoscopic destruction of other lesion or tissue of large intestine,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2002711,Endoscopic excision or destruction of lesion of duodenum,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2002685,Other endoscopy of small intestine,ICD9Proc,treatmentProcedures,Alternative diagnoses
+4125928,Packed blood cell transfusion,SNOMED,treatmentProcedures,Alternative diagnoses
+43016301,"Bypass Portal Vein to Hepatic Vein with Synthetic Substitute, Percutaneous Approach",ICD10PCS,treatmentProcedures,Alternative diagnoses
+2735681,"Bypass Portal Vein to Lower Vein with Intraluminal Device, Percutaneous Approach (Deprecated)",ICD10PCS,treatmentProcedures,Alternative diagnoses
+43016387,"Occlusion of Esophageal Vein with Extraluminal Device, Via Natural or Artificial Opening Endoscopic",ICD10PCS,treatmentProcedures,Alternative diagnoses
+4080760,Intra-abdominal venous shunt,SNOMED,treatmentProcedures,Alternative diagnoses
+2108486,"Abdominal lymphadenectomy, regional, including celiac, gastric, portal, peripancreatic, with or without para-aortic and vena caval nodes (List separately in addition to code for primary procedure)",CPT4,treatmentProcedures,Alternative diagnoses
+2109527,"Omental flap, intra-abdominal (List separately in addition to code for primary procedure)",CPT4,treatmentProcedures,Alternative diagnoses
+2746762,"Excision of Stomach, Open Approach",ICD10PCS,treatmentProcedures,Alternative diagnoses
+2746768,"Excision of Stomach, Percutaneous Endoscopic Approach",ICD10PCS,treatmentProcedures,Alternative diagnoses
+2002545,Local excision of other lesion or tissue of stomach,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2002828,Other enterostomy,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2788711,"Transfusion of Nonautologous Frozen Plasma into Peripheral Vein, Percutaneous Approach",ICD10PCS,treatmentProcedures,Alternative diagnoses
+2788973,"Transfusion of Nonautologous Red Blood Cells into Central Vein, Percutaneous Approach",ICD10PCS,treatmentProcedures,Alternative diagnoses
+44816419,"Esophagogastroduodenoscopy, flexible, transoral; with ablation of tumor(s), polyp(s), or other lesion(s) (includes pre- and post-dilation and guide wire passage, when performed)",CPT4,treatmentProcedures,Alternative diagnoses
+2109184,"Sigmoidoscopy, flexible; with control of bleeding, any method",CPT4,treatmentProcedures,Alternative diagnoses
+2109116,"Suture of small intestine (enterorrhaphy) for perforated ulcer, diverticulum, wound, injury or rupture; single perforation",CPT4,treatmentProcedures,Alternative diagnoses
+46257514,"Colonoscopy, flexible; with ablation of tumor(s), polyp(s), or other lesion(s) (includes pre- and post-dilation and guide wire passage, when performed)",CPT4,treatmentProcedures,Alternative diagnoses
+2109258,"Injection of sclerosing solution, hemorrhoids",CPT4,treatmentProcedures,Alternative diagnoses
+2002871,Other repair of intestine,ICD9Proc,treatmentProcedures,Alternative diagnoses
+4098879,Partial excision of large intestine,SNOMED,treatmentProcedures,Alternative diagnoses
+4021169,Total parenteral nutrition,SNOMED,treatmentProcedures,Alternative diagnoses
+4128868,Anastomosis of intestine,SNOMED,treatmentProcedures,Alternative diagnoses
+4162987,Colostomy,SNOMED,treatmentProcedures,Alternative diagnoses
+2002645,Other repair of stomach,ICD9Proc,treatmentProcedures,Alternative diagnoses
+4139403,Suture of ulcer of duodenum,SNOMED,treatmentProcedures,Alternative diagnoses
+4181152,Endovascular repair of thoracic aortic aneurysm using endovascular stent graft,SNOMED,treatmentProcedures,Alternative diagnoses
+37311319,Hypovolemia,SNOMED,complications,Disease of interest
+439777,Anemia,SNOMED,complications,Disease of interest
+201965,Shock,SNOMED,complications,Disease of interest
+135360,Syncope,SNOMED,complications,Disease of interest
+4142895,Near syncope,SNOMED,complications,Disease of interest
+435517,Acidosis,SNOMED,complications,Disease of interest
+317002,Low blood pressure,SNOMED,complications,Disease of interest
+37309626,Myocardial infarction due to demand ischemia,SNOMED,complications,Disease of interest
+46273390,Dependence on respirator,SNOMED,complications,Disease of interest
+4256228,Respiratory failure,SNOMED,complications,Disease of interest
+44784217,Cardiac arrhythmia,SNOMED,complications,Disease of interest
+377845,Anoxic encephalopathy,SNOMED,complications,Disease of interest
+192359,Renal failure syndrome,SNOMED,complications,Disease of interest
+319844,Acute ischemic heart disease,SNOMED,complications,Disease of interest
+4220631,Injury of kidney,SNOMED,complications,Disease of interest
+372892,Metabolic encephalopathy,SNOMED,complications,Disease of interest
+255848,Pneumonia,SNOMED,complications,Disease of interest
+432585,Blood coagulation disorder,SNOMED,complications,Disease of interest
+4146209,Iron deficiency,SNOMED,complications,Alternative diagnoses
+37311319,Hypovolemia,SNOMED,complications,Alternative diagnoses
+193242,Perforation of intestine,SNOMED,complications,Alternative diagnoses
+196152,Peritonitis,SNOMED,complications,Alternative diagnoses
+198191,Acquired hypertrophic pyloric stenosis,SNOMED,complications,Alternative diagnoses
+193518,Intestinal obstruction,SNOMED,complications,Alternative diagnoses
+196160,Fistula of intestine,SNOMED,complications,Alternative diagnoses
+4326255,Abdominal abscess,SNOMED,complications,Alternative diagnoses
+198465,Acquired megacolon,SNOMED,complications,Alternative diagnoses
+4180790,Malignant tumor of colon,SNOMED,complications,Alternative diagnoses
+4058821,Primary sclerosing cholangitis,SNOMED,complications,Alternative diagnoses
+132797,Sepsis,SNOMED,complications,Alternative diagnoses
+432851,Metastatic malignant neoplasm,SNOMED,complications,Alternative diagnoses
+200528,Ascites,SNOMED,complications,Alternative diagnoses
+4242900,Obstructive hyperbilirubinemia,SNOMED,complications,Alternative diagnoses
+201066,Obstruction of bile duct,SNOMED,complications,Alternative diagnoses
+137977,Jaundice,SNOMED,complications,Alternative diagnoses
+197034,Intussusception of intestine,SNOMED,complications,Alternative diagnoses
+4103703,Melena,SNOMED,complications,Alternative diagnoses
+439777,Anemia,SNOMED,complications,Alternative diagnoses
+437312,Bleeding,SNOMED,complications,Alternative diagnoses
+4216894,Precipitous drop in hematocrit,SNOMED,complications,Alternative diagnoses
+201965,Shock,SNOMED,complications,Alternative diagnoses
+435517,Acidosis,SNOMED,complications,Alternative diagnoses
+197320,Acute kidney injury,SNOMED,complications,Alternative diagnoses
+444044,Acute tubular necrosis,SNOMED,complications,Alternative diagnoses
+436093,Disseminated intravascular coagulation,SNOMED,complications,Alternative diagnoses
+4256228,Respiratory failure,SNOMED,complications,Alternative diagnoses
+4307981,Clostridium difficile colitis,SNOMED,complications,Alternative diagnoses
+435796,Dehydration,SNOMED,complications,Alternative diagnoses
+437833,Hypokalemia,SNOMED,complications,Alternative diagnoses
+435515,Hypo-osmolality and or hyponatremia,SNOMED,complications,Alternative diagnoses
+4098458,Moderate protein-calorie malnutrition (weight for age 60-74 percent of standard),SNOMED,complications,Alternative diagnoses
+37309626,Myocardial infarction due to demand ischemia,SNOMED,complications,Alternative diagnoses
+4233565,Severe protein-calorie malnutrition (Gomez: less than 60 percent of standard weight),SNOMED,complications,Alternative diagnoses
+4319280,Acute bowel infarction,SNOMED,complications,Alternative diagnoses
+4057953,Acute gastric ulcer with perforation,SNOMED,complications,Alternative diagnoses
+201894,Acute vascular insufficiency of intestine,SNOMED,complications,Alternative diagnoses
+4146517,Chronic peptic ulcer with perforation,SNOMED,complications,Alternative diagnoses
+434814,Late effect of medical and surgical care complication,SNOMED,complications,Alternative diagnoses
+42538804,Organ surgical site infection,SNOMED,complications,Alternative diagnoses
+443788,Peritoneal adhesions with obstruction,SNOMED,complications,Alternative diagnoses
+4252862,Enterostomy infection,SNOMED,complications,Alternative diagnoses
+436003,Persistent postoperative fistula,SNOMED,complications,Alternative diagnoses
+40487050,Anorectal adenocarcinoma,SNOMED,complications,Alternative diagnoses
+443390,Malignant neoplasm of rectum,SNOMED,complications,Alternative diagnoses
+4246125,Primary malignant neoplasm of large intestine,SNOMED,complications,Alternative diagnoses
+75210,Carcinoma in situ of rectum,SNOMED,complications,Alternative diagnoses
+372892,Metabolic encephalopathy,SNOMED,complications,Alternative diagnoses
+4187218,Pneumonitis caused by inhaled substance,SNOMED,complications,Alternative diagnoses
+434821,Systemic inflammatory response syndrome,SNOMED,complications,Alternative diagnoses
+46273390,Dependence on respirator,SNOMED,complications,Alternative diagnoses
+260430,Pneumonia caused by Escherichia coli,SNOMED,complications,Alternative diagnoses
+46270027,Pneumonia caused by methicillin resistant Staphylococcus aureus,SNOMED,complications,Alternative diagnoses
+46274035,Pneumonia caused by methicillin susceptible Staphylococcus aureus,SNOMED,complications,Alternative diagnoses
+199837,Portal vein thrombosis,SNOMED,complications,Alternative diagnoses

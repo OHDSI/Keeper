@@ -26,7 +26,7 @@
 #'                                of 5 days will be taken. Set to `0` if there is no maximum.
 #' @param legacy                  IF TRUE, will use the prompt from the Nature Digital Medicine paper.
 #'
-#' @return A settings object, to be used in `createSystemPrompt()` and `createPrompt()`.
+#' @return A settings object, to be used in [createSystemPrompt] and [createPrompt].
 #'
 #' @export
 createPromptSettings <- function(maxParts = 100,
@@ -65,9 +65,9 @@ createSystemPrompt <- function(settings, phenotypeName) {
 
 #' Create the main prompt based on a Keeper output row.
 #'
-#' @param settings       A settings object as created using `createPromptSettings()`.
+#' @param settings       A settings object as created using [createPromptSettings].
 #' @param phenotypeName  The name of the disease to use in the prompt.
-#' @param keeperRow      A single row from the output of `createKeeper()`.
+#' @param keeperTableRow A single row from the output of [convertKeeperToTable].
 #'
 #' @return
 #' A character string containing the main prompt.
@@ -75,83 +75,83 @@ createSystemPrompt <- function(settings, phenotypeName) {
 #' @export
 createPrompt <- function(settings,
                          phenotypeName,
-                         keeperRow) {
+                         keeperTableRow) {
   prompt <- c(
     "Healthcare data:",
     ""
   )
-  if ("sex" %in% colnames(keeperRow)) {
-    keeperRow$gender <- keeperRow$sex
+  if ("sex" %in% colnames(keeperTableRow)) {
+    keeperTableRow$gender <- keeperTableRow$sex
   }
   prompt <- c(prompt, sprintf(
     "Demographics and details about the visit: %s, %s yo; Visit: %s",
-    keeperRow$gender,
-    convertAgeToText(keeperRow$age),
-    formatVisitContext(keeperRow$visitContext)
+    keeperTableRow$gender,
+    convertAgeToText(keeperTableRow$age),
+    formatVisitContext(keeperTableRow$visitContext)
   ))
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded on the day of the visit: %s",
-    formatPresentation(keeperRow$presentation,
+    formatPresentation(keeperTableRow$presentation,
       maxParts = settings$maxParts
     )
   ))
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded prior to the visit: %s",
-    formatList(keeperRow$priorDisease, keeperRow$symptoms,
+    formatList(keeperTableRow$priorDisease, keeperTableRow$symptoms,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Treatments recorded prior to the visit: %s",
-    formatList(keeperRow$priorDrugs, keeperRow$priorTreatmentProcedures,
+    formatList(keeperTableRow$priorDrugs, keeperTableRow$priorTreatmentProcedures,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Diagnostic procedures recorded proximal to the visit: %s",
-    formatList(keeperRow$diagnosticProcedures,
+    formatList(keeperTableRow$diagnosticProcedures,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Laboratory tests recorded proximal to the visit: %s",
-    formatList(keeperRow$measurements,
+    formatList(keeperTableRow$measurements,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
-  if ("alternativeDiagnosis" %in% colnames(keeperRow)) {
-    keeperRow$alternativeDiagnoses <- keeperRow$alternativeDiagnosis
+  if ("alternativeDiagnosis" %in% colnames(keeperTableRow)) {
+    keeperTableRow$alternativeDiagnoses <- keeperTableRow$alternativeDiagnosis
   }
   prompt <- c(prompt, sprintf(
     "Alternative diagnoses recorded proximal to the visit: %s",
-    formatList(keeperRow$alternativeDiagnoses,
+    formatList(keeperTableRow$alternativeDiagnoses,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
-  if ("afterDisease" %in% colnames(keeperRow)) {
-    keeperRow$postDisease <- keeperRow$afterDisease
+  if ("afterDisease" %in% colnames(keeperTableRow)) {
+    keeperTableRow$postDisease <- keeperTableRow$afterDisease
   }
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded after the visit: %s",
-    formatList(keeperRow$postDisease,
+    formatList(keeperTableRow$postDisease,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )
   ))
-  if ("afterDisease" %in% colnames(keeperRow)) {
-    keeperRow$postDrugs <- keeperRow$afterDrugs
+  if ("afterDisease" %in% colnames(keeperTableRow)) {
+    keeperTableRow$postDrugs <- keeperTableRow$afterDrugs
   }
-  if ("afterDisease" %in% colnames(keeperRow)) {
-    keeperRow$postTreatmentProcedures <- keeperRow$afterTreatmentProcedures
+  if ("afterDisease" %in% colnames(keeperTableRow)) {
+    keeperTableRow$postTreatmentProcedures <- keeperTableRow$afterTreatmentProcedures
   }
   prompt <- c(prompt, sprintf(
     "Treatments recorded during or after the visit: %s",
-    formatList(keeperRow$postDrugs, keeperRow$postTreatmentProcedures,
+    formatList(keeperTableRow$postDrugs, keeperTableRow$postTreatmentProcedures,
       maxParts = settings$maxParts,
       maxDays = settings$maxDays
     )

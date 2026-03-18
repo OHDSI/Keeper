@@ -177,7 +177,7 @@ FROM (
 			AND condition_era_start_date < cohort_start_date
 			AND DATEDIFF(DAY, condition_era_start_date, cohort_start_date) <= 30
 	INNER JOIN @cdm_database_schema.concept 
-		ON condition_concept_id = concept_id
+		ON condition_concept_id = concept.concept_id
 	INNER JOIN #full_concept_sets full_concept_sets
 		ON condition_concept_id = full_concept_sets.concept_id
 	WHERE concept_set_name = 'symptoms'
@@ -196,7 +196,7 @@ FROM (
 			AND observation_date < cohort_start_date
 			AND DATEDIFF(DAY, observation_date, cohort_start_date) <= 30
 	INNER JOIN @cdm_database_schema.concept 
-		ON observation_concept_id = concept_id
+		ON observation_concept_id = concept.concept_id
 	INNER JOIN #full_concept_sets full_concept_sets
 		ON observation_concept_id = full_concept_sets.concept_id
 	WHERE concept_set_name = 'symptoms'

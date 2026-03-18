@@ -42,7 +42,7 @@
 #' @param removePersonId             Remove person IDs from the output? Can be set to `TRUE` for privacy reasons.                                
 #'        
 #' @returns 
-#' Returns a list of tibbles with data in the various KEEPER categories.
+#' Returns a list of tibbles with data in the various Keeper categories.
 #'                                   
 #' @export
 generateKeeper <- function(connectionDetails = NULL,
@@ -134,7 +134,7 @@ generateKeeper <- function(connectionDetails = NULL,
     )
   }
   
-  message("Identifying KEEPER cohort")
+  message("Identifying Keeper cohort")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "CreateKeeperCohort.sql", 
     packageName = "Keeper", 
@@ -147,7 +147,7 @@ generateKeeper <- function(connectionDetails = NULL,
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
   
-  message("Constructing KEEPER profiles")
+  message("Constructing Keeper profiles")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "Keeper.sql", 
     packageName = "Keeper", 
@@ -173,7 +173,7 @@ generateKeeper <- function(connectionDetails = NULL,
                     "measurements",
                     "death")
   
-  message("Downloading KEEPER profiles")
+  message("Downloading Keeper profiles")
   sql <- "SELECT * FROM #@table;"
   keeper <- list()
   for (keeperTable in keeperTables) {
@@ -235,7 +235,9 @@ generateKeeper <- function(connectionDetails = NULL,
       table <- table |>
         mutate(category = SqlRender::snakeCaseToCamelCase(keeperTable))
     }
-    keeper[[length(keeper) + 1]] <- table
+    if (nrow(table) > 0) {
+      keeper[[length(keeper) + 1]] <- table
+    }
   }
   keeper <- bind_rows(keeper)
   
@@ -288,7 +290,7 @@ generateKeeper <- function(connectionDetails = NULL,
   )
   
   delta <- Sys.time() - startTime
-  message(paste0("Generating KEEPER profiles took ",
+  message(paste0("Generating Keeper profiles took ",
                  round(delta,1), 
                  " ",
                  attr(delta, "units"),
@@ -299,13 +301,13 @@ generateKeeper <- function(connectionDetails = NULL,
 }
 
 
-#' Covert KEEPER profiles to a table
+#' Covert Keeper profiles to a table
 #'
-#' @param keeper         KEEPER profiles as created using the [generateKeeper()] function.
+#' @param keeper         Keeper profiles as created using the [generateKeeper()] function.
 #' @param removePersonId Remove person IDs from the output? Can be set to `TRUE` for privacy reasons.  
 #'
 #' @returns
-#' A tibble with one row per person, and text columns for each KEEPER category. Can be used for manual review.
+#' A tibble with one row per person, and text columns for each Keeper category. Can be used for manual review.
 #' 
 #' @export
 convertKeeperToTable <- function(keeper, removePersonId = FALSE) {

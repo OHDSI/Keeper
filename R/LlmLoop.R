@@ -18,7 +18,7 @@
 #'
 #' @param keeper      Output from the [generateKeeper()] function.
 #' @param settings    Prompt creating settings as created using the [createPromptSettings] function.
-#' @param phenotypeName The name of the disease to use in the prompt. If not provided, the name in the KEEPER input will
+#' @param phenotypeName The name of the disease to use in the prompt. If not provided, the name in the Keeper input will
 #'                      be used.
 #' @param client      An LLM client created using the `ellmer` package.
 #' @param cacheFolder A folder where the LLM responses are cached. If the process terminates for some
@@ -129,7 +129,7 @@ reviewCases <- function(keeper,
       systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = row$phenotype)  
       prompt <- createPrompt(settings = settings, 
                              phenotypeName = row$phenotype,
-                             keeperRow = row)  
+                             keeperTableRow = row)  
       
       # Store full prompt for easy review:
       fullPrompt <- sprintf("[System Prompt]\n%s\n[Prompt]\n%s", systemPrompt, prompt)

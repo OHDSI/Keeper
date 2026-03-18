@@ -2,17 +2,17 @@
 % Please edit documentation in R/GenerateConceptSets.R
 \name{generateKeeperConceptSets}
 \alias{generateKeeperConceptSets}
-\title{Generate KEEPER input concept sets}
+\title{Generate Keeper input concept sets}
 \usage{
 generateKeeperConceptSets(
-  condition,
+  phenotype,
   client,
   vocabConnectionDetails,
   vocabDatabaseSchema
 )
 }
 \arguments{
-\item{condition}{A text string denoting the condition of interest, e.g. 'Type I Diabetes Mellitus
+\item{phenotype}{A text string denoting the condition of interest, e.g. 'Type I Diabetes Mellitus
 (T1DM)'. This string is used as input for the LLM.}
 
 \item{client}{An LLM client created using the \code{ellmer} package.}
@@ -34,7 +34,7 @@ A data frame with the following columns:
 }
 }
 \description{
-Generate the concept sets used as input for KEEPER. This function uses LLMs, the OHDSI vocabulary vector store, and
+Generate the concept sets used as input for Keeper. This function uses LLMs, the OHDSI vocabulary vector store, and
 Phoebe to populate concept sets for the disease of interest, symptoms, treatments etc. of the given medical
 condition.
 }
