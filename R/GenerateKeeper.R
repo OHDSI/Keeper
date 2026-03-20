@@ -401,44 +401,32 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
     if (keeperTable == "presentation") {
       return(paste0(conceptName, if_else(extraData == "", "", sprintf(" (%s)", extraData))))
     } else if (keeperTable == "visitContext") {
-      return(sprintf(
-        "%s%s%s",
-        conceptName,
-        if_else(extraData == "", "", sprintf(" - %s", extraData)),
-        if_else(startDay == endDay, "", sprintf(" (%d days)", endDay - startDay))
-      ))
+      return(sprintf("%s%s (%s)",
+                     conceptName,
+                     if_else(extraData == "", "", sprintf(" - %s", extraData)),
+                     paste(sprintf("day %s%s",
+                                   startDay,
+                                   if_else(startDay == endDay, "",  sprintf(" for %d days", endDay - startDay))),
+                           collapse = ", ")))
     } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
-      return(sprintf(
-        "%s (day %s)",
-        conceptName[1],
-        paste(
-          sprintf(
-            "%d for %d day%s",
-            startDay,
-            endDay - startDay + 1,
-            if_else(endDay == startDay, "", "s")
-          ),
-          collapse = ", "
-        )
-      ))
+      return(sprintf("%s (%s)", 
+                     conceptName[1],
+                     paste(sprintf("day %d for %d day%s", 
+                                   startDay, 
+                                   endDay - startDay + 1,
+                                   if_else(endDay == startDay, "", "s")),
+                           collapse = ", ")))
     } else if (keeperTable == "measurements") {
-      return(sprintf(
-        "%s (day %s)",
-        conceptName[1],
-        paste(
-          if_else(extraData == "",
-            as.character(startDay),
-            sprintf("%d with value %s", startDay, extraData)
-          ),
-          collapse = ", "
-        )
-      ))
+      return(sprintf("%s (day %s)", 
+                     conceptName[1],
+                     paste(if_else(extraData == "",
+                                   as.character(startDay),
+                                   sprintf("%d with value %s", startDay, extraData)),
+                           collapse = ", ")))     
     } else {
-      return(sprintf(
-        "%s (day %s)",
-        conceptName[1],
-        paste(startDay, collapse = ", ")
-      ))
+      return(sprintf("%s (day %s)", 
+                     conceptName[1],
+                     paste(startDay, collapse = ", ")))     
     }
   }
 

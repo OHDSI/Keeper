@@ -130,33 +130,24 @@ GROUP BY generated_id,
 	
 -- Visit
 SELECT generated_id,
-	start_day,
-	end_day,
+	DATEDIFF(DAY, cohort_start_date, visit_start_date) AS start_day,
+	DATEDIFF(DAY, cohort_start_date, visit_end_date) AS end_day,	
 	visit_concept.concept_id,
 	CASE WHEN visit_concept.concept_id = 0 THEN '' ELSE visit_concept.concept_name END AS concept_name,
 	CASE WHEN specialty.concept_name IS NULL OR specialty.concept_id = 0 THEN '' ELSE specialty.concept_name END AS extra_data,
 	1 AS target
 INTO #visit_context
-FROM ( 
-	SELECT generated_id,
-		DATEDIFF(DAY, cohort_start_date, visit_start_date) AS start_day,
-		DATEDIFF(DAY, cohort_start_date, visit_end_date) AS end_day,	
-		visit_concept_id,
-		provider_id,
-		ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY visit_start_date, visit_concept_id DESC) rn
-	FROM #cohort cohort
-	INNER JOIN @cdm_database_schema.visit_occurrence
-		ON visit_occurrence.person_id = cohort.subject_id
-			AND visit_start_date <= cohort_start_date
-			AND visit_end_date >= cohort_start_date
-	) visit
+FROM #cohort cohort
+INNER JOIN @cdm_database_schema.visit_occurrence
+	ON visit_occurrence.person_id = cohort.subject_id
+		AND DATEDIFF(DAY, cohort_start_date, visit_end_date) >= -90
+		AND DATEDIFF(DAY, cohort_start_date, visit_start_date) <= 90
 INNER JOIN @cdm_database_schema.concept visit_concept
 	ON visit_concept_id = visit_concept.concept_id
 LEFT JOIN @cdm_database_schema.provider
-	ON visit.provider_id = provider.provider_id
+	ON visit_occurrence.provider_id = provider.provider_id
 LEFT JOIN @cdm_database_schema.concept specialty
-	ON provider.specialty_concept_id = specialty.concept_id
-WHERE rn = 1;
+	ON provider.specialty_concept_id = specialty.concept_id;
 
 -- Prior symptoms [-30,0)
 SELECT generated_id,
