@@ -150,8 +150,7 @@ shinyServer(function(input, output, session) {
     for (keeperTable in keeperTables) {
       table <- subset |>
         filter(category == keeperTable) |>
-        mutate(
-          extraGroup = if (keeperTable == "presentation") .data$extraData else "") |>
+        mutate(extraGroup = if (keeperTable %in% c("presentation", "visitContext")) .data$extraData else "") |>
         group_by(.data$conceptName, .data$target, .data$extraGroup) |>
         arrange(.data$startDay) |>
         summarise(label = generateLabel(.data$conceptName, .data$startDay, .data$endDay, .data$extraData, keeperTable), .groups = "drop") |>

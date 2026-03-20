@@ -140,8 +140,8 @@ INTO #visit_context
 FROM #cohort cohort
 INNER JOIN @cdm_database_schema.visit_occurrence
 	ON visit_occurrence.person_id = cohort.subject_id
-		AND DATEDIFF(DAY, cohort_start_date, visit_end_date) >= -90
-		AND DATEDIFF(DAY, cohort_start_date, visit_start_date) <= 90
+		AND DATEDIFF(DAY, cohort_start_date, visit_end_date) >= -30
+		AND DATEDIFF(DAY, cohort_start_date, visit_start_date) <= 30
 INNER JOIN @cdm_database_schema.concept visit_concept
 	ON visit_concept_id = visit_concept.concept_id
 LEFT JOIN @cdm_database_schema.provider

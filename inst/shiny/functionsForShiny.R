@@ -3,11 +3,11 @@ generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable)
     return(paste0(conceptName, if_else(extraData == "", "", sprintf(" (%s)", extraData))))
   } else if (keeperTable == "visitContext") {
     return(sprintf("%s%s (%s)",
-                   conceptName,
-                   if_else(extraData == "", "", sprintf(" - %s", extraData)),
-                   paste(sprintf("day %s%s",
-                                 startDay,
-                                 if_else(startDay == endDay, "",  sprintf(" for %d days", endDay - startDay))),
+                   conceptName[1],
+                   if_else(extraData[1] == "", "", sprintf(" - %s", extraData[1])),
+                   paste(if_else(startDay == endDay,
+                                 sprintf("day %s", startDay),
+                                 sprintf("days %s to %s", startDay, endDay)),
                          collapse = ", ")))
   } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
     return(sprintf("%s (%s)", 

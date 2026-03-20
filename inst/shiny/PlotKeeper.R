@@ -61,6 +61,10 @@ plotTimeline <- function(subset) {
                     "postTreatmentProcedures",
                     "death")
   
+  observationPeriod <- subset |>
+    filter(.data$category == "observationPeriod") |>
+    select("startDay", "endDay")
+  
   vizGroups <- tibble(
     visualGroup = c("Presentation",
                     "Visit Context",
@@ -73,7 +77,7 @@ plotTimeline <- function(subset) {
                     "Treatment Procedures",
                     "Death"),
     minDay = c(0, 
-               0,
+               -30,
                -9999,
                -30,
                -90,
@@ -83,7 +87,7 @@ plotTimeline <- function(subset) {
                -9999,
                0),
     maxDay = c(0, 
-               0,
+               30,
                9999,
                -1,
                90,
@@ -94,6 +98,8 @@ plotTimeline <- function(subset) {
                9999),
     sortOrder = 10:1
   ) |>
+    mutate(minDay = pmax(minDay, observationPeriod$startDay),
+           maxDay = pmin(maxDay, observationPeriod$endDay)) |>
     mutate(xmin = pmin(-5, pmax(minDay, -100)),
            xmax = pmax(5, pmin(maxDay, 100)),
            ymin = sortOrder - 1,

@@ -36,12 +36,12 @@ vocabDatabaseSchema <- "merative_mdcr.cdm_merative_mdcr_v3788"
 
 
 conceptSets <- generateKeeperConceptSets(
-  phenotype = "Atrial fibrillation",
+  phenotype = "Type I Diabetes Mellitus (T1DM)",
   client = client,
   vocabConnectionDetails = vocabConnectionDetails,
   vocabDatabaseSchema = vocabDatabaseSchema
 )
-readr::write_csv(conceptSets, "e:/temp/afConceptSets.csv")
+readr::write_csv(conceptSets, "inst/t1dmConceptSets.csv")
 
 # conceptSetsOld <- readr::read_csv("e:/temp/afConceptSetsOld.csv")
 # 

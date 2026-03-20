@@ -8,9 +8,9 @@ library(plotly)
 
 
 # .shinyArgs <- list(
-#   keeper = readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperAf.rds"),
-#   conceptSets = readr::read_csv("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/afConceptSets.csv"),
-#   decisionsFileName = "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
+#   keeper = readRDS("e:/temp/KeeperMm.rds"),
+#   conceptSets = readr::read_csv("e:/temp/mmConceptSets.csv"),
+#   decisionsFileName = "e:/temp/Decisions.csv"
 # )
 
 
