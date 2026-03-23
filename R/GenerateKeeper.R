@@ -108,6 +108,10 @@ generateKeeper <- function(connectionDetails = NULL,
     connection <- DatabaseConnector::connect(connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))
   }
+  DatabaseConnector::assertTempEmulationSchemaSet(
+    dbms = DatabaseConnector::dbms(connection),
+    tempEmulationSchema = tempEmulationSchema
+  )
 
   message("Uploading concept sets")
   conceptSets <- keeperConceptSets |>

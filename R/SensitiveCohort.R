@@ -79,6 +79,10 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     connection <- DatabaseConnector::connect(connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))
   }
+  DatabaseConnector::assertTempEmulationSchemaSet(
+    dbms = DatabaseConnector::dbms(connection),
+    tempEmulationSchema = tempEmulationSchema
+  )
 
   if (createCohortTable) {
     message("Creating cohort table")
