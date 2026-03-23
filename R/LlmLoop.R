@@ -101,8 +101,9 @@ reviewCases <- function(keeper,
   result <- tibble(
     generatedId = keeperTable$generatedId,
     isCase = as.character(NA),
+    certainty = as.character(NA),
     indexDay = as.numeric(NA),
-    narrative = as.character(NA)
+    justification = as.character(NA)
   )
   if ("personId" %in% colnames(keeperTable)) {
     result$personId <- keeperTable$personId
@@ -158,8 +159,9 @@ reviewCases <- function(keeper,
               response <- client$chat_structured(prompt,
                 echo = "none",
                 type = ellmer::type_object(
-                  narrative = ellmer::type_string(),
+                  justification = ellmer::type_string(),
                   verdict = ellmer::type_string(),
+                  certainty = ellmer::type_string(),
                   `day of onset` = ellmer::type_integer()
                 )
               )
@@ -185,8 +187,9 @@ reviewCases <- function(keeper,
       }
     }
     result$isCase[i] <- parsedResponse$isCase
+    result$certainty[i] <- parsedResponse$certainty
     result$indexDay[i] <- parsedResponse$indexDay
-    result$narrative[i] <- parsedResponse$narrative
+    result$justification[i] <- parsedResponse$justification
   }
   delta <- Sys.time() - startTime
   message(paste0(

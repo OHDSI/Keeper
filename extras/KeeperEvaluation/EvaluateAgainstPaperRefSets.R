@@ -163,6 +163,18 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheQwen35"
 resultsFile <- "extras/KeeperEvaluation/MetricsQwen35.xlsx"
 
+
+# GPT-o3 running on Azure with prompt with uncertainty
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheUncertaintyPrompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3UncertaintyPrompt.xlsx"
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
@@ -216,20 +228,24 @@ perPersonId <- allResults |>
     goldStandard == "no" & system == "no" ~ "TN",
     goldStandard == "no" & system == "yes" ~ "FP"
   )) |>
-  select("personId", "diseaseName", "system", "goldStandard", "type")
+  select("personId", "diseaseName", "system", "certainty", "goldStandard", "type")
 
-overall <- perPersonId |>
-  group_by(type) |>
-  summarise(count = n(), .groups = "drop") |>
-  pivot_wider(names_from = type, values_from = count) |>
-  mutate(
-    sens = TP / (TP + FN),
-    spec = TN / (TN + FP),
-    ppv = TP / (TP + FP),
-    npv = TN / (TN + FN),
-    agree = (TP + TN) / (TP + FP + TN + FN),
-    kappa = computeCohensKappa((TP + TN) / (TP + FP + TN + FN))
-  )
+computeOperatingCharacteristics <- function(perPersonDataFrame) {
+  overall <- perPersonDataFrame |>
+    group_by(type) |>
+    summarise(count = n(), .groups = "drop") |>
+    pivot_wider(names_from = type, values_from = count) |>
+    mutate(
+      sens = TP / (TP + FN),
+      spec = TN / (TN + FP),
+      ppv = TP / (TP + FP),
+      npv = TN / (TN + FN),
+      agree = (TP + TN) / (TP + FP + TN + FN),
+      kappa = computeCohensKappa((TP + TN) / (TP + FP + TN + FN))
+    )
+  return(overall)
+}
+overall <- computeOperatingCharacteristics(perPersonId)
 
 # Save to Excel file:
 workbook <- createWorkbook()
@@ -249,3 +265,17 @@ saveWorkbook(workbook, file = resultsFile, overwrite = TRUE)
 
 overall
 
+
+# Aanalyse certainty results ----------------------------------------------------
+allResults |>
+  group_by(isCase, certainty) |>
+  summarise(n())
+
+ch <- computeOperatingCharacteristics(filter(perPersonId, certainty == "high"))
+cl <- computeOperatingCharacteristics(filter(perPersonId, certainty == "low"))
+ch$certainty <- "high"
+cl$certainty <- "low"
+bind_rows(ch, cl)
+# FN    FP    TN    TP  sens  spec   ppv   npv agree kappa certainty
+# 20     8    99   156 0.886 0.925 0.951 0.832 0.901 0.802 high     
+#  2     9     8    26 0.929 0.471 0.743 0.8   0.756 0.511 low  

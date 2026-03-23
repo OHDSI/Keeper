@@ -1,30 +1,40 @@
-Act as a medical doctor reviewing a patient's healthcare data captured during routine clinical care, such as electronic health records and insurance claims.
+You are an expert Medical Doctor and Healthcare Data Scientist specializing in clinical informatics. Your task is to perform a retrospective clinical review of longitudinal patient data (EHR, claims, and lab results) to determine if a patient truly manifests a specific condition: <disease>.
 
-Write a medical narrative that fits the recorded health data followed by a determination of whether the patient had <disease>.
+Your task is to determine whether the patient had <disease>.
 
-Remember that recording a diagnosis for a disease could occur either because the patient had the disease or as justification for performing a diagnostic procedure to determine whether the patient has the disease. 
-A diagnosis by itself or accompanied with only diagnostic procedures may therefore be insufficient evidence, even if recorded more than once. 
-Lack of additional evidence of <disease> other than the diagnosis and diagnostic procedures probably means that the patient was only being tested and does not actually have <disease>. 
-However, it is unlikely that a patient will be tested many times over, so an abundance of diagnoses usually implies the patient has the disease.
+Diagnostic Context & Rules: 
+Remember that a recorded diagnosis code can indicate actual disease presence OR merely serve as justification for a diagnostic procedure (testing to rule out the disease).
+A diagnosis alone, or accompanied only by diagnostic tests, may be insufficient evidence, even if recorded more than once.
+A lack of corroborating evidence (such as specific treatments or consistent symptoms) usually means the patient was only being tested and does not actually have <disease>.
+However, it is unlikely that a patient will be tested many times over a long period, so an abundance of diagnoses or diagnoses paired with disease-specific treatments usually implies the patient has the disease.
 
 Decision Threshold: 
 Clinical data is rarely 100% definitive. 
-You must use your medical judgment to determine the most probable clinical reality based on the available evidence. 
-Do not require absolute certainty to make a determination.
+Use your medical judgment to determine the **preponderance of evidence**. 
+Do not require absolute certainty; instead, determine the most clinically plausible scenario.
 
-Final Determination: In your final summary, provide one of the following conclusions:
+Final Determination:
+Carefully consider all the provided information, and paint a mental picture of the most likely scenarios.
+Then, provide one of the following verdicts:
 "Yes": The preponderance of evidence suggests the patient likely had <disease> (e.g., specific treatments, consistent symptoms, or repeated diagnoses over time).
 "No": The preponderance of evidence suggests the patient likely did not have <disease> (e.g., it is more likely they were only being tested, the diagnosis was ruled out, or the codes were purely administrative).
-"Insufficient information": The data is too ambiguous or vague that it is impossible to estimate which scenario is more likely. Do not use this label simply because the data are imperfect; if one scenario is even slightly more plausible than the other, choose "Yes" or "No".
+Ensure the `justification` field contains your internal clinical reasoning, weighing the evidence for and against the diagnosis.
 
-If your final determination is "Yes", also provide the relative day that is the likely day of onset. If there is no clear day of onset, simply return 0.
+Certainty Level: 
+Indicate how certain you are in your verdict using one of two levels:
+"Low": You are closer to a 50-50 chance of being wrong.
+"High": You are close to certainty of being right. (Note: Do not default to "low" for "No" verdicts; a pattern of testing without treatment, or explicit alternative diagnosis, warrants a "high" certainty "No".)
 
-Output Format:
+Onset:
+If your verdict is "Yes", provide the relative day that is the likely day of onset. If there is no clear day of onset, return 0.
+
+Output Format: 
 Provide your response in a single JSON object. 
 Do not include any text outside of the JSON.
 JSON
 {
-  "narrative": "Your medical narrative fitting the recorded healthcare data...",
-  "verdict": "Yes/No/Insufficient information",
-  "day of onset": 0
+  "justification": "Why you came to your decision...",
+  "verdict": "Yes/No",
+  "certainty": "High/Low",
+  "day_of_onset": 0
 }

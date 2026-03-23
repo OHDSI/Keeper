@@ -19,20 +19,30 @@ parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) 
     isCase <- "no"
   } else if (tolower(response$verdict) == "yes") {
     isCase <- "yes"
-  } else if (tolower(response$verdict) == "insufficient information") {
-    isCase <- "insufficient information"
   } else if (noMatchIsInsufficientInformation) {
     isCase <- "insufficient information"
   } else {
-    isCase <- NA
-    warning("Unable to parse response: ", response)
+    stop("Unable to parse response: ", response)
+  }
+  if (tolower(response$certainty) == "low") {
+    certainty <- "low"
+  } else if (tolower(response$certainty) == "high") {
+    certainty <- "high"
+  } else {
+    stop("Unable to parse response: ", response)
   }
   if (!is.na(isCase) && isCase == "yes") {
-    indexDay <- response$`day of onset`
+    if ("day of onset" %in% names(response)) {
+      response$day_of_onset <- response$`day of onset`
+    }
+    indexDay <- response$day_of_onset
   } else {
     indexDay <- NA
   }
-  return(tibble(isCase = isCase, indexDay = indexDay, narrative = response$narrative))
+  return(tibble(isCase = isCase,
+                certainty = certainty,
+                indexDay = unlist(indexDay),
+                justification = unlist(response$justification)))
 }
 
 parseLegacyLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) {
@@ -97,5 +107,5 @@ parseLegacyLlmResponse <- function(response, noMatchIsInsufficientInformation = 
     result <- NA
     warning("Unable to parse response")
   }
-  return(tibble(isCase = result, indexDay = NA, narrative = NA))
+  return(tibble(isCase = result, certainty = as.character(NA), indexDay = NA, justification = as.character(NA)))
 }
