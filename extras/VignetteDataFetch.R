@@ -18,7 +18,7 @@ connectionDetails <- createConnectionDetails(
 )
 cdmDatabaseSchema <- "merative_mdcr.cdm_merative_mdcr_v3788"
 cohortDatabaseSchema <- "scratch.scratch_mschuemi"
-cohortTable <- "test_keeper_sens_cohort"
+cohortTable <- "keeper_vignette_cohort"
 options(sqlRenderTempEmulationSchema = "scratch.scratch_mschuemi")
 
 # Create concept sets --------------------------------------------------------------------------------------------------
@@ -30,20 +30,44 @@ conceptSets <- generateKeeperConceptSets(
 )
 readr::write_csv(conceptSets, "inst/t1dmConceptSets.csv")
 
-# Create sensitive cohort ----------------------------------------------------------------------------------------------
-conceptSets <- readr::read_csv( "inst/t1dmConceptSets.csv")
+# Create simple cohort -------------------------------------------------------------------------------------------------
+library(Capr)
 
-createSensitiveCohort(
-  connectionDetails = connectionDetails,
-  cdmDatabaseSchema = cdmDatabaseSchema,
-  cohortDatabaseSchema = cohortDatabaseSchema,
-  cohortTable = cohortTable,
-  cohortDefinitionId = 1,
-  createCohortTable = TRUE,
-  keeperConceptSets = conceptSets
+t1dmConceptIds <- c(201254, 435216)
+t1dmCs <- cs(
+  descendants(t1dmConceptIds),
+  name = "Type 1 Diabetes Mellitus"
 )
 
-# Run Keeper on sensitive cohort ---------------------------------------------------------------------------------------
+t1dmCohort <- cohort(
+  entry = entry(
+    conditionOccurrence(t1dmCs, firstOccurrence())
+  ),
+  exit = exit(
+    endStrategy = observationExit()
+  )
+)
+# Note: this will automatically assign cohort ID 1:
+cohortSet <- makeCohortSet(t1dmCohort)
+
+library(CohortGenerator)
+connection <- connect(connectionDetails)
+createCohortTables(
+  connection = connection,
+  cohortTableNames = getCohortTableNames(cohortTable),
+  cohortDatabaseSchema = cohortDatabaseSchema
+)
+CohortGenerator::generateCohortSet(
+  connection = connection,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cohortTableNames = getCohortTableNames(cohortTable),
+  cohortDefinitionSet = cohortSet
+)
+disconnect(connection)
+
+
+# Run Keeper on the cohort ---------------------------------------------------------------------------------------------
 keeper <- generateKeeper(
   connectionDetails = connectionDetails,
   cohortDatabaseSchema = cohortDatabaseSchema,
@@ -53,7 +77,7 @@ keeper <- generateKeeper(
   sampleSize = 20,
   phenotypeName = "T1DM",
   keeperConceptSets = conceptSets,
-  removePersonId = TRUE
+  removePii = TRUE
 )
 
 # Shuffle data
@@ -70,20 +94,80 @@ keeper$endDay[idx] <- round(keeper$endDay[idx] + rnorm(length(idx), 2, 6))
 
 saveRDS(keeper, "inst/shuffledKeeper.rds")
 
+
 # Run LLM adjudication -------------------------------------------------------------------------------------------------
 keeper <- readRDS("inst/shuffledKeeper.rds")
 
 library(ellmer)
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "qwen/qwen3-coder-next"
+# client <- chat_openai_compatible(
+#   base_url = "http://localhost:1234/v1",
+#   credentials = function() "lm-studio",
+#   model = "qwen/qwen3-coder-next"
+# )
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
 llmResponses <- reviewCases(keeper = keeper,
-                      settings = promptSettings,
-                      phenotypeName = "Type I Diabetes Mellitus (T1DM)",
-                      client = client,
-                      cacheFolder = "cacheVignette")
+                            settings = promptSettings,
+                            phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+                            client = client,
+                            cacheFolder = "cacheVignette")
 
 saveRDS(llmResponses, "inst/llmResponses.rds")
+
+
+# Create sensitive cohort ----------------------------------------------------------------------------------------------
+conceptSets <- readr::read_csv( "inst/t1dmConceptSets.csv")
+
+createSensitiveCohort(
+  connectionDetails = connectionDetails,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cohortTable = cohortTable,
+  cohortDefinitionId = 2,
+  createCohortTable = FALSE,
+  keeperConceptSets = conceptSets
+)
+
+
+# Run Keeper on the sensitive cohort -----------------------------------------------------------------------------------
+keeperHsc <- generateKeeper(
+  connectionDetails = connectionDetails,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortTable = cohortTable,
+  cohortDefinitionId = 2,
+  sampleSize = 200,
+  phenotypeName = "T1DM",
+  keeperConceptSets = conceptSets,
+  removePii = FALSE
+)
+saveRDS(keeperHsc, "e:/temp/keeperVignette/keeperHsc.rds")
+
+# Run LLM adjudication on highly-sensitive cohort ----------------------------------------------------------------------
+keeperHsc <- readRDS("e:/temp/keeperVignette/keeperHsc.rds")
+
+library(ellmer)
+client <- chat_azure_openai(
+  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
+  api_version = "2024-12-01-preview",
+  model = "o3",
+  credentials = function() keyring::key_get("genai_api_gpt4_key")
+)
+promptSettings <- createPromptSettings()
+llmResponsesHsc <- reviewCases(keeper = keeperHsc,
+                            settings = promptSettings,
+                            phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+                            client = client,
+                            cacheFolder = "cacheVignetteHsc")
+
+saveRDS(llmResponsesHsc, "e:/temp/keeperVignette/llmResponsesHsc.rds")
+
+
+
+
+

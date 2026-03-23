@@ -76,9 +76,9 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   if (is.null(connectionDetails) && is.null(connection)) {
     stop("Must provide either connectionDetails or a connection.")
   }
-
+  
   startTime <- Sys.time()
-
+  
   if (is.null(connection)) {
     connection <- DatabaseConnector::connect(connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))
@@ -87,7 +87,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     dbms = DatabaseConnector::dbms(connection),
     tempEmulationSchema = tempEmulationSchema
   )
-
+  
   if (createCohortTable) {
     message("Creating cohort table")
     sql <- "
@@ -107,7 +107,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
       cohort_table = cohortTable
     )
   }
-
+  
   message("Uploading concept sets")
   conceptSets <- keeperConceptSets |>
     filter(.data$target == "Disease of interest")
@@ -121,7 +121,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     camelCaseToSnakeCase = TRUE,
     tempEmulationSchema = tempEmulationSchema
   )
-
+  
   message("Computing concept positive predictive values")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "CreateSensCohortRatios.sql",
@@ -131,7 +131,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     tempEmulationSchema = tempEmulationSchema
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
-
+  
   conceptRatios <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = "SELECT * FROM #concept_ratios",
@@ -141,7 +141,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   conceptRatios <- conceptRatios |>
     filter(.data$ppv > 0.1) |>
     select("conceptId", "conceptName", "conceptSetName")
-
+  
   message("Constructing sensitive cohort")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "CreateSensitiveCohort.sql",
@@ -154,7 +154,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     tempEmulationSchema = tempEmulationSchema
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
-
+  
   sql <- "SELECT COUNT(*) FROM @cohort_database_schema.@cohort_table WHERE cohort_definition_id = @cohort_definition_id;"
   count <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -167,7 +167,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   countDoi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
   sql <- "SELECT COUNT(*) FROM #combi_cohort;"
   countCombi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
-
+  
   message("Removing temp tables")
   toDelete <- c("#concept_sets", "#doi_cohort", "#combi_cohort")
   sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", toDelete, toDelete), collapse = "\n")
@@ -176,7 +176,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     sql = sql,
     tempEmulationSchema = tempEmulationSchema
   )
-
+  
   delta <- Sys.time() - startTime
   message(paste0(
     "Generating sensitive cohort took ",
@@ -195,4 +195,123 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   attr(conceptRatios, "countDoi") <- countDoi[1, 1]
   attr(conceptRatios, "countCombi") <- countCombi[1, 1]
   invisible(conceptRatios)
+}
+
+uploadReferenceCohort <- function(connectionDetails = NULL,
+                                  connection = NULL,
+                                  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                  referenceCohortDatabaseSchema,
+                                  referenceCohortTable,
+                                  referenceCohortDefinitionId,
+                                  createReferenceCohortTable = FALSE,
+                                  reviews) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
+  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortTable, len = 1, add = errorMessages)
+  checkmate::assertIntegerish(referenceCohortDefinitionId, len = 1, add = errorMessages)
+  checkmate::assertLogical(createReferenceCohortTable, len = 1, add = errorMessages)
+  checkmate::assertDataFrame(reviews, min.rows = 1, add = errorMessages)
+  checkmate::assertNames(colnames(reviews), must.include = c(
+    "generatedId",
+    "isCase",
+    "indexDay",
+    "certainty",
+    "justification",
+    "personId",
+    "indexDate",
+    "cdmDatabaseSchema"
+  ), add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  if (is.null(connectionDetails) && is.null(connection)) {
+    stop("Must provide either connectionDetails or a connection.")
+  }
+
+  if (is.null(connection)) {
+    connection <- DatabaseConnector::connect(connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
+  }
+  
+
+  table <- reviews |>
+    select("isCase",
+           "indexDay",
+           "certainty",
+           "justification",
+           "personId",
+           "indexDate",
+           "cdmDatabaseSchema") |>
+    mutate(isCase = if_else(.data$isCase == "yes", 1, 0))
+  
+  if (createReferenceCohortTable) {
+    message("Creating reference cohort table")
+    sql <- "
+      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_cohort_table;
+      
+      CREATE TABLE @reference_cohort_database_schema.@reference_cohort_table (
+        cohort_definition_id INT,
+        is_case INT,
+        index_date DATE,
+        subject_id BIGINT,
+        cdm_database_schema VARCHAR(255),
+        certainty VARCHAR(4),
+        justification VARCHAR
+      );
+    "
+    DatabaseConnector::renderTranslateExecuteSql(
+      connection = connection,
+      sql = sql,
+      reference_cohort_database_schema = referenceCohortDatabaseSchema,
+      reference_cohort_table = referenceCohortTable
+    )
+  }
+  
+  message("Uploading reference cohort")
+  DatabaseConnector::insertTable(
+    connection = connection,
+    data = table,
+    tableName = "#cohort_stage",
+    dropTableIfExists = TRUE,
+    createTable = TRUE,
+    tempTable = TRUE,
+    tempEmulationSchema = tempEmulationSchema,
+    progressBar = TRUE,
+    camelCaseToSnakeCase = TRUE
+  )
+  sql <- "
+    INSERT INTO @reference_cohort_database_schema.@reference_cohort_table (
+      cohort_definition_id, 
+      is_case,
+      index_date, 
+      subject_id,
+      cdm_database_schema,
+      certainty, 
+      justification
+    )
+    SELECT
+      CAST(@reference_cohort_definition_id AS INT) AS cohort_definition_id,
+      is_case,
+      DATEADD(DAY, index_day, hsc.cohort_start_date) AS index_date,
+      CAST(subject_id AS BIGINT) AS subject_id,
+      cdm_database_schema,
+      certainty, 
+      justification
+    FROM #cohort_stage cohort_stage;
+      
+    TRUNCATE TABLE #cohort_stage;
+    DROP TABLE #cohort_stage;
+  "
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    sql = sql,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_cohort_table = referenceCohortTable,
+    reference_cohort_definition_id = referenceCohortDefinitionId,
+    reportOverallTime = FALSE,
+    progressBar = FALSE
+  )
+  
+  
+  
 }

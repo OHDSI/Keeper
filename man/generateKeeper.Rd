@@ -17,7 +17,7 @@ generateKeeper(
   keeperConceptSets,
   phenotypeName = NULL,
   useDescendants = TRUE,
-  removePersonId = FALSE
+  removePii = TRUE
 )
 }
 \arguments{
@@ -58,7 +58,9 @@ cohort to review is stored.}
 \item{useDescendants}{Include the  descendants of the concepts specified in the \code{keeperConceptSets}, or
 use only the verbatim concepts?}
 
-\item{removePersonId}{Remove person IDs from the output? Can be set to \code{TRUE} for privacy reasons.}
+\item{removePii}{Remove person identifiable information such as person ID and cohort start date from
+the output? Can be set to \code{FALSE} to allow the Keeper results to be joined to
+patient data later.}
 }
 \value{
 Returns a list of tibbles with data in the various Keeper categories.

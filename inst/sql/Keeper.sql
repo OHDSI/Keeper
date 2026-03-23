@@ -61,6 +61,7 @@ GROUP BY concept_id,
 
 -- Demographics
 SELECT CAST(subject_id AS VARCHAR) AS person_id,
+  cohort_start_date AS index_date,
 	generated_id,
 	FLOOR(DATEDIFF(DAY, DATEFROMPARTS(year_of_birth, COALESCE(month_of_birth, 1), COALESCE(day_of_birth, 1)), cohort_start_date) / 365.25) AS age,
 	gender_concept_id,

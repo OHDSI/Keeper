@@ -122,6 +122,8 @@ WHERE events.person_id NOT IN (SELECT subject_id FROM #doi_cohort)
 GROUP BY events.person_id
 HAVING COUNT(DISTINCT category) >= 2;
 
+DELETE FROM @cohort_database_schema.@cohort_table
+WHERE cohort_definition_id = @cohort_definition_id;
 
 INSERT INTO @cohort_database_schema.@cohort_table (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
 SELECT CAST(@cohort_definition_id AS BIGINT) AS cohort_definition_id,

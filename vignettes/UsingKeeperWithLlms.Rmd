@@ -10,26 +10,26 @@ output:
     number_sections: yes
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{Using Keeper with LLMs}
+%\VignetteIndexEntry{Using Keeper with LLMs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
----
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-library(Keeper)
-```
-# Introduction
-
-This vignette describes how one could use Keeper to generate patient summaries, and have them be reviewed by a large-language model (LLM).
-This vignette assumes you have read and understand the 'Generating Keeper profiles for review' vignette. 
-We will build on the same example used in that other vignette: Type 1 Diabetes Mellitus (T1DM). 
-
-# LLM review
-
-We assume the Keeper input concept sets have already been defined, and that Keeper has been executed:
-
-```{r echo=FALSE,message=FALSE,eval=TRUE}
-keeper <- readRDS(system.file("shuffledKeeper.rds", package = "Keeper"))
+  ---
+  
+  ```{r, echo = FALSE, message = FALSE, warning = FALSE}
+  library(Keeper)
+  ```
+  # Introduction
+  
+  This vignette describes how one could use Keeper to generate patient summaries, and have them be reviewed by a large-language model (LLM).
+  This vignette assumes you have read and understand the 'Generating Keeper profiles for review' vignette. 
+  We will build on the same example used in that other vignette: Type 1 Diabetes Mellitus (T1DM), and assume you have the various objects created in that vignette.
+  
+  # LLM review
+  
+  We assume the Keeper input concept sets have already been defined, and that Keeper has been executed:
+  
+  ```{r echo=FALSE,message=FALSE,eval=TRUE}
+  keeper <- readRDS(system.file("shuffledKeeper.rds", package = "Keeper"))
 ```
 ```{r}
 keeper
@@ -48,10 +48,10 @@ Next, we can have the LLM review the cases:
 ```{r eval = FALSE}
 promptSettings <- createPromptSettings()
 llmResponses <- reviewCases(keeper = keeper,
-                      settings = promptSettings,
-                      phenotypeName = "Type I Diabetes Mellitus (T1DM)",
-                      client = client,
-                      cacheFolder = "cache")
+                            settings = promptSettings,
+                            phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+                            client = client,
+                            cacheFolder = "cache")
 ```
 ```{r echo=FALSE,eval=TRUE}
 message("Reviewing person 1 of 20\n...\nReviewing person 20 of 20\nReviewing cases took 3.9 mins and cost $NA")
@@ -75,12 +75,67 @@ From here, it is trivial to compute the positive predictive value (PPV) of our c
 mean(llmResponses$isCase == "yes")
 ```
 
-# Creating a highly sensitive cohort
+# Using a highly-sensitive cohort to estimate PPV and sensitivity
 
 Instead of starting with an existing cohort for which we wish to compute the PPV, we can also create a highly-sensitive cohort that is unlikely to miss any true cases. 
 When we use LLMs to review a large sample of such a cohort we will be able to compute not only PPV but also sensitivity. 
 
+## Creating a highly sensitive cohort
 
 
+The `createSensitiveCohort()` automatically function constructs the highly sensitive cohort based on the input concept sets that are also used by the `generateKeeper()` function.
+See the `createSensitiveCohort()` function documentation for more details.
+
+```{r eval = FALSE}
+createSensitiveCohort(
+  connectionDetails = connectionDetails,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cohortTable = cohortTable,
+  cohortDefinitionId = 2,
+  createCohortTable = FALSE,
+  keeperConceptSets = conceptSets
+)
+```
+
+Here, `conceptSets` is the collection of concept sets described in the 'Generating Keeper profiles for review' vignette. 
+We use the same cohort table as that other vignette, so we assume we do not need to create it.
+We use `cohortDefinitionId = 2` so as not to conflict with the cohort definition with ID 1 we created earlier.
+
+## Run Keeper on the highly-sensitive cohort
+
+Next we run Keeper on the highly-sensitive cohort. 
+
+```{r eval = FALSE}
+keeperHsc <- generateKeeper(
+  connectionDetails = connectionDetails,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortTable = cohortTable,
+  cohortDefinitionId = 2,
+  sampleSize = 10000,
+  phenotypeName = "T1DM",
+  keeperConceptSets = conceptSets,
+  removePii = FALSE
+)
+```
+
+We take a large sample (10,000 person) to ensure we have enough positive cases to compute PPV and sensitivity.
+Note that we specify `removePii = FALSE` so we can later join the LLM adjudications with specific cohorts we wish to evaluate.
+
+## LLM Review of the highly-sensitive cohort
+
+Next we have the LLM review all 10,000 sampled patient profiles.
+Be aware that this can incur significant costs. 
+For example, having our preferreed model (GPT o3) review 10,000 cases typically costs between $60-$80.
+
+```{r eval = FALSE}
+promptSettings <- createPromptSettings()
+llmResponsesHsc <- reviewCases(keeper = keeperHsc,
+                               settings = promptSettings,
+                               phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+                               client = client,
+                               cacheFolder = "cacheVignetteHsc")
+```
 
 

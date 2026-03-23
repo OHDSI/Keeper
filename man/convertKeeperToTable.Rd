@@ -4,12 +4,13 @@
 \alias{convertKeeperToTable}
 \title{Covert Keeper profiles to a table}
 \usage{
-convertKeeperToTable(keeper, removePersonId = FALSE)
+convertKeeperToTable(keeper, removePii = FALSE)
 }
 \arguments{
 \item{keeper}{Keeper profiles as created using the \code{\link[=generateKeeper]{generateKeeper()}} function.}
 
-\item{removePersonId}{Remove person IDs from the output? Can be set to \code{TRUE} for privacy reasons.}
+\item{removePii}{Remove person identifiable information such as person ID and cohort start date from the output?
+patient data later.}
 }
 \value{
 A tibble with one row per person, and text columns for each Keeper category. Can be used for manual review.

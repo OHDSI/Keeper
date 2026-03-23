@@ -107,6 +107,8 @@ reviewCases <- function(keeper,
   )
   if ("personId" %in% colnames(keeperTable)) {
     result$personId <- keeperTable$personId
+    result$indexDate <- keeperTable$indexDate
+    result$cdmDatabaseSchema <- keeperTable$cdmDatabaseSchema
   }
   if (!dir.exists(cacheFolder)) {
     dir.create(cacheFolder)

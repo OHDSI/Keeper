@@ -12,7 +12,7 @@ Maintainer: Anna <ostropolets@ohdsi.org>
 Description: An R package to review patient profiles for phenotype validation.
 Depends:
 	DatabaseConnector (>= 7.0.0),
-	R (>= 4.0.0)
+	R (>= 4.1.0)
 Imports:
   checkmate,
   dplyr,

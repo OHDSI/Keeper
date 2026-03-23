@@ -211,13 +211,35 @@ Keeper creates profiles of persons in a specified cohort. Cohorts can be created
 * **`cohort_start_date`** (DATE): The date the person enters the cohort.
 * **`cohort_end_date`** (DATE): (Optional) The date the person exits the cohort.
 
-More information on creating cohorts can be found [here](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
+More information on creating cohorts can be found in [the Book of OHDSI](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
 
 When using LLMs, it is also possible to create a highly sensitive cohort—a cohort that is unlikely to miss any true cases. Please refer to the *Using Keeper with LLMs* vignette for instructions on creating highly sensitive cohorts.
 
-# Running Keeper
+For this example, we will use the `Capr` package to define a simple cohort definition:
 
-With a cohort and input concept sets defined, we are ready to run Keeper. First, we need to specify how to connect to the server holding the cohort table and the CDM data:
+```{r eval = FALSE}
+library(Capr)
+
+t1dmConceptIds <- c(201254, 435216)
+t1dmCs <- cs(
+  descendants(t1dmConceptIds),
+  name = "Type 1 Diabetes Mellitus"
+)
+
+t1dmCohort <- cohort(
+  entry = entry(
+    conditionOccurrence(t1dmCs, firstOccurrence())
+  ),
+  exit = exit(
+    endStrategy = observationExit()
+  )
+)
+# Note: this will automatically assign cohort ID 1:
+cohortSet <- makeCohortSet(t1dmCohort)
+```
+
+We can instantiate this cohort in our database using the `CohortGenerator` package. 
+First, we must specify how to connect to the server holding the CDM data, and where the cohort table will be created:
 
 ```{r eval = FALSE}
 connectionDetails <- createConnectionDetails(
@@ -229,11 +251,33 @@ connectionDetails <- createConnectionDetails(
 cdmDatabaseSchema <- "cdm"
 cohortDatabaseSchema <- "cdm"
 cohortTable <- "cohort"
-cohortDefinitionId <- 1
+options(sqlRenderTempEmulationSchema = NULL)
 ```
 
-This specifies that our cohort is located in the `cohort` table within the `cdm` database schema, and our cohort of interest has a `cohort_definition_id` of 1.
+Next, we create the cohort table and generate the cohort:
 
+```{r eval = FALSE}
+library(CohortGenerator)
+connection <- connect(connectionDetails)
+createCohortTables(
+  connection = connection,
+  cohortTableNames = getCohortTableNames(cohortTable),
+  cohortDatabaseSchema = cohortDatabaseSchema
+)
+CohortGenerator::generateCohortSet(
+  connection = connection,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cohortTableNames = getCohortTableNames(cohortTable),
+  cohortDefinitionSet = cohortSet
+)
+disconnect(connection)
+```
+
+
+# Running Keeper
+
+With a cohort and input concept sets defined, we are ready to run Keeper. 
 We generate the Keeper profiles using the following code:
 
 ```{r eval = FALSE}
@@ -242,20 +286,24 @@ keeper <- generateKeeper(
   cohortDatabaseSchema = cohortDatabaseSchema,
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortTable = cohortTable,
-  cohortDefinitionId = cohortDefinitionId,
+  cohortDefinitionId = 1,
   sampleSize = 20,
   keeperConceptSets = conceptSets,
   phenotypeName = "T1DM",
-  removePersonId = TRUE
+  removePii = TRUE
 )
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
 keeper <- readRDS(system.file("shuffledKeeper.rds", package = "Keeper"))
 ```
 
-Here, `conceptSets` is the data frame we created earlier holding the target concepts. We specify a `sampleSize` of 20, meaning Keeper will randomly select up to 20 persons from the cohort. Alternatively, we could have provided a specific set of person IDs for Keeper to restrict its query to. 
+Here, `conceptSets` is the data frame we created earlier holding the target concepts. 
+We use `cohortDefinitionId = 1` because that was implied in our code in the [previous section](#creating-the-cohort-to-evaluate).
+We specify a `sampleSize` of 20, meaning Keeper will randomly select up to 20 persons from the cohort. 
+Alternatively, we could have provided a specific set of person IDs for Keeper to restrict its query to. 
 
-We provide a `phenotypeName` strictly for administrative purposes. We also set `removePersonId = TRUE` so that the output will not contain the original person IDs, ensuring the output is completely anonymized with no personally identifying information (PII).
+We provide a `phenotypeName` strictly for administrative purposes. 
+We also set `removePii = TRUE` so that the output will not contain the original person IDs or absolute dates, ensuring the output is completely anonymized with no personally identifying information (PII).
 
 ## Keeper Output
 

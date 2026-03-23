@@ -39,7 +39,9 @@
 #' @param phenotypeName              (Optional) Name of the phenotype. Will be included in the output.
 #' @param useDescendants             Include the  descendants of the concepts specified in the `keeperConceptSets`, or
 #'                                   use only the verbatim concepts?
-#' @param removePersonId             Remove person IDs from the output? Can be set to `TRUE` for privacy reasons.
+#' @param removePii                  Remove person identifiable information such as person ID and cohort start date from 
+#'                                   the output? Can be set to `FALSE` to allow the Keeper results to be joined to 
+#'                                   patient data later.
 #'
 #' @returns
 #' Returns a list of tibbles with data in the various Keeper categories.
@@ -57,7 +59,7 @@ generateKeeper <- function(connectionDetails = NULL,
                            keeperConceptSets,
                            phenotypeName = NULL,
                            useDescendants = TRUE,
-                           removePersonId = FALSE) {
+                           removePii = TRUE) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
   checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
@@ -82,7 +84,7 @@ generateKeeper <- function(connectionDetails = NULL,
   ), add = errorMessages)
   checkmate::assertCharacter(phenotypeName, len = 1, add = errorMessages)
   checkmate::assertLogical(useDescendants, len = 1, add = errorMessages)
-  checkmate::assertLogical(removePersonId, len = 1, add = errorMessages)
+  checkmate::assertLogical(removePii, len = 1, add = errorMessages)
   checkmate::reportAssertions(errorMessages)
   if (is.null(connectionDetails) && is.null(connection)) {
     stop("Must provide either connectionDetails or a connection.")
@@ -202,8 +204,9 @@ generateKeeper <- function(connectionDetails = NULL,
       ))
     if (keeperTable == "demographics") {
       table <- tibble(
-        generatedId = rep(table$generatedId, 6),
+        generatedId = rep(table$generatedId, 7),
         startDay = c(
+          rep(0, nrow(table)),
           rep(0, nrow(table)),
           rep(0, nrow(table)),
           rep(0, nrow(table)),
@@ -215,12 +218,14 @@ generateKeeper <- function(connectionDetails = NULL,
           rep(0, nrow(table)),
           rep(0, nrow(table)),
           rep(0, nrow(table)),
+          rep(0, nrow(table)),
           table$observationEndDay,
           rep(0, nrow(table)),
           rep(0, nrow(table))
         ),
         conceptId = c(
           rep(NA, nrow(table)),
+          rep(0, nrow(table)),
           rep(NA, nrow(table)),
           table$genderConceptId,
           rep(NA, nrow(table)),
@@ -229,6 +234,7 @@ generateKeeper <- function(connectionDetails = NULL,
         ),
         conceptName = c(
           table$personId,
+          format(table$indexDate, "%Y-%m-%d"),
           as.character(table$age),
           table$genderConceptName,
           rep("Observation period", nrow(table)),
@@ -237,17 +243,18 @@ generateKeeper <- function(connectionDetails = NULL,
         ),
         category = c(
           rep("personId", nrow(table)),
+          rep("indexDate", nrow(table)),
           rep("age", nrow(table)),
           rep("sex", nrow(table)),
           rep("observationPeriod", nrow(table)),
           rep("race", nrow(table)),
           rep("ethnicity", nrow(table))
         ),
-        target = rep(table$target, 6)
+        target = rep(table$target, 7)
       )
-      if (removePersonId) {
+      if (removePii) {
         table <- table |>
-          filter(.data$category != "personId")
+          filter(!.data$category %in% c("personId", "indexDate"))
       }
     } else {
       table <- table |>
@@ -280,19 +287,22 @@ generateKeeper <- function(connectionDetails = NULL,
           NA,
           NA,
           NA,
-          cohortDefinitionId
+          cohortDefinitionId,
+          NA
         ),
         conceptName = c(
           metaData$cdmSourceName[1],
           metaData$cdmSourceAbbreviation[1],
           as.character(metaData$cdmReleaseDate[1]),
-          if (is.null(phenotypeName)) "" else phenotypeName
+          if (is.null(phenotypeName)) "" else phenotypeName,
+          cdmDatabaseSchema
         ),
         category = c(
           "cdmSourceName",
           "cdmSourceAbbreviation",
           "cdmReleaseDate",
-          "phenotype"
+          "phenotype",
+          "cdmDatabaseSchema"
         )
       )
     )
@@ -331,14 +341,15 @@ generateKeeper <- function(connectionDetails = NULL,
 
 #' Covert Keeper profiles to a table
 #'
-#' @param keeper         Keeper profiles as created using the [generateKeeper()] function.
-#' @param removePersonId Remove person IDs from the output? Can be set to `TRUE` for privacy reasons.
+#' @param keeper        Keeper profiles as created using the [generateKeeper()] function.
+#' @param removePii     Remove person identifiable information such as person ID and cohort start date from the output? 
+#'                      patient data later.
 #'
 #' @returns
 #' A tibble with one row per person, and text columns for each Keeper category. Can be used for manual review.
 #'
 #' @export
-convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
+convertKeeperToTable <- function(keeper, removePii = FALSE) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(keeper, add = errorMessages)
   checkmate::assertNames(colnames(keeper), must.include = c(
@@ -351,7 +362,7 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
     "target",
     "extraData"
   ), add = errorMessages)
-  checkmate::assertLogical(removePersonId, len = 1, add = errorMessages)
+  checkmate::assertLogical(removePii, len = 1, add = errorMessages)
   checkmate::reportAssertions(errorMessages)
 
   age <- keeper |>
@@ -470,12 +481,26 @@ convertKeeperToTable <- function(keeper, removePersonId = FALSE) {
       inner_join(output, by = join_by("generatedId"))
   }
 
-  if (!removePersonId && "personId" %in% keeper$category) {
-    output <- keeper |>
-      filter(.data$category == "personId") |>
-      select("generatedId", personId = "conceptName") |>
-      inner_join(output, by = join_by("generatedId"))
+  if (!removePii) {
+    if ("personId" %in% keeper$category) {
+      output <- keeper |>
+        filter(.data$category == "personId") |>
+        select("generatedId", personId = "conceptName") |>
+        inner_join(output, by = join_by("generatedId"))
+    }
+    if ("indexDate" %in% keeper$category) {
+      output <- keeper |>
+        filter(.data$category == "indexDate") |>
+        mutate(indexDate = as.Date(.data$conceptName, "%Y-%m-%d")) |>
+        select("generatedId", "indexDate") |>
+        inner_join(output, by = join_by("generatedId"))
+    }
+    if ("cdmDatabaseSchema" %in% keeper$category) {
+      output <- keeper |>
+        filter(.data$category == "cdmDatabaseSchema") |>
+        select("generatedId", cdmDatabaseSchema = "conceptName") |>
+        inner_join(output, by = join_by("generatedId"))
+    }
   }
-
   return(output)
 }
