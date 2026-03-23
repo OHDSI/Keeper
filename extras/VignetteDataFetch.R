@@ -70,3 +70,20 @@ keeper$endDay[idx] <- round(keeper$endDay[idx] + rnorm(length(idx), 2, 6))
 
 saveRDS(keeper, "inst/shuffledKeeper.rds")
 
+# Run LLM adjudication -------------------------------------------------------------------------------------------------
+keeper <- readRDS("inst/shuffledKeeper.rds")
+
+library(ellmer)
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3-coder-next"
+)
+promptSettings <- createPromptSettings()
+llmResponses <- reviewCases(keeper = keeper,
+                      settings = promptSettings,
+                      phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+                      client = client,
+                      cacheFolder = "cacheVignette")
+
+saveRDS(llmResponses, "inst/llmResponses.rds")

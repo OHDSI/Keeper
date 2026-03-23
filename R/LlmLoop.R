@@ -162,7 +162,7 @@ reviewCases <- function(keeper,
                   justification = ellmer::type_string(),
                   verdict = ellmer::type_string(),
                   certainty = ellmer::type_string(),
-                  `day of onset` = ellmer::type_integer()
+                  day_of_onset = ellmer::type_integer()
                 )
               )
               jsonlite::write_json(response, responseFileName)

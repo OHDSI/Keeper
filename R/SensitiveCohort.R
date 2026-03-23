@@ -21,6 +21,10 @@
 #' consequence, specificity inside the cohort is likely low.
 #'
 #' This cohort can be used to determine the sensitivity of a cohort definition.
+#' 
+#' The cohort is constructed by combining two sets:
+#' 
+#' 1. Anybody who has one of the concepts of the disease of interest.
 #'
 #' @template Connection
 #'

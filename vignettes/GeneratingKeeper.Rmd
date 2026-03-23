@@ -1,5 +1,5 @@
 ---
-title: "Generating KEEPER profiles for review"
+title: "Generating Keeper profiles for review"
 author: "Anna Ostropolets"
 date: "`r Sys.Date()`"
 output:
@@ -10,7 +10,7 @@ output:
     number_sections: yes
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{Generating KEEPER profiles for review}
+  %\VignetteIndexEntry{Generating Keeper profiles for review}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,49 +21,38 @@ library(Keeper)
 
 # Introduction
 
-This vignette describes how one runs Keeper to generate patient summaries for case adjudication.
+This vignette describes how to use Keeper to generate patient summaries for case adjudication from data mapped to the OMOP Common Data Model (CDM).
 
-Keeper extracts and summarizes patient level data for patients in a given cohort to enable examination of patient summaries. 
-Such examination can be used to interatively develop a phenotype (cohort definition) of a disease or (primary use case) determine if patients have the disease and subsequently calculate positive predictive value. 
-The review should be done by a person familiar with the disease of interest. 
-Alternatively, it can be done by large language models (LLMs), which additionally enables calculation of sensitivity and specificity. 
-Please refer to the Using Keeper with LLMs vignette for the latter use case.
+Keeper extracts and summarizes patient-level data for individuals in a specified cohort to facilitate the review of patient profiles. Such examinations can be used to interactively develop a phenotype (cohort definition) of a disease or—in its primary use case—to determine if patients truly have the disease and subsequently calculate positive predictive value (PPV). 
 
-# Clinical definition
+This review should be conducted by someone familiar with the disease of interest, the underlying data, and the data collection process. Alternatively, the review can be performed by large language models (LLMs), which additionally enables the calculation of sensitivity and specificity. Please refer to the *Using Keeper with LLMs* vignette for more details on that use case.
 
-The first step is to create a [clinical definition](https://ohdsi.github.io/PhenotypeLibrary/articles/GuidanceOnClinicalDescriptionForConditionPhenotypes.html). 
-For this exercise, we will use a brief version.
-We will use example of Type I Diabetes Mellitus (T1DM) as an example phenotype.
+# Clinical Definition
 
-[T1DM](https://www.ncbi.nlm.nih.gov/books/NBK507713/) is an autoimmune condition characterized by decreased production of insulin by pancreas. 
-Common onset is in childhood or adolescence but can occurr in adults. 
-Symptoms include weight loss, polyuria and polydipsia, fatigue and others. 
-Common differential diagnoses (those that need to be ruled out) include type II diabetes, pancreatic disorders such as cystic fibrosis, pancreanecrosis, steroid-induced diabetes, renal glucosuria and other conditions. 
-Diagnostic procedures include glucose measurements, C-peptide, pancreatic and insulin antibodies as well as HbA1C. 
-It is primarily treated with insulin. Complications include hypo and hyperglycemia, neuropathy, nephrophaty, cerebrovascular disease and peripheral arthery disease. 
+The first step is to write a [clinical definition](https://ohdsi.github.io/PhenotypeLibrary/articles/GuidanceOnClinicalDescriptionForConditionPhenotypes.html). For this exercise, we will use a brief version, using Type 1 Diabetes Mellitus (T1DM) as our example phenotype.
 
-We will use this definition to construct our inputs. The notion of differential diagnosis is important as for each input except for disease of interest we will consider T1DM and differential diagnoses to be able to see evidence for and rule out other diagnoses.
+> [T1DM](https://www.ncbi.nlm.nih.gov/books/NBK507713/) is an autoimmune condition characterized by decreased insulin production by the pancreas. Onset most commonly occurs in childhood or adolescence, but it can present in adults. Symptoms include weight loss, polyuria, polydipsia, fatigue, and others. Common differential diagnoses (conditions that must be ruled out) include type 2 diabetes, pancreatic disorders such as cystic fibrosis, pancreatic necrosis, steroid-induced diabetes, renal glycosuria, and other conditions. Diagnostic procedures include glucose measurements, C-peptide, pancreatic and insulin antibodies, as well as HbA1c testing. It is primarily treated with insulin. Complications can include hypo- and hyperglycemia, neuropathy, nephropathy, cerebrovascular disease, and peripheral artery disease. 
 
-# Creating input concept sets
+We will use this definition to construct our inputs. The concept of differential diagnosis is crucial; for each input category (except the disease of interest itself), we will consider concepts related to both T1DM and its differential diagnoses to evaluate evidence for the disease and to effectively rule out alternatives.
 
-KEEPER extracts data based on concept sets defined by the user. 
-If a concept belonging to an input concept set is found in the patient data, KEEPER will extract it along with the date relative to the index date. 
-Therefore, concept set selection is very important.
-The input concept sets can be created by hand, but this is quite hard and a lot of work. 
-Alternatively, we can use large language models (LLMs) to generate initial concept sets.
+# Creating Input Concept Sets
 
-## Using LLMs to generate concept sets
+Keeper extracts data based on user-defined concept sets. If a concept belonging to an input concept set is found in a patient's records, Keeper will extract it along with its date relative to the index date. Therefore, careful concept set selection is highly important. 
 
-We use the `ellmer` package to connect to an LLM by your provider of choice, including Anthropic, Google, OpenAI, or even a local LLM. For example, we can connect to OpenAI's ChatGPT using:
+These input concept sets can be created manually, but this process can be challenging and labor-intensive. Alternatively, we can use large language models (LLMs) to generate initial concept sets.
+
+## Using LLMs to Generate Concept Sets
+
+We use the `ellmer` package to connect to an LLM from your provider of choice, including Anthropic, Google, OpenAI, or a local LLM. For example, we can connect to OpenAI's ChatGPT using:
 
 ```{r eval = FALSE}
 library(ellmer)
 client <- chat_openai()
 ```
 
-This assumes you have set the  `OPENAI_API_KEY` environmental variable. See the [ellmer package](https://ellmer.tidyverse.org) for details on how to connect to various providers.
+This assumes you have set the `OPENAI_API_KEY` environmental variable. See the [ellmer package](https://ellmer.tidyverse.org) for details on connecting to various providers.
 
-We also need access to a database containing the OHDSI Vocabulary tables. We specify the connection details:
+We also need access to a database containing the OHDSI Vocabulary tables. We specify the connection details like so:
 
 ```{r eval = FALSE}
 library(DatabaseConnector)
@@ -76,7 +65,7 @@ connectionDetails <- createConnectionDetails(
 vocabularyDatabaseSchema <- "cdm"
 ```
 
-See the [`createConnectionDetails()`](https://ohdsi.github.io/DatabaseConnector/reference/createConnectionDetails.html) documentation for connecting to your database server.
+See the [`createConnectionDetails()`](https://ohdsi.github.io/DatabaseConnector/reference/createConnectionDetails.html) documentation for more information on connecting to your database server.
 
 Next, we can generate the concept sets:
 
@@ -90,182 +79,238 @@ conceptSets <- generateKeeperConceptSets(
 conceptSets
 ```
 ```{r eval=TRUE, echo=FALSE, message=FALSE}
-conceptSets <- read.csv(system.file("gibConceptSets.csv", package = "Keeper"))
+conceptSets <- read.csv(system.file("t1dmConceptSets.csv", package = "Keeper"))
 conceptSets <- dplyr::as_tibble(conceptSets)
 conceptSets
 ```
 
+## Manual Creation or Review of Concept Sets
 
+We can also create the concept sets manually, or, if we used an LLM to generate them, review the outputs. The format of the concept sets should be a data frame with the following columns:
 
+* **`conceptId`**: The specific concept ID.
+* **`conceptName`**: The name of the concept.
+* **`vocabularyId`**: The vocabulary the concept belongs to.
+* **`conceptSetName`**: The category of the concept set. Allowed values are: `"doi"`, `"alternativeDiagnosis"`, `"symptoms"`, `"drugs"`, `"diagnosticProcedures"`, `"measurements"`, `"treatmentProcedures"`, `"complications"`.
+* **`target`**: Either `"doi"` or `"alternativeDiagnosis"`, depending on which condition the concept is related to. This distinction only matters for color-coding within the Shiny app.
 
+Importantly, when using `useDescendants = TRUE` in `generateKeeper()` (which is the default setting), all descendants of the concepts specified here will automatically be included.
 
+Below, we discuss each concept set category in detail.
 
+### DOI
 
+DOI (Disease of Interest) is the target condition being evaluated. Here, we select two concepts along with their descendants:
 
-The full input we will use as an example looks as follows:
+* 201254 Type 1 diabetes mellitus
+* 435216 Disorder due to type 1 diabetes mellitus
 
-```{r eval = FALSE, echo = FALSE, warning=FALSE, message=FALSE}
-keeper <- createKeeper(
-  connectionDetails = connectionDetails,
-  databaseId = "Synpuf",
-  cdmDatabaseSchema = "dbo",
-  cohortDatabaseSchema = "results",
-  cohortTable = "cohort",
-  cohortDefinitionId = 1234,
-  cohortName = "DM type I",
-  sampleSize = 100,
-  assignNewId = TRUE,
-  useAncestor = TRUE,
-  doi = c(435216, 201254),
-  symptoms = c(79936, 432454, 4232487, 4229881, 254761),
-  comorbidities = c(141253, 432867, 436670, 433736, 255848),
-  drugs = c(21600712, 21602728, 21603531),
-  diagnosticProcedures = c(0),
-  measurements = c(3004410, 3005131, 3005673, 3010084, 3033819, 4149519, 4229110, 4020120),
-  alternativeDiagnosis = c(192963, 201826, 441267, 40443308),
-  treatmentProcedures = c(4242748),
-  complications = c(201820, 375545, 380834, 433968, 442793, 4016045, 4209145, 4299544)
-)
-```
+The first code represents T1DM itself, while the second code denotes diseases occurring due to T1DM, which implies the patient also has T1DM. A common strategy is to select the codes used as index event criteria in the phenotype definition. If `useAncestor` is set to `TRUE` (the default behavior), Keeper will use the hierarchy to pull in descendants of the selected concepts.
 
-## DOI
-Doi or disease of interest is the disease or state of interest itself. Here, we select two concepts with their descendants:
+The DOI is looked up in the `CONDITION_OCCURRENCE` table.
 
-* 201254	Type 1 diabetes mellitus
-* 435216	Disorder due to type 1 diabetes mellitus
+### Alternative Diagnosis
 
-First code is the code of T1DM itself and second code is the code denoting the diseases occurring due to T1DM which implies the patients have T1DM as well. Common strategy is to select codes used the index event criteria in the phenotype. 
-If useAncestor is set to TRUE (default behaviour), KEEPER will use the hierarchy to pull in descendants of selected concepts.
+Alternative diagnoses are the competing conditions we want to rule out. Differential diagnoses for T1DM include the following conditions:
 
-DOI is looked up in CONDITION_OCCURRENCE table.
+* 201826 Type 2 diabetes mellitus
+* 4192640 Pancreatitis
+* 4163735 Hemochromatosis  
+* 193170 Renal glycosuria
+* ...
 
-## Symptoms
+Alternative diagnosis codes are looked up in the `CONDITION_OCCURRENCE` table within 90 days before and after the index date.
 
-Here we input symptoms typically occurring in T1DM and differential diagnoses. These are signs and symptoms occuring in a short time window before the disease onset.
+**Note:** For all subsequent categories, we want to select the concepts relevant to the DOI *as well as those relevant to the alternative (competing/differential) diagnoses*. 
+
+### Symptoms
+
+Here we input symptoms typically occurring in T1DM and its differential diagnoses. These are signs and symptoms that occur in a short time window before disease onset.
 
 Based on our clinical definition, we selected the following codes:
 
-* 79936   Polyuria
-* 432454  Excessive thirst
-* 254761  Cough (symptom of cystic fibrosis)
-* 4229881	Weight loss		
-* 4232487	Weight gain
+* 79936 Polyuria
+* 432454 Excessive thirst
+* 315078 Palpitations
+* 439141 Abnormal weight gain    
+* 4134010 Weight decreased
+* ...
 
-These codes are SNOMED codes that represent broad codes for the symptoms we are intrested in and source codes of the corresponding conditions map either to them directly or to their descendants. The decendants will be pulled in as we set useAncestor to TRUE.
-A good approach for selecting codes for this section as well as for the subsequent sections is to input your term in Atlas Search and click on the green shopping cart (Phoebe initial code selection) to get the starting point and use Phoebe (Recommend tab in Atlas Concept Set tab) to explore recommendations.
-Instructions on how to use Phoebe can be found [here](https://www.ohdsi.org/2022showcase-6/).
-Alternatively, you can explore your data to find appropriate SNOMED codes for symptoms using string search. It should be noted that with local data exploration you are more likely to miss the relevant codes.
+These are broad SNOMED codes representing the symptoms we are interested in; source codes of the corresponding conditions map either to them directly or to their descendants. 
 
-Symptoms are looked up in OBSERVATION and CONDITION_OCCURRENCE tables within 30 days prior to the index date.
+A good approach for selecting codes for this section (and subsequent sections) is to input your term in ATLAS Search and click on the green shopping cart (the Phoebe initial code selection feature) to get a starting point. Then, use Phoebe (the Recommend tab within the ATLAS Concept Set module) to explore related recommendations. Instructions on how to use Phoebe can be found [here](https://www.ohdsi.org/2022showcase-6/). While you can explore your local data to find appropriate SNOMED codes using string searches, you are more likely to miss relevant codes this way.
 
-For this and subsequent categories we want to select the codes relevant to the doi as well as to other alternative (competing, differential) diagnoses. For example, cough is a symptom of cystic fibrosis.
-Similarly, hereon observing symptoms and other categories for T1DM will increase our confidence in the diagnosis while observing symptoms and other catogories for differential diagnoses will decrease our confidence in the diagnosis of T1DM.
+Symptoms are looked up in the `OBSERVATION` and `CONDITION_OCCURRENCE` tables within the 30 days prior to the index date.
 
-## Comorbidities
+### Drugs
 
-Comorbidities are conditions associated with the disease of interest or differential diagnoses. As opposed to symptoms, they can occurr within a longer time period before the disease onset. 
+We selected drugs (ancestor terms with their descendants) used to treat T1DM as well as the differential diagnoses:
 
-For T1DM we selected the following comorbidities:
+* 1596977 insulin, regular, human 
+* 1502905 insulin glargine  
+* 503297 metformin 
+* 793143 semaglutide 
+* ...
 
-* 141253  Disorder of thyroid gland (comorbidity of T1DM)
-* 432867  Hyperlipidemia (comorbidity of T2DM)
-* 436670	Metabolic disease (comorbidity of T2DM)
-* 433736	Obesity (comorbidity of T2DM)
-* 255848	Pneumonia (comorbidity of cystic fibrosis)
-	
-Comorbidities are looked up in OBSERVATION and CONDITION_OCCURRENCE tables any time prior to the index date.
+Drugs are looked up in the `DRUG_ERA` table any time prior to and any time after the index date (displayed as two separate columns).
 
+### Diagnostic Procedures
 
-## Drugs
+Diagnostic procedures are the procedure codes used for diagnosing the disease of interest or alternative disease(s). 
 
-We selected drugs (ancestor terms with descendants) that are used to treat T1DM as well as differential diagnoses:
+* 4083913 Urine specimen collection, 24 hours
+* 4300757 Computed tomography
+* ...
 
-* 21600712  DRUGS USED IN DIABETES (T1DM and T2DM)
-* 21602728	Glucocorticoids (indicative of steroid-induced diabetes)
-* 21603531	OTHER RESPIRATORY SYSTEM PRODUCTS (cystic fibrosis)
+Diagnostic procedures are looked up in the `PROCEDURE_OCCURRENCE` table within 30 days prior to and after the index date.
 
-Drugs are looked up in DRUG_ERA table any time prior and any time after (displayed as two different columns).
+### Measurements
 
-## Diagnostic procedures
+Measurements are laboratory tests used to diagnose T1DM and differential diagnoses:
 
-Diagnostic procedures are procedure codes used for diagnosis of the disease of interest or alternative disease(s). For T1DM we did not select any procedures. One could think of relevant procedures such as ultrasound of pancreas for pancreanecrosis or CT of lungs for cyctic fibrosis.
+* 4215993 Administration of insulin
+* 3004410 Hemoglobin A1c/Hemoglobin.total in Blood
+* 3007263 Hemoglobin A1c/Hemoglobin.total in Blood by calculation
+* 40762352 Hemoglobin A1c/Hemoglobin.total in Blood by IFCC protocol
+* 4073199 Total thyroidectomy
+* ...
 
-Diagnostic procedures are looked up in PROCEDURE_OCCURRENCE table within 30 days prior and after the index date.
+Note that there are often many variants of a given measurement. Be sure to include them all.
 
-## Measurements
+Measurements are looked up in the `MEASUREMENT` table within 30 days prior to and after the index date.
 
-Measurements are lab tests used to diagnose T1DM and diffential diagnoses:
+### Treatment Procedures
 
-* 4229110	Insulin C-peptide measurement
-* 3005673	Hemoglobin A1c/Hemoglobin.total in Blood by HPLC		
-* 3004410	Hemoglobin A1c/Hemoglobin.total in Blood
-* 3033819	Glucose-6-Phosphate dehydrogenase [Presence] in Serum		
-* 4149519	Glucose measurement	Measurement
-* 3005131	Glucose mean value [Mass/volume] in Blood Estimated from glycated hemoglobin		
-* 3010084	C peptide [Mass/volume] in Serum or Plasma
-* 4020120	Trypsinogen measurement
+Treatment procedures correspond to the treatment of the disease of interest or alternative disease(s). In this case, most procedures correspond to alternative diagnoses:
 
-## Alternative diagnosis
+* 4215993 Administration of insulin   
+* 2000307 Unilateral adrenalectomy 
+* 4073199 Total thyroidectomy 
 
-Alternative diagnosis is where we put the diagnoses we rule out. As we already discused, differential for T1DM are the following conditions:
+Treatment procedures are looked up in the `PROCEDURE_OCCURRENCE` table any time after the index date.
 
-* 201826	Type 2 diabetes mellitus
-* 40443308	Polycystic ovary syndrome
-* 192963	Disorder of pancreas		
-* 441267	Cystic fibrosis
+### Complications
 
-Alternative diagnosis codes are looked up in CONDITION_OCCURRENCE table within 90 days before and after the index date.
+Complications are other conditions occurring as a result of the disease. We selected the following codes along with their descendants:
 
-## Treatment procedures
-Treatment procedures are procedure codes corresponding to treatment of the disease of interest or alternative disease(s). We selected the following code denoting a broad group of procedures for pancrease partial or full removal for pancreonecrosis:
+* 24609 Hypoglycemia
+* 4301699 Neuropathy
+* 4262920 Skin ulcer
+* 435517 Acidosis
+* 4340390 Chronic hepatic failure
+* ...
 
-* 4242748	Incision of pancreas
+Complications are looked up in the `CONDITION_OCCURRENCE` table any time before or after the index date (displayed as two separate columns).
 
-We did not identify any tratement procedures for T1DM.
+# Creating the Cohort to Evaluate
 
-Treatment procedures are looked up in PROCEDURE_OCCURRENCE table any time after the index date.
+Keeper creates profiles of persons in a specified cohort. Cohorts can be created using ATLAS, R, or SQL. The cohort table must contain the following fields:
 
-## Complications
+* **`cohort_definition_id`** (INT): A unique identifier per cohort.
+* **`subject_id`** (BIGINT): A unique identifier per person. This should correspond to the person ID in the CDM data.
+* **`cohort_start_date`** (DATE): The date the person enters the cohort.
+* **`cohort_end_date`** (DATE): (Optional) The date the person exits the cohort.
 
-Complications are other conditions occurring due to the disease. We selected the following codes with descendants:
+More information on creating cohorts can be found [here](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
 
-* 4299544	Acanthosis nigricans (T1DM)
-* 433968	Candidiasis (T2DM)
-* 375545	Cataract (T2DM)
-* 380834	Coma (T1DM and T2DM)
-* 442793	Complication due to diabetes mellitus (T1DM and T2DM)
-* 201820	Diabetes mellitus (descendants of for T1DM and T2DM)
-* 4016045	Diabetic - good control (T1DM and T2DM)
-* 4209145	Ketoacidosis (T1DM and T2DM)
+When using LLMs, it is also possible to create a highly sensitive cohort—a cohort that is unlikely to miss any true cases. Please refer to the *Using Keeper with LLMs* vignette for instructions on creating highly sensitive cohorts.
 
-Complications are looked up in CONDITION_OCCURRENCE table any time before or after the index date (displayed as two separate colums).
+# Running Keeper
 
-# Data extraction and output
+With a cohort and input concept sets defined, we are ready to run Keeper. First, we need to specify how to connect to the server holding the cohort table and the CDM data:
 
-The output and it looks as follows:
+```{r eval = FALSE}
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = "localhost/ohdsi",
+  user = "joe",
+  password = "supersecret"
+)
+cdmDatabaseSchema <- "cdm"
+cohortDatabaseSchema <- "cdm"
+cohortTable <- "cohort"
+cohortDefinitionId <- 1
+```
 
-* patient id;
-* demographics (age, gender);
-* visit_context: information about visits overlapping with the index date (day 0) formatted as the type of visit and its duration;
-* observation_period: information about overlapping OBSERVATION_PERIOD formatted as days prior - days after the index date;
-* presentation: all records in CONDITION_OCCURRENCE on day 0 with corresponding type and status;
-* comorbidities: records in CONDITION_ERA and OBSERVATION that were selected as comorbidities and risk factors within all time prior excluding day 0. The list does not inlcude symptoms, disease of interest and complications;
-* symptoms: records in CONDITION_ERA that were selected as symptoms 30 days prior excluding day 0. The list does not include disease of interest and complications. If you want to see symptoms outside of this window, please place them in complications;
-* prior_disease: records in CONDITION_ERA that were selected as disease of interest or complications all time prior excluding day 0;
-* prior_drugs: records in DRUG_ERA that were selected as drugs of interest all time prior excluding day 0 formatted as day of era start and length of drug era;
-* prior_treatment_procedures: records in PROCEDURE_OCCURRENCE that were selected as treatments of interest within all time prior excluding day 0;
-* diagnostic_procedures: records in PROCEDURE_OCCURRENCE that were selected as diagnostic procedures within all time prior excluding day 0;
-* measurements: records in MEASUREMENT that were selected as measurements (lab tests) of interest within 30 days before and 30 days after day 0 formatted as value and unit (if exists) and assessment compared to the reference range provided in MEASUREMENT table (normal, abnormal high and abnormal low);
-* alternative_diagnosis: records in CONDITION_ERA that were selected as alternative (competing) diagnosis within 90 days before and 90 days after day 0. The list does not include disease of interest;
-* after_disease: same as prior_disease but after day 0;
-* after_drugs: same as prior_drugs but after day 0;
-* after_treatment_procedures: same as prior_treatment_procedures but after day 0;
-* death: death record any time after day 0.
+This specifies that our cohort is located in the `cohort` table within the `cdm` database schema, and our cohort of interest has a `cohort_definition_id` of 1.
 
+We generate the Keeper profiles using the following code:
 
-# Executing phenotype definition of interest
+```{r eval = FALSE}
+keeper <- generateKeeper(
+  connection = connection,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortTable = cohortTable,
+  cohortDefinitionId = cohortDefinitionId,
+  sampleSize = 20,
+  keeperConceptSets = conceptSets,
+  phenotypeName = "T1DM",
+  removePersonId = TRUE
+)
+```
+```{r echo=FALSE,message=FALSE,eval=TRUE}
+keeper <- readRDS(system.file("shuffledKeeper.rds", package = "Keeper"))
+```
 
-The first step is to create a phenotype of interest and execute it against database(s). Cohorts can be created using ATLAS, R or SQL.
-The cohort table should contain cohort_definition_id (number of cohort), subject_id (patient identifier), cohort_start_date and cohort_end_date and will be subsequently fed into KEEPER input. More information on creating cohorts can be found [here](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
+Here, `conceptSets` is the data frame we created earlier holding the target concepts. We specify a `sampleSize` of 20, meaning Keeper will randomly select up to 20 persons from the cohort. Alternatively, we could have provided a specific set of person IDs for Keeper to restrict its query to. 
 
-One can then specify a sample size to randomly select a given number of patients from the cohort (parameter `sampleSize`) or input a vector of person_ids to select specific patients (parameter `personIds`). One can further de-identify patients by removing the person IDs from the output (see parameter `removePersonIds`).
+We provide a `phenotypeName` strictly for administrative purposes. We also set `removePersonId = TRUE` so that the output will not contain the original person IDs, ensuring the output is completely anonymized with no personally identifying information (PII).
+
+## Keeper Output
+
+Keeper will populate the following categories with concepts observed in the person's records:
+
+* **Patient ID:** (Optional, if `removePersonId = FALSE`).
+* **Demographics:** Age, gender, race, and ethnicity.
+* **Visit context:** Information about visits occurring in the window from 30 days prior to 30 days after the index date.
+* **Observation period:** Information about overlapping `OBSERVATION_PERIOD` records, formatted as *days prior* to *days after* the index date.
+* **Presentation:** All records in `CONDITION_OCCURRENCE` on day 0, along with their corresponding type and status.
+* **Symptoms:** Records in `CONDITION_ERA` selected as symptoms within the 30 days prior to the index date, excluding day 0. This list does not include the disease of interest or complications. (If you want to track symptoms outside of this window, please place those codes in the complications concept set).
+* **Prior disease:** Records in `CONDITION_ERA` selected as the disease of interest or complications at any time prior to the index date, excluding day 0.
+* **Prior drugs:** Records in `DRUG_ERA` selected as drugs of interest at any time prior to the index date, excluding day 0, formatted as the day the era starts and the length of the drug era.
+* **Prior treatment procedures:** Records in `PROCEDURE_OCCURRENCE` selected as treatments of interest at any time prior to the index date, excluding day 0.
+* **Diagnostic procedures:** Records in `PROCEDURE_OCCURRENCE` selected as diagnostic procedures at any time prior to the index date, excluding day 0.
+* **Measurements:** Records in `MEASUREMENT` selected as lab tests of interest within 30 days before and 30 days after day 0. These are formatted as value and unit (if available) and assessed against the reference range provided in the `MEASUREMENT` table (e.g., normal, abnormal high, abnormal low).
+* **Alternative diagnosis:** Records in `CONDITION_ERA` selected as competing diagnoses within 90 days before and 90 days after day 0. This list does not include the disease of interest.
+* **Post disease:** Same as prior disease, but occurring after day 0.
+* **Post drugs:** Same as prior drugs, but occurring after day 0.
+* **Post treatment procedures:** Same as prior treatment procedures, but occurring after day 0.
+* **Death:** Any death record occurring after day 0.
+
+# Reviewing the Keeper Profiles
+
+We can review the Keeper profiles manually or use an LLM, as described in the *Using Keeper with LLMs* vignette. When reviewing profiles manually, we can choose to do this in a spreadsheet program like Microsoft Excel or by using the built-in Shiny app.
+
+## Review in a Spreadsheet
+
+We can convert the output of `generateKeeper` into a data frame having one row per person, with one column for each of the Keeper output categories:
+
+```{r}
+keeperTable <- convertKeeperToTable(keeper)
+keeperTable
+```
+
+We can then save this table to a CSV file and open it in Excel:
+
+```{r eval = FALSE}
+readr::write_csv(keeperTable, "e:/temp/KeeperT1dm.csv")
+```
+
+## Review Using the Shiny App
+
+Alternatively, we can launch the built-in Shiny app to review the profiles interactively:
+
+```{r eval = FALSE}
+launchReviewerApp(
+  keeper = keeper,
+  keeperConceptSets = conceptSets,
+  decisionsFileName = "decisions.csv"
+)
+```
+
+This will launch the Shiny application, which looks like this: 
+
+![Shiny app](Shiny.png)
+
+Any decisions you log within the app will be written to the specified decisions file (e.g., `decisions.csv`). If the decisions file does not yet exist, Keeper will create it for you.
