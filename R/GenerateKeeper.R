@@ -234,7 +234,7 @@ generateKeeper <- function(connectionDetails = NULL,
         ),
         conceptName = c(
           table$personId,
-          format(table$indexDate, "%Y-%m-%d"),
+          format(table$cohortStartDate, "%Y-%m-%d"),
           as.character(table$age),
           table$genderConceptName,
           rep("Observation period", nrow(table)),
@@ -243,7 +243,7 @@ generateKeeper <- function(connectionDetails = NULL,
         ),
         category = c(
           rep("personId", nrow(table)),
-          rep("indexDate", nrow(table)),
+          rep("cohortStartDate", nrow(table)),
           rep("age", nrow(table)),
           rep("sex", nrow(table)),
           rep("observationPeriod", nrow(table)),
@@ -254,7 +254,7 @@ generateKeeper <- function(connectionDetails = NULL,
       )
       if (removePii) {
         table <- table |>
-          filter(!.data$category %in% c("personId", "indexDate"))
+          filter(!.data$category %in% c("personId", "cohortStartDate"))
       }
     } else {
       table <- table |>
@@ -488,11 +488,11 @@ convertKeeperToTable <- function(keeper, removePii = FALSE) {
         select("generatedId", personId = "conceptName") |>
         inner_join(output, by = join_by("generatedId"))
     }
-    if ("indexDate" %in% keeper$category) {
+    if ("cohortStartDate" %in% keeper$category) {
       output <- keeper |>
-        filter(.data$category == "indexDate") |>
-        mutate(indexDate = as.Date(.data$conceptName, "%Y-%m-%d")) |>
-        select("generatedId", "indexDate") |>
+        filter(.data$category == "cohortStartDate") |>
+        mutate(cohortStartDate = as.Date(.data$conceptName, "%Y-%m-%d")) |>
+        select("generatedId", "cohortStartDate") |>
         inner_join(output, by = join_by("generatedId"))
     }
     if ("cdmDatabaseSchema" %in% keeper$category) {

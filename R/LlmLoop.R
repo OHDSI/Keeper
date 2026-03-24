@@ -100,6 +100,7 @@ reviewCases <- function(keeper,
 
   result <- tibble(
     generatedId = keeperTable$generatedId,
+    phenotype = keeperTable$phenotype,
     isCase = as.character(NA),
     certainty = as.character(NA),
     indexDay = as.numeric(NA),
@@ -107,7 +108,7 @@ reviewCases <- function(keeper,
   )
   if ("personId" %in% colnames(keeperTable)) {
     result$personId <- keeperTable$personId
-    result$indexDate <- keeperTable$indexDate
+    result$cohortStartDate <- keeperTable$cohortStartDate
     result$cdmDatabaseSchema <- keeperTable$cdmDatabaseSchema
   }
   if (!dir.exists(cacheFolder)) {

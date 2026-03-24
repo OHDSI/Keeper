@@ -19,6 +19,10 @@ connectionDetails <- createConnectionDetails(
 cdmDatabaseSchema <- "merative_mdcr.cdm_merative_mdcr_v3788"
 cohortDatabaseSchema <- "scratch.scratch_mschuemi"
 cohortTable <- "keeper_vignette_cohort"
+referenceCohortDatabaseSchema <- "scratch.scratch_mschuemi"
+referenceCohortTable <- "keeper_vignette_reference_cohort"
+
+
 options(sqlRenderTempEmulationSchema = "scratch.scratch_mschuemi")
 
 # Create concept sets --------------------------------------------------------------------------------------------------
@@ -148,6 +152,7 @@ keeperHsc <- generateKeeper(
 )
 saveRDS(keeperHsc, "e:/temp/keeperVignette/keeperHsc.rds")
 
+
 # Run LLM adjudication on highly-sensitive cohort ----------------------------------------------------------------------
 keeperHsc <- readRDS("e:/temp/keeperVignette/keeperHsc.rds")
 
@@ -160,12 +165,40 @@ client <- chat_azure_openai(
 )
 promptSettings <- createPromptSettings()
 llmResponsesHsc <- reviewCases(keeper = keeperHsc,
-                            settings = promptSettings,
-                            phenotypeName = "Type I Diabetes Mellitus (T1DM)",
-                            client = client,
-                            cacheFolder = "cacheVignetteHsc")
+                               settings = promptSettings,
+                               phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+                               client = client,
+                               cacheFolder = "cacheVignetteHsc")
 
 saveRDS(llmResponsesHsc, "e:/temp/keeperVignette/llmResponsesHsc.rds")
+
+
+# Upload reference cohort to server ------------------------------------------------------------------------------------
+llmResponsesHsc <- readRDS("e:/temp/keeperVignette/llmResponsesHsc.rds")
+
+uploadReferenceCohort(
+  connectionDetails = connectionDetails,
+  referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
+  referenceCohortTable = referenceCohortTable,
+  referenceCohortDefinitionId = 1,
+  createReferenceCohortTable = TRUE,
+  reviews = llmResponsesHsc
+)
+
+# Compute cohort operating characteristics -----------------------------------------------------------------------------
+computeCohortOperatingCharacteristics(
+  connectionDetails = connectionDetails,
+  cohortDatabaseSchema = cohortDatabaseSchema,
+  cohortTable = cohortTable,
+  cohortDefinitionId = 1,
+  referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
+  referenceCohortTable = referenceCohortTable,
+  referenceCohortDefinitionId = 1
+)
+
+
+
+
 
 
 
