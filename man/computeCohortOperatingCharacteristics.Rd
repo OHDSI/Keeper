@@ -49,6 +49,6 @@ PPV (each with lower and upper confidence bounds), AUC, kappa, and certainty.
 \description{
 Computes operating characteristics (sensitivity, specificity, positive predictive value, AUC,
 and Cohen's kappa) of a cohort definition by comparing it against a reference cohort created from
-chart reviews. Metrics are computed separately for high-certainty reviews, low-certainty reviews,
+LLM review of KEEPER profiles. Metrics are computed separately for high-certainty reviews, low-certainty reviews,
 and all reviews combined.
 }

@@ -24,7 +24,13 @@
 #'
 #' The cohort is constructed by combining two sets:
 #'
-#' 1. Anybody who has one of the concepts of the disease of interest.
+#' 1. Anybody who has one of the condition concepts of the disease of interest, indexed on the first occurrence.
+#' 
+#' 2. Anybody who has 'highly specific concepts' from at least two Keeper categories (symptoms, drugs, etc.), indexed 
+#' on the first occurrence.
+#' 
+#' Highly specific concepts are concepts where at least 10% of those who have that concept also have a condition concept 
+#' for the disease of interest. 
 #'
 #' @template Connection
 #'
@@ -198,6 +204,9 @@ createSensitiveCohort <- function(connectionDetails = NULL,
 }
 
 #' Create reference cohort table names
+#' 
+#' @description
+#' Derives a metadata table name from the reference cohort table name in a systematic way.
 #'
 #' @param referenceCohortTable The name of the cohort table itself. The metadata table name will be derived from this
 #'                             by appending '_metadata'.
@@ -217,9 +226,11 @@ createReferenceCohortTableNames <- function(referenceCohortTable) {
 #' Upload a reference cohort
 #'
 #' @description
-#' Uploads a reference cohort based on chart reviews to a database table. The reference cohort
-#' contains the reviewed persons with their case status, and can be used to evaluate the operating
-#' characteristics of a cohort definition using [computeCohortOperatingCharacteristics()].
+#' A reference cohort is typically a large sample (e.g. 10,000 persons) of a highly-sensitive cohort (as created using 
+#' [createSensitiveCohort()]), reviewed by an LLM (using [reviewCases()]).
+#' 
+#' The reference cohort can be used to compute operating characteristics of a cohort definition for the same phenotype
+#' using [computeCohortOperatingCharacteristics()].
 #'
 #' @template Connection
 #'
@@ -418,7 +429,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 #' @description
 #' Computes operating characteristics (sensitivity, specificity, positive predictive value, AUC,
 #' and Cohen's kappa) of a cohort definition by comparing it against a reference cohort created from
-#' chart reviews. Metrics are computed separately for high-certainty reviews, low-certainty reviews,
+#' LLM review of KEEPER profiles. Metrics are computed separately for high-certainty reviews, low-certainty reviews,
 #' and all reviews combined.
 #'
 #' @template Connection

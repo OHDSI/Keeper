@@ -26,10 +26,21 @@ be used.}
 reason, it can pick up where it left off using the cache.}
 }
 \value{
-A data frame with two columns:
-\enumerate{
+A tibble with these columns:
+\itemize{
+\item \code{generatedId}
+\item \code{isCase}, with possible values "yes" or "no",
+\item \code{certainty}, certainty of the LLM in its decision, can be "high" or "low".
+\item \code{justification}, written by the LLM.
+\item \code{cohortPrevalence}, prevalence of the cohort in the entire population.
+\item \code{model}, the LMM used to review.
+\item \code{keeperVersion}, the version of the Keeper package.
+}
+
+When the Keeper profiles were generated with \code{removePii = FALSE}, the following columns are also included:
+\itemize{
 \item \code{personId}
-\item \code{isCase}, with possible values "yes", "no", or "I don't know".
+\item \code{cohortStartDate}
 }
 }
 \description{

@@ -14,5 +14,5 @@ by appending '_metadata'.}
 A list with \code{referenceCohortTable} and \code{referenceCohortMetadataTable}.
 }
 \description{
-Create reference cohort table names
+Derives a metadata table name from the reference cohort table name in a systematic way.
 }

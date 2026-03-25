@@ -239,7 +239,7 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
 #' - `conceptId`
 #' - `conceptName`
 #' - `vocabularyId`
-#' - `conceptSetName`: 'doi' or 'symptoms', ...
+#' - `conceptSetName`: 'doi', 'symptoms', ...
 #' - `target`: 'Disease of interest' or 'Alternative diagnoses'.
 #'
 #' @export

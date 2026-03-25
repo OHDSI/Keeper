@@ -25,10 +25,20 @@
 #'                    reason, it can pick up where it left off using the cache.
 #'
 #' @returns
-#' A data frame with two columns:
+#' A tibble with these columns:
 #'
-#' 1. `personId`
-#' 2. `isCase`, with possible values "yes", "no", or "I don't know".
+#' - `generatedId`
+#' - `isCase`, with possible values "yes" or "no",
+#' - `certainty`, certainty of the LLM in its decision, can be "high" or "low".
+#' - `justification`, written by the LLM.
+#' - `cohortPrevalence`, prevalence of the cohort in the entire population.
+#' - `model`, the LMM used to review.
+#' - `keeperVersion`, the version of the Keeper package.
+#' 
+#' When the Keeper profiles were generated with `removePii = FALSE`, the following columns are also included:
+#' 
+#' - `personId`
+#' - `cohortStartDate`
 #'
 #' @export
 reviewCases <- function(keeper,
@@ -41,7 +51,7 @@ reviewCases <- function(keeper,
   } else {
     format <- "keeper"
   }
-
+  
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(keeper, add = errorMessages)
   if (format == "keeper") {
@@ -81,11 +91,11 @@ reviewCases <- function(keeper,
   checkmate::assertR6(client, "Chat", add = errorMessages)
   checkmate::assertCharacter(cacheFolder, add = errorMessages)
   checkmate::reportAssertions(collection = errorMessages)
-
+  
   startTime <- Sys.time()
-
+  
   maxRetries <- 5
-
+  
   if (format == "keeper") {
     keeperTable <- convertKeeperToTable(keeper)
   } else {
@@ -97,7 +107,7 @@ reviewCases <- function(keeper,
   if (!is.null(phenotypeName)) {
     keeperTable$phenotype <- phenotypeName
   }
-
+  
   result <- tibble(
     generatedId = keeperTable$generatedId,
     phenotype = keeperTable$phenotype,
@@ -116,7 +126,7 @@ reviewCases <- function(keeper,
   if (!dir.exists(cacheFolder)) {
     dir.create(cacheFolder)
   }
-
+  
   cost <- 0
   nPersons <- nrow(keeperTable)
   for (i in seq_len(nPersons)) {
@@ -125,7 +135,7 @@ reviewCases <- function(keeper,
       message(sprintf("- Cost so far: $%0.2f", cost))
     }
     row <- keeperTable[i, ]
-
+    
     responseFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder)
     if (file.exists(responseFileName)) {
       if (settings$legacy) {
@@ -142,12 +152,12 @@ reviewCases <- function(keeper,
         phenotypeName = row$phenotype,
         keeperTableRow = row
       )
-
+      
       # Store full prompt for easy review:
       fullPrompt <- sprintf("[System Prompt]\n%s\n[Prompt]\n%s", systemPrompt, prompt)
       promptFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder, type = "prompt")
       writeLines(fullPrompt, promptFileName)
-
+      
       # Ellmer is supposed to retry automatically, but I haven't seen it work when using LM Studio, so using own retry loop:
       for (j in seq_len(maxRetries)) {
         parsedResponse <- tryCatch(
@@ -156,19 +166,19 @@ reviewCases <- function(keeper,
             client$set_system_prompt(systemPrompt)
             if (settings$legacy) {
               response <- client$chat(prompt,
-                echo = "none"
+                                      echo = "none"
               )
               writeLines(response, responseFileName)
               parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
             } else {
               response <- client$chat_structured(prompt,
-                echo = "none",
-                type = ellmer::type_object(
-                  justification = ellmer::type_string(),
-                  verdict = ellmer::type_string(),
-                  certainty = ellmer::type_string(),
-                  day_of_onset = ellmer::type_integer()
-                )
+                                                 echo = "none",
+                                                 type = ellmer::type_object(
+                                                   justification = ellmer::type_string(),
+                                                   verdict = ellmer::type_string(),
+                                                   certainty = ellmer::type_string(),
+                                                   day_of_onset = ellmer::type_integer()
+                                                 )
               )
               jsonlite::write_json(response, responseFileName)
               parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
@@ -218,6 +228,6 @@ generateCacheFileName <- function(phenotypeName, generatedId, cacheFolder, type 
     fileName <- paste(fileName, type, sep = "_")
   }
   fileName <- paste(fileName, "txt", sep = ".")
-
+  
   return(file.path(cacheFolder, fileName))
 }

@@ -59,6 +59,11 @@ This cohort can be used to determine the sensitivity of a cohort definition.
 
 The cohort is constructed by combining two sets:
 \enumerate{
-\item Anybody who has one of the concepts of the disease of interest.
+\item Anybody who has one of the condition concepts of the disease of interest, indexed on the first occurrence.
+\item Anybody who has 'highly specific concepts' from at least two Keeper categories (symptoms, drugs, etc.), indexed
+on the first occurrence.
 }
+
+Highly specific concepts are concepts where at least 10\% of those who have that concept also have a condition concept
+for the disease of interest.
 }

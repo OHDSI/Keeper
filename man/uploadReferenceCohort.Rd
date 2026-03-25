@@ -47,7 +47,9 @@ This function does not return a value. It is called for the side effect of uploa
 the reference cohort to the database.
 }
 \description{
-Uploads a reference cohort based on chart reviews to a database table. The reference cohort
-contains the reviewed persons with their case status, and can be used to evaluate the operating
-characteristics of a cohort definition using \code{\link[=computeCohortOperatingCharacteristics]{computeCohortOperatingCharacteristics()}}.
+A reference cohort is typically a large sample (e.g. 10,000 persons) of a highly-sensitive cohort (as created using
+\code{\link[=createSensitiveCohort]{createSensitiveCohort()}}), reviewed by an LLM (using \code{\link[=reviewCases]{reviewCases()}}).
+
+The reference cohort can be used to compute operating characteristics of a cohort definition for the same phenotype
+using \code{\link[=computeCohortOperatingCharacteristics]{computeCohortOperatingCharacteristics()}}.
 }

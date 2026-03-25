@@ -29,7 +29,7 @@ A data frame with the following columns:
 \item \code{conceptId}
 \item \code{conceptName}
 \item \code{vocabularyId}
-\item \code{conceptSetName}: 'doi' or 'symptoms', ...
+\item \code{conceptSetName}: 'doi', 'symptoms', ...
 \item \code{target}: 'Disease of interest' or 'Alternative diagnoses'.
 }
 }

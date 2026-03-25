@@ -41,15 +41,6 @@ createPromptSettings <- function(maxParts = 100,
   return(settings)
 }
 
-#' Create a system prompt for a LLM
-#'
-#' @param settings       A settings object as created using [createPromptSettings()].
-#' @param phenotypeName  The name of the disease to use in the prompt.
-#'
-#' @return
-#' A character string with the system prompt.
-#'
-#' @export
 createSystemPrompt <- function(settings, phenotypeName) {
   if (settings$legacy) {
     promptFile <- system.file("KeeperLegacyPrompt.txt", package = "Keeper")
@@ -62,17 +53,6 @@ createSystemPrompt <- function(settings, phenotypeName) {
   return(prompt)
 }
 
-
-#' Create the main prompt based on a Keeper output row.
-#'
-#' @param settings       A settings object as created using [createPromptSettings].
-#' @param phenotypeName  The name of the disease to use in the prompt.
-#' @param keeperTableRow A single row from the output of [convertKeeperToTable].
-#'
-#' @return
-#' A character string containing the main prompt.
-#'
-#' @export
 createPrompt <- function(settings,
                          phenotypeName,
                          keeperTableRow) {

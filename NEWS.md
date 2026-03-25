@@ -14,6 +14,8 @@ Changes:
     - Removed the 'comorbidities' category from both the input and the output, as this was ill-defined. 
     
     - The `databaseId` argument has been removed. Instead, the database name is extracted from the `cdm_source` table.
+    
+    - Computes the prevalence of the input cohort in the overall population and stores it in the output table for later computations.
 
 2. Added the `convertKeeperToTable()` to convert the output of `generateKeeper()` to the original human-readable table format.
 
@@ -24,6 +26,8 @@ Changes:
 5. Added a Shiny app for human review of Keeper profiles. This can be launched using the `launchReviewerApp()` function. Experts can also deploy the Shiny app on a Shiny server with PostgreSQL backend.
 
 6. Added the `createSensitiveCohort()` function. This creates a cohort based on the Keeper input concept sets which should include everyone in the database who potentially has the phenotype. This cohort can be used to estimate sensitivity (in addition to positive predictive value) of a phenotype algorithm.
+
+7. Added the `uploadReferenceCohort()` and `computeCohortOperatingCharacteristics()` to use a large reference cohort (created by annotating a large sample of a sensitive cohort using LLMs) to evaluate phenotype definitions.
 
 
 Bugfixes:

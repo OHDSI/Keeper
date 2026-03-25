@@ -2,11 +2,9 @@
 
 export(computeCohortOperatingCharacteristics)
 export(convertKeeperToTable)
-export(createPrompt)
 export(createPromptSettings)
 export(createReferenceCohortTableNames)
 export(createSensitiveCohort)
-export(createSystemPrompt)
 export(generateKeeper)
 export(generateKeeperConceptSets)
 export(launchReviewerApp)

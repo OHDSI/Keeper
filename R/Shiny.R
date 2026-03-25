@@ -18,7 +18,9 @@
 #'
 #' @param keeper            The output of the [generateKeeper()] function.
 #' @param keeperConceptSets The output of the [generateKeeperConceptSets()] function.
-#' @param decisionsFileName The location of the CSV file where the decisions made by the reviewer will be written.
+#' @param decisionsFileName The location of the CSV file where the decisions made by the reviewer will be written. If 
+#'                          the file doesn't exist it will be created. If it does exist, it will be loaded and can be 
+#'                          edited in the Shiny app.
 #'
 #' @returns
 #' Returns nothing. Called for launching the Shiny app.

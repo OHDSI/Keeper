@@ -11,7 +11,9 @@ launchReviewerApp(keeper, keeperConceptSets, decisionsFileName)
 
 \item{keeperConceptSets}{The output of the \code{\link[=generateKeeperConceptSets]{generateKeeperConceptSets()}} function.}
 
-\item{decisionsFileName}{The location of the CSV file where the decisions made by the reviewer will be written.}
+\item{decisionsFileName}{The location of the CSV file where the decisions made by the reviewer will be written. If
+the file doesn't exist it will be created. If it does exist, it will be loaded and can be
+edited in the Shiny app.}
 }
 \value{
 Returns nothing. Called for launching the Shiny app.
