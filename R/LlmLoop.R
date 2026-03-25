@@ -104,12 +104,14 @@ reviewCases <- function(keeper,
     isCase = as.character(NA),
     certainty = as.character(NA),
     indexDay = as.numeric(NA),
-    justification = as.character(NA)
+    justification = as.character(NA),
+    cohortPrevalence = keeperTable$cohortPrevalence,
+    model = client$get_model(),
+    keeperVersion = packageVersion("Keeper")
   )
   if ("personId" %in% colnames(keeperTable)) {
     result$personId <- keeperTable$personId
     result$cohortStartDate <- keeperTable$cohortStartDate
-    result$cdmDatabaseSchema <- keeperTable$cdmDatabaseSchema
   }
   if (!dir.exists(cacheFolder)) {
     dir.create(cacheFolder)

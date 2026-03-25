@@ -3,12 +3,15 @@ SELECT
   SUM(true_negative) AS true_negatives,
   SUM(false_positive) AS false_positives,
   SUM(false_negative) AS false_negatives,
+  SUM(is_case) AS cases,
+  COUNT(*) - SUM(is_case) AS non_cases,
   certainty
 FROM (
   SELECT CASE WHEN is_case = 1 AND has_match = 1 AND within_window = 1 THEN 1 ELSE 0 END AS true_positive,
     CASE WHEN is_case = 0 AND has_match = 0 THEN 1 ELSE 0 END AS true_negative,
     CASE WHEN is_case = 0 AND has_match = 1 AND within_window = 1 THEN 1 ELSE 0 END AS false_positive,
     CASE WHEN is_case = 1 AND has_match = 0 THEN 1 ELSE 0 END AS false_negative,
+    is_case,
     certainty
   FROM (
     SELECT is_case,

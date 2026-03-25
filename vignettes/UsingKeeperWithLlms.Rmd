@@ -11,25 +11,26 @@ output:
     toc: yes
 vignette: >
 %\VignetteIndexEntry{Using Keeper with LLMs}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-  ---
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteEncoding{UTF-8}
+---
   
-  ```{r, echo = FALSE, message = FALSE, warning = FALSE}
-  library(Keeper)
-  ```
-  # Introduction
-  
-  This vignette describes how one could use Keeper to generate patient summaries, and have them be reviewed by a large-language model (LLM).
-  This vignette assumes you have read and understand the 'Generating Keeper profiles for review' vignette. 
-  We will build on the same example used in that other vignette: Type 1 Diabetes Mellitus (T1DM), and assume you have the various objects created in that vignette.
-  
-  # LLM review
-  
-  We assume the Keeper input concept sets have already been defined, and that Keeper has been executed:
-  
-  ```{r echo=FALSE,message=FALSE,eval=TRUE}
-  keeper <- readRDS(system.file("shuffledKeeper.rds", package = "Keeper"))
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(Keeper)
+```
+
+# Introduction
+
+This vignette describes how one could use Keeper to generate patient summaries, and have them be reviewed by a large-language model (LLM).
+This vignette assumes you have read and understand the 'Generating Keeper profiles for review' vignette. 
+We will build on the same example used in that other vignette: Type 1 Diabetes Mellitus (T1DM), and assume you have the various objects created in that vignette.
+
+# LLM review
+
+We assume the Keeper input concept sets have already been defined, and that Keeper has been executed:
+
+```{r echo=FALSE,message=FALSE,eval=TRUE}
+keeper <- readRDS(system.file("shuffledKeeper.rds", package = "Keeper"))
 ```
 ```{r}
 keeper
@@ -127,7 +128,7 @@ Note that we specify `removePii = FALSE` so we can later join the LLM adjudicati
 
 Next we have the LLM review all 10,000 sampled patient profiles.
 Be aware that this can incur significant costs. 
-For example, having our preferreed model (GPT o3) review 10,000 cases typically costs between $60-$80.
+For example, having our preferred model (GPT o3) review 10,000 cases typically costs between $60-$80.
 
 ```{r eval = FALSE}
 promptSettings <- createPromptSettings()
@@ -137,5 +138,10 @@ llmResponsesHsc <- reviewCases(keeper = keeperHsc,
                                client = client,
                                cacheFolder = "cacheVignetteHsc")
 ```
+
+## Uploading the reference cohort
+
+## Evaluating cohorts using the reference cohort
+
 
 

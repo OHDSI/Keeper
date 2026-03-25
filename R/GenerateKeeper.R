@@ -307,6 +307,40 @@ generateKeeper <- function(connectionDetails = NULL,
       )
     )
   keeper <- bind_rows(keeper, metaData)
+  
+  message("Computing cohort prevalence")
+  sql <- "
+    SELECT (
+        SELECT COUNT(DISTINCT subject_id) 
+        FROM @cohort_table 
+        WHERE cohort_definition_id = @cohort_definition_id
+      ) * 1.0 / (
+        SELECT COUNT(*) 
+        FROM @cdm_database_schema.person
+      ) AS prevalence;
+  "
+  prevalenceData <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = sql,
+    cdm_database_schema = cdmDatabaseSchema,
+    cohort_table = if (cohortTableIsTemp) cohortTable else paste(cohortDatabaseSchema, cohortTable, sep = "."),
+    cohort_definition_id = cohortDefinitionId,
+    snakeCaseToCamelCase = TRUE
+  )
+  prevalenceData <- tibble(
+    generatedId = unique(keeper$generatedId)
+  ) |>
+    cross_join(
+      tibble(
+        startDay = 0,
+        conceptId = NA,
+        conceptName = sprintf("%0.5f", prevalenceData$prevalence),
+        category = c(
+          "cohortPrevalence"
+        )
+      )
+    )
+  keeper <- bind_rows(keeper, prevalenceData)
 
   message("Removing temp tables")
   toDelete <- c(
@@ -495,10 +529,11 @@ convertKeeperToTable <- function(keeper, removePii = FALSE) {
         select("generatedId", "cohortStartDate") |>
         inner_join(output, by = join_by("generatedId"))
     }
-    if ("cdmDatabaseSchema" %in% keeper$category) {
+    if ("cohortPrevalence" %in% keeper$category) {
       output <- keeper |>
-        filter(.data$category == "cdmDatabaseSchema") |>
-        select("generatedId", cdmDatabaseSchema = "conceptName") |>
+        filter(.data$category == "cohortPrevalence") |>
+        mutate(cohortPrevalence = as.numeric(.data$conceptName)) |>
+        select("generatedId", "cohortPrevalence") |>
         inner_join(output, by = join_by("generatedId"))
     }
   }

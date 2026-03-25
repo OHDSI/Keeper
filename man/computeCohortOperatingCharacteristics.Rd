@@ -11,7 +11,7 @@ computeCohortOperatingCharacteristics(
   cohortTable,
   cohortDefinitionId,
   referenceCohortDatabaseSchema,
-  referenceCohortTable,
+  referenceCohortTableNames,
   referenceCohortDefinitionId
 )
 }
@@ -34,7 +34,8 @@ to evaluate.}
 \item{referenceCohortDatabaseSchema}{The name of the database schema containing the reference
 cohort (as uploaded by \code{\link[=uploadReferenceCohort]{uploadReferenceCohort()}}).}
 
-\item{referenceCohortTable}{The table name containing the reference cohort.}
+\item{referenceCohortTableNames}{The table names where the reference cohort and metadata are stored. Should
+be created using \link{(createReferenceCohortTableNames)}.}
 
 \item{referenceCohortDefinitionId}{The cohort definition ID of the reference cohort.}
 }

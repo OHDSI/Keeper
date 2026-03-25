@@ -1,0 +1,212 @@
+conceptId,conceptName,vocabularyId,conceptSetName,target
+313217,Atrial fibrillation,SNOMED,doi,Disease of interest
+4275423,Supraventricular tachycardia,SNOMED,alternativeDiagnosis,Disease of interest
+4089462,Ventricular premature complex,SNOMED,alternativeDiagnosis,Disease of interest
+4103295,Ventricular tachycardia,SNOMED,alternativeDiagnosis,Disease of interest
+316429,Premature beats,SNOMED,alternativeDiagnosis,Disease of interest
+317302,Sinus node dysfunction,SNOMED,alternativeDiagnosis,Disease of interest
+4091901,Aberrant premature complexes,SNOMED,alternativeDiagnosis,Disease of interest
+315078,Palpitations,SNOMED,symptoms,Disease of interest
+444070,Tachycardia,SNOMED,symptoms,Disease of interest
+312437,Dyspnea,SNOMED,symptoms,Disease of interest
+4223659,Fatigue,SNOMED,symptoms,Disease of interest
+4223938,Dizziness,SNOMED,symptoms,Disease of interest
+4090431,Discomfort,SNOMED,symptoms,Disease of interest
+317376,Tachypnea,SNOMED,symptoms,Disease of interest
+4305080,Abnormal breathing,SNOMED,symptoms,Disease of interest
+4272240,Malaise,SNOMED,symptoms,Disease of interest
+372448,Loss of consciousness,SNOMED,symptoms,Disease of interest
+315078,Palpitations,SNOMED,symptoms,Alternative diagnoses
+4223938,Dizziness,SNOMED,symptoms,Alternative diagnoses
+4090431,Discomfort,SNOMED,symptoms,Alternative diagnoses
+77670,Chest pain,SNOMED,symptoms,Alternative diagnoses
+312437,Dyspnea,SNOMED,symptoms,Alternative diagnoses
+4223659,Fatigue,SNOMED,symptoms,Alternative diagnoses
+79908,Muscle weakness,SNOMED,symptoms,Alternative diagnoses
+441542,Anxiety,SNOMED,symptoms,Alternative diagnoses
+40546087,Depressed mood,SNOMED,symptoms,Alternative diagnoses
+31967,Nausea,SNOMED,symptoms,Alternative diagnoses
+4101344,Finding of vomiting,SNOMED,symptoms,Alternative diagnoses
+372448,Loss of consciousness,SNOMED,symptoms,Alternative diagnoses
+4272240,Malaise,SNOMED,symptoms,Alternative diagnoses
+259153,Pain in throat,SNOMED,symptoms,Alternative diagnoses
+4133643,Thoracic back pain,SNOMED,symptoms,Alternative diagnoses
+442555,Breathing painful,SNOMED,symptoms,Alternative diagnoses
+4114624,Coordination problem,SNOMED,symptoms,Alternative diagnoses
+36714126,Difficulty walking,SNOMED,symptoms,Alternative diagnoses
+441417,Incoordination,SNOMED,symptoms,Alternative diagnoses
+4310235,Reduced mobility,SNOMED,symptoms,Alternative diagnoses
+432436,Symbolic dysfunction,SNOMED,symptoms,Alternative diagnoses
+4092743,Unsteady when standing,SNOMED,symptoms,Alternative diagnoses
+200219,Abdominal pain,SNOMED,symptoms,Alternative diagnoses
+1353766,propranolol,RxNorm,drugs,Disease of interest
+1313200,nadolol,RxNorm,drugs,Disease of interest
+1307046,metoprolol,RxNorm,drugs,Disease of interest
+1314002,atenolol,RxNorm,drugs,Disease of interest
+1338005,bisoprolol,RxNorm,drugs,Disease of interest
+1346823,carvedilol,RxNorm,drugs,Disease of interest
+19063575,esmolol,RxNorm,drugs,Disease of interest
+1307863,verapamil,RxNorm,drugs,Disease of interest
+1328165,diltiazem,RxNorm,drugs,Disease of interest
+1354860,flecainide,RxNorm,drugs,Disease of interest
+1309944,amiodarone,RxNorm,drugs,Disease of interest
+1353256,propafenone,RxNorm,drugs,Disease of interest
+40163615,dronedarone,RxNorm,drugs,Disease of interest
+1362979,dofetilide,RxNorm,drugs,Disease of interest
+1370109,sotalol,RxNorm,drugs,Disease of interest
+1326303,digoxin,RxNorm,drugs,Disease of interest
+19026180,digitoxin,RxNorm,drugs,Disease of interest
+1310149,warfarin,RxNorm,drugs,Disease of interest
+40228152,dabigatran etexilate,RxNorm,drugs,Disease of interest
+40241331,rivaroxaban,RxNorm,drugs,Disease of interest
+45892847,edoxaban,RxNorm,drugs,Disease of interest
+43013024,apixaban,RxNorm,drugs,Disease of interest
+1367571,heparin,RxNorm,drugs,Disease of interest
+1301025,enoxaparin,RxNorm,drugs,Disease of interest
+1301065,dalteparin,RxNorm,drugs,Disease of interest
+19069137,bemiparin,RxNorm,drugs,Disease of interest
+35884360,Heparin Sodium,RxNorm Extension,drugs,Disease of interest
+1112807,aspirin,RxNorm,drugs,Disease of interest
+1322184,clopidogrel,RxNorm,drugs,Disease of interest
+1314577,nebivolol,RxNorm,drugs,Disease of interest
+19113045,heparinoids,RxNorm,drugs,Disease of interest
+4056822,Anticoagulant therapy,SNOMED,drugs,Disease of interest
+36717001,Long-term current use of aspirin,SNOMED,drugs,Disease of interest
+3655005,Platelet aggregation inhibitor therapy,SNOMED,drugs,Disease of interest
+42742436,Aspirin or clopidogrel prescribed or currently being taken (CAD),CPT4,drugs,Disease of interest
+1351461,procainamide,RxNorm,drugs,Disease of interest
+19050087,ibutilide,RxNorm,drugs,Disease of interest
+1353766,propranolol,RxNorm,drugs,Alternative diagnoses
+1313200,nadolol,RxNorm,drugs,Alternative diagnoses
+1307046,metoprolol,RxNorm,drugs,Alternative diagnoses
+1314002,atenolol,RxNorm,drugs,Alternative diagnoses
+19063575,esmolol,RxNorm,drugs,Alternative diagnoses
+1346823,carvedilol,RxNorm,drugs,Alternative diagnoses
+1328165,diltiazem,RxNorm,drugs,Alternative diagnoses
+1307863,verapamil,RxNorm,drugs,Alternative diagnoses
+1309944,amiodarone,RxNorm,drugs,Alternative diagnoses
+1354860,flecainide,RxNorm,drugs,Alternative diagnoses
+1370109,sotalol,RxNorm,drugs,Alternative diagnoses
+1362979,dofetilide,RxNorm,drugs,Alternative diagnoses
+40163615,dronedarone,RxNorm,drugs,Alternative diagnoses
+1353256,propafenone,RxNorm,drugs,Alternative diagnoses
+1360421,quinidine,RxNorm,drugs,Alternative diagnoses
+989878,lidocaine,RxNorm,drugs,Alternative diagnoses
+1307542,mexiletine,RxNorm,drugs,Alternative diagnoses
+1309204,adenosine,RxNorm,drugs,Alternative diagnoses
+1326303,digoxin,RxNorm,drugs,Alternative diagnoses
+19026180,digitoxin,RxNorm,drugs,Alternative diagnoses
+19093848,magnesium sulfate,RxNorm,drugs,Alternative diagnoses
+19091804,magnesium sulfate heptahydrate,RxNorm,drugs,Alternative diagnoses
+19113045,heparinoids,RxNorm,drugs,Alternative diagnoses
+1310149,warfarin,RxNorm,drugs,Alternative diagnoses
+43013024,apixaban,RxNorm,drugs,Alternative diagnoses
+40241331,rivaroxaban,RxNorm,drugs,Alternative diagnoses
+40228152,dabigatran etexilate,RxNorm,drugs,Alternative diagnoses
+45892847,edoxaban,RxNorm,drugs,Alternative diagnoses
+46234437,ivabradine,RxNorm,drugs,Alternative diagnoses
+1338005,bisoprolol,RxNorm,drugs,Alternative diagnoses
+1301025,enoxaparin,RxNorm,drugs,Alternative diagnoses
+1367571,heparin,RxNorm,drugs,Alternative diagnoses
+1314577,nebivolol,RxNorm,drugs,Alternative diagnoses
+43533302,Fda approved oral anticoagulant is prescribed,HCPCS,drugs,Alternative diagnoses
+2001541,Catheter based invasive electrophysiologic testing,ICD9Proc,diagnosticProcedures,Disease of interest
+2313931,Comprehensive electrophysiologic evaluation including insertion and repositioning of multiple electrode catheters with induction or attempted induction of arrhythmia; with left ventricular pacing and recording (List separately in addition to code for primary procedure),CPT4,diagnosticProcedures,Disease of interest
+4163951,Electrocardiographic procedure,SNOMED,diagnosticProcedures,Disease of interest
+4311995,Cardiac telemetry,SNOMED,diagnosticProcedures,Disease of interest
+4230911,Echocardiography,SNOMED,diagnosticProcedures,Disease of interest
+4062856,Examination for suspected cardiovascular disease,SNOMED,diagnosticProcedures,Disease of interest
+42738789,"Electrocardiographic monitoring for 24 hours by continuous computerized monitoring and non-continuous recording, and real-time data analysis utilizing a device capable of producing intermittent full-sized waveform tracings, possibly patien... (Deprecated)",CPT4,diagnosticProcedures,Disease of interest
+42738785,"Electrocardiographic monitoring for 24 hours by continuous original ECG waveform recording and storage without superimposition scanning utilizing a device capable of producing a full miniaturized printout; recording (includes hook-up, reco... (Deprecated)",CPT4,diagnosticProcedures,Disease of interest
+4052820,Cardiac mapping,SNOMED,diagnosticProcedures,Disease of interest
+2313932,Programmed stimulation and pacing after intravenous drug infusion (List separately in addition to code for primary procedure),CPT4,diagnosticProcedures,Disease of interest
+759706,External electrocardiographic recording for more than 48 hours up to 7 days by continuous rhythm recording and storage; recording (includes connection and initial recording),CPT4,diagnosticProcedures,Alternative diagnoses
+2313931,Comprehensive electrophysiologic evaluation including insertion and repositioning of multiple electrode catheters with induction or attempted induction of arrhythmia; with left ventricular pacing and recording (List separately in addition to code for primary procedure),CPT4,diagnosticProcedures,Alternative diagnoses
+2001541,Catheter based invasive electrophysiologic testing,ICD9Proc,diagnosticProcedures,Alternative diagnoses
+4163951,Electrocardiographic procedure,SNOMED,diagnosticProcedures,Alternative diagnoses
+759708,External electrocardiographic recording for more than 48 hours up to 7 days by continuous rhythm recording and storage; review and interpretation,CPT4,diagnosticProcedures,Alternative diagnoses
+759707,External electrocardiographic recording for more than 48 hours up to 7 days by continuous rhythm recording and storage; scanning analysis with report,CPT4,diagnosticProcedures,Alternative diagnoses
+2313932,Programmed stimulation and pacing after intravenous drug infusion (List separately in addition to code for primary procedure),CPT4,diagnosticProcedures,Alternative diagnoses
+4052820,Cardiac mapping,SNOMED,diagnosticProcedures,Alternative diagnoses
+3013512,EKG study,LOINC,diagnosticProcedures,Alternative diagnoses
+2007079,Electrographic monitoring,ICD9Proc,diagnosticProcedures,Alternative diagnoses
+4196969,T4 free measurement,SNOMED,measurements,Disease of interest
+4248132,Thyroxine measurement,SNOMED,measurements,Disease of interest
+3016451,Thyroxine (T4) [Mass/volume] in Blood,LOINC,measurements,Disease of interest
+3016991,Thyroxine (T4) [Mass/volume] in Serum or Plasma,LOINC,measurements,Disease of interest
+3024675,Thyroxine (T4) free [Mass/volume] in Serum or Plasma by Dialysis,LOINC,measurements,Disease of interest
+42529233,Thyroxine (T4) free [Mass/volume] in Serum or Plasma by Immunoassay,LOINC,measurements,Disease of interest
+3008486,Thyroxine (T4) free [Moles/volume] in Serum or Plasma,LOINC,measurements,Disease of interest
+3000551,Thyroxine (T4) free index in Serum or Plasma by calculation,LOINC,measurements,Disease of interest
+4021291,Troponin measurement,SNOMED,measurements,Alternative diagnoses
+3003981,EKG Study observation overall (narrative),LOINC,measurements,Alternative diagnoses
+3013512,EKG study,LOINC,measurements,Alternative diagnoses
+4296597,Cardiovascular stress testing,SNOMED,measurements,Alternative diagnoses
+4187078,Electrocardiographic monitoring,SNOMED,measurements,Alternative diagnoses
+4098410,Atrial cardioversion,SNOMED,treatmentProcedures,Disease of interest
+2313791,"Cardioversion, elective, electrical conversion of arrhythmia; external",CPT4,treatmentProcedures,Disease of interest
+2008358,Other electric countershock of heart,ICD9Proc,treatmentProcedures,Disease of interest
+43528009,Additional linear or focal intracardiac catheter ablation of the left or right atrium for treatment of atrial fibrillation remaining after completion of pulmonary vein isolation (List separately in addition to code for primary procedure),CPT4,treatmentProcedures,Disease of interest
+2726385,"Occlusion of Left Atrial Appendage with Intraluminal Device, Percutaneous Approach",ICD10PCS,treatmentProcedures,Disease of interest
+2313938,"Intracardiac catheter ablation of atrioventricular node function, atrioventricular conduction for creation of complete heart block, with or without temporary pacemaker placement",CPT4,treatmentProcedures,Disease of interest
+2788044,"Restoration of Cardiac Rhythm, Single",ICD10PCS,treatmentProcedures,Disease of interest
+2001549,"Excision or destruction of other lesion or tissue of heart, endovascular approach",ICD9Proc,treatmentProcedures,Disease of interest
+43528008,"Comprehensive electrophysiologic evaluation with transseptal catheterizations, insertion and repositioning of multiple electrode catheters, induction or attempted induction of an arrhythmia including left or right atrial pacing/recording, and intracardiac catheter ablation of atrial fibrillation by pulmonary vein isolation, including intracardiac electrophysiologic 3-dimensional mapping, intracardiac echocardiography with imaging supervision and interpretation, right ventricular pacing/recording, and His bundle recording, when performed",CPT4,treatmentProcedures,Disease of interest
+43528007,"Intracardiac catheter ablation of a discrete mechanism of arrhythmia which is distinct from the primary ablated mechanism, including repeat diagnostic maneuvers, to treat a spontaneous or induced arrhythmia (List separately in addition to code for primary procedure)",CPT4,treatmentProcedures,Disease of interest
+4098410,Atrial cardioversion,SNOMED,treatmentProcedures,Alternative diagnoses
+2313939,"Intracardiac catheter ablation of arrhythmogenic focus; for treatment of supraventricular tachycardia by ablation of fast or slow atrioventricular pathways, accessory atrioventricular connections or other atrial foci, singly or in combination",CPT4,treatmentProcedures,Alternative diagnoses
+2107049,"Insertion or replacement of permanent implantable defibrillator system, with transvenous lead(s), single or dual chamber",CPT4,treatmentProcedures,Alternative diagnoses
+2313791,"Cardioversion, elective, electrical conversion of arrhythmia; external",CPT4,treatmentProcedures,Alternative diagnoses
+2788044,"Restoration of Cardiac Rhythm, Single",ICD10PCS,treatmentProcedures,Alternative diagnoses
+2001549,"Excision or destruction of other lesion or tissue of heart, endovascular approach",ICD9Proc,treatmentProcedures,Alternative diagnoses
+2008358,Other electric countershock of heart,ICD9Proc,treatmentProcedures,Alternative diagnoses
+2107043,Insertion of implantable defibrillator pulse generator only; with existing single lead,CPT4,treatmentProcedures,Alternative diagnoses
+4144100,Revision of automatic implantable cardioverter/defibrillator,SNOMED,treatmentProcedures,Alternative diagnoses
+312337,Arterial embolus and thrombosis,SNOMED,complications,Disease of interest
+316139,Heart failure,SNOMED,complications,Disease of interest
+321319,Cardiomyopathy,SNOMED,complications,Disease of interest
+261600,Acute pulmonary edema,SNOMED,complications,Disease of interest
+4188331,Chronic pulmonary edema,SNOMED,complications,Disease of interest
+201894,Acute vascular insufficiency of intestine,SNOMED,complications,Disease of interest
+42536547,Ischemia of kidney,SNOMED,complications,Disease of interest
+381591,Cerebrovascular disease,SNOMED,complications,Disease of interest
+43530623,Sequela of cerebrovascular accident,SNOMED,complications,Disease of interest
+443551,Apraxia due to cerebrovascular accident,SNOMED,complications,Disease of interest
+376713,Cerebral hemorrhage,SNOMED,complications,Disease of interest
+44782781,Hemiplegia and/or hemiparesis following stroke,SNOMED,complications,Disease of interest
+443454,Cerebral infarction,SNOMED,complications,Disease of interest
+40480429,Hemiplegia of nondominant side,SNOMED,complications,Disease of interest
+40482727,Combined systolic and diastolic dysfunction,SNOMED,complications,Disease of interest
+4237062,Mural thrombus of heart,SNOMED,complications,Disease of interest
+192673,Vascular insufficiency of intestine,SNOMED,complications,Disease of interest
+4319280,Acute bowel infarction,SNOMED,complications,Disease of interest
+312337,Arterial embolus and thrombosis,SNOMED,complications,Alternative diagnoses
+375557,Cerebral embolism,SNOMED,complications,Alternative diagnoses
+4213731,Carotid artery embolism,SNOMED,complications,Alternative diagnoses
+316139,Heart failure,SNOMED,complications,Alternative diagnoses
+321319,Cardiomyopathy,SNOMED,complications,Alternative diagnoses
+317002,Low blood pressure,SNOMED,complications,Alternative diagnoses
+4142895,Near syncope,SNOMED,complications,Alternative diagnoses
+321042,Cardiac arrest,SNOMED,complications,Alternative diagnoses
+261600,Acute pulmonary edema,SNOMED,complications,Alternative diagnoses
+433225,Ventricular flutter,SNOMED,complications,Alternative diagnoses
+313217,Atrial fibrillation,SNOMED,complications,Alternative diagnoses
+440424,Aphasia,SNOMED,complications,Alternative diagnoses
+372924,Cerebral artery occlusion,SNOMED,complications,Alternative diagnoses
+374022,Hemiplegia,SNOMED,complications,Alternative diagnoses
+4138543,Hemispatial neglect,SNOMED,complications,Alternative diagnoses
+434056,Late effects of cerebrovascular disease,SNOMED,complications,Alternative diagnoses
+313226,Carotid artery occlusion,SNOMED,complications,Alternative diagnoses
+4311124,Carotid artery thrombosis,SNOMED,complications,Alternative diagnoses
+443454,Cerebral infarction,SNOMED,complications,Alternative diagnoses
+40482727,Combined systolic and diastolic dysfunction,SNOMED,complications,Alternative diagnoses
+4188331,Chronic pulmonary edema,SNOMED,complications,Alternative diagnoses
+37309626,Myocardial infarction due to demand ischemia,SNOMED,complications,Alternative diagnoses
+43020910,Pulmonary hypertension due to left heart disease,SNOMED,complications,Alternative diagnoses
+4237062,Mural thrombus of heart,SNOMED,complications,Alternative diagnoses
+372448,Loss of consciousness,SNOMED,complications,Alternative diagnoses
+4232320,Cardiopulmonary resuscitation,SNOMED,complications,Alternative diagnoses
+377845,Anoxic encephalopathy,SNOMED,complications,Alternative diagnoses
+4256228,Respiratory failure,SNOMED,complications,Alternative diagnoses
+201965,Shock,SNOMED,complications,Alternative diagnoses
+438791,Pulmonary congestion and hypostasis,SNOMED,complications,Alternative diagnoses
