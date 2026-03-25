@@ -15,7 +15,8 @@ test_that("Run Keeper on Eunomia", {
     cohortDefinitionId = 3,
     phenotypeName = "GI Bleed",
     sampleSize = 10,
-    keeperConceptSets = gibConceptSets
+    keeperConceptSets = gibConceptSets,
+    removePii = FALSE
   )
 
   expect_s3_class(keeper, "data.frame")
@@ -41,7 +42,7 @@ test_that("Run Keeper supressing person IDs", {
     cohortDefinitionId = 3,
     phenotypeName = "GI Bleed",
     sampleSize = 10,
-    removePersonId = TRUE,
+    removePii = TRUE,
     keeperConceptSets = gibConceptSets
   )
 

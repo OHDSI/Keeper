@@ -35,7 +35,9 @@ to evaluate.}
 cohort (as uploaded by \code{\link[=uploadReferenceCohort]{uploadReferenceCohort()}}).}
 
 \item{referenceCohortTableNames}{The table names where the reference cohort and metadata are stored. Should
-be created using \link{(createReferenceCohortTableNames)}.}
+be created using [createReferenceCohortTableNames())].
+
+[createReferenceCohortTableNames())]: R:createReferenceCohortTableNames())}
 
 \item{referenceCohortDefinitionId}{The cohort definition ID of the reference cohort.}
 }

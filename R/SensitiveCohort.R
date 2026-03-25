@@ -228,7 +228,7 @@ createReferenceCohortTableNames <- function(referenceCohortTable) {
 #' @param referenceCohortDatabaseSchema  The name of the database schema where the reference
 #'                                       cohort will be stored.
 #' @param referenceCohortTableNames      The table names where the reference cohort and metadata will be stored. Should
-#'                                       be created using [(createReferenceCohortTableNames)].
+#'                                       be created using [createReferenceCohortTableNames()].
 #' @param referenceCohortDefinitionId    The cohort definition ID that will be used for the
 #'                                       reference cohort.
 #' @param createReferenceCohortTables    Create the reference cohort and metadata tables? If `TRUE` and the tables
@@ -427,7 +427,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 #' @param referenceCohortDatabaseSchema  The name of the database schema containing the reference
 #'                                       cohort (as uploaded by [uploadReferenceCohort()]).
 #' @param referenceCohortTableNames      The table names where the reference cohort and metadata are stored. Should
-#'                                       be created using [(createReferenceCohortTableNames)].
+#'                                       be created using [createReferenceCohortTableNames())].
 #' @param referenceCohortDefinitionId    The cohort definition ID of the reference cohort.
 #'
 #' @returns

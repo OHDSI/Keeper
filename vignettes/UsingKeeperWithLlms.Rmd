@@ -10,9 +10,9 @@ output:
     number_sections: yes
     toc: yes
 vignette: >
-%\VignetteIndexEntry{Using Keeper with LLMs}
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Using Keeper with LLMs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
   
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}

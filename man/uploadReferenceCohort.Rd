@@ -32,7 +32,7 @@ can be created.}
 cohort will be stored.}
 
 \item{referenceCohortTableNames}{The table names where the reference cohort and metadata will be stored. Should
-be created using \link{(createReferenceCohortTableNames)}.}
+be created using \code{\link[=createReferenceCohortTableNames]{createReferenceCohortTableNames()}}.}
 
 \item{referenceCohortDefinitionId}{The cohort definition ID that will be used for the
 reference cohort.}
