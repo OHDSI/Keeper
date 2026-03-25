@@ -1,4 +1,4 @@
-# Copyright 2025 Observational Health Data Sciences and Informatics
+# Copyright 2026 Observational Health Data Sciences and Informatics
 #
 # This file is part of Keeper
 #
@@ -39,10 +39,12 @@ parseLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) 
   } else {
     indexDay <- NA
   }
-  return(tibble(isCase = isCase,
-                certainty = certainty,
-                indexDay = unlist(indexDay),
-                justification = unlist(response$justification)))
+  return(tibble(
+    isCase = isCase,
+    certainty = certainty,
+    indexDay = unlist(indexDay),
+    justification = unlist(response$justification)
+  ))
 }
 
 parseLegacyLlmResponse <- function(response, noMatchIsInsufficientInformation = TRUE) {

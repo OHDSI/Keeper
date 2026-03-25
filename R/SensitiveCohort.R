@@ -21,9 +21,9 @@
 #' consequence, specificity inside the cohort is likely low.
 #'
 #' This cohort can be used to determine the sensitivity of a cohort definition.
-#' 
+#'
 #' The cohort is constructed by combining two sets:
-#' 
+#'
 #' 1. Anybody who has one of the concepts of the disease of interest.
 #'
 #' @template Connection
@@ -76,9 +76,9 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   if (is.null(connectionDetails) && is.null(connection)) {
     stop("Must provide either connectionDetails or a connection.")
   }
-  
+
   startTime <- Sys.time()
-  
+
   if (is.null(connection)) {
     connection <- DatabaseConnector::connect(connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))
@@ -87,7 +87,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     dbms = DatabaseConnector::dbms(connection),
     tempEmulationSchema = tempEmulationSchema
   )
-  
+
   if (createCohortTable) {
     message("Creating cohort table")
     sql <- "
@@ -107,7 +107,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
       cohort_table = cohortTable
     )
   }
-  
+
   message("Uploading concept sets")
   conceptSets <- keeperConceptSets |>
     filter(.data$target == "Disease of interest")
@@ -121,7 +121,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     camelCaseToSnakeCase = TRUE,
     tempEmulationSchema = tempEmulationSchema
   )
-  
+
   message("Computing concept positive predictive values")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "CreateSensCohortRatios.sql",
@@ -131,7 +131,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     tempEmulationSchema = tempEmulationSchema
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
-  
+
   conceptRatios <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = "SELECT * FROM #concept_ratios",
@@ -141,7 +141,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   conceptRatios <- conceptRatios |>
     filter(.data$ppv > 0.1) |>
     select("conceptId", "conceptName", "conceptSetName")
-  
+
   message("Constructing sensitive cohort")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "CreateSensitiveCohort.sql",
@@ -154,7 +154,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     tempEmulationSchema = tempEmulationSchema
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
-  
+
   sql <- "SELECT COUNT(*) FROM @cohort_database_schema.@cohort_table WHERE cohort_definition_id = @cohort_definition_id;"
   count <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -167,7 +167,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
   countDoi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
   sql <- "SELECT COUNT(*) FROM #combi_cohort;"
   countCombi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
-  
+
   message("Removing temp tables")
   toDelete <- c("#concept_sets", "#doi_cohort", "#combi_cohort")
   sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", toDelete, toDelete), collapse = "\n")
@@ -176,7 +176,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     sql = sql,
     tempEmulationSchema = tempEmulationSchema
   )
-  
+
   delta <- Sys.time() - startTime
   message(paste0(
     "Generating sensitive cohort took ",
@@ -204,7 +204,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
 #'
 #' @returns
 #' A list with `referenceCohortTable` and `referenceCohortMetadataTable`.
-#' 
+#'
 #' @export
 createReferenceCohortTableNames <- function(referenceCohortTable) {
   tableNames <- list(
@@ -291,13 +291,13 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
     dbms = DatabaseConnector::dbms(connection),
     tempEmulationSchema = tempEmulationSchema
   )
-  
+
   if (createReferenceCohortTables) {
     message("Creating reference cohort tables")
     sql <- "
       DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_cohort_table;
       DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_cohort_metadata_table;
-      
+
       CREATE TABLE @reference_cohort_database_schema.@reference_cohort_table (
         cohort_definition_id INT,
         subject_id BIGINT,
@@ -306,7 +306,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
         certainty VARCHAR(4),
         justification VARCHAR
       );
-      
+
       CREATE TABLE @reference_cohort_database_schema.@reference_cohort_metadata_table (
         cohort_definition_id INT,
         cohort_prevalence FLOAT,
@@ -322,18 +322,21 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
       reference_cohort_metadata_table = referenceCohortTableNames$referenceCohortMetadataTable
     )
   }
-  
+
   message("Uploading reference cohort")
   table <- reviews |>
-    select("personId",
-           "cohortStartDate",
-           "indexDay",
-           "isCase",
-           "certainty",
-           "justification",
+    select(
+      "personId",
+      "cohortStartDate",
+      "indexDay",
+      "isCase",
+      "certainty",
+      "justification",
     ) |>
-    mutate(isCase = if_else(.data$isCase == "yes", 1, 0),
-           indexDay = if_else(is.na(.data$indexDay), 0, (.data$indexDay)))
+    mutate(
+      isCase = if_else(.data$isCase == "yes", 1, 0),
+      indexDay = if_else(is.na(.data$indexDay), 0, (.data$indexDay))
+    )
   DatabaseConnector::insertTable(
     connection = connection,
     data = table,
@@ -362,13 +365,13 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 
     DELETE FROM @reference_cohort_database_schema.@reference_cohort_metadata_table
     WHERE cohort_definition_id = @reference_cohort_definition_id;
-  
+
     INSERT INTO @reference_cohort_database_schema.@reference_cohort_table (
-      cohort_definition_id, 
+      cohort_definition_id,
       subject_id,
       cohort_start_date,
       is_case,
-      certainty, 
+      certainty,
       justification
     )
     SELECT
@@ -376,10 +379,10 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
       CAST(person_id AS BIGINT) AS subject_id,
       DATEADD(DAY, index_day, cohort_start_date) AS cohort_start_date,
       is_case,
-      certainty, 
+      certainty,
       justification
     FROM #cohort_stage;
-    
+
     INSERT INTO @reference_cohort_database_schema.@reference_cohort_metadata_table (
       cohort_definition_id,
       cohort_prevalence,
@@ -392,7 +395,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
       model,
       keeper_version
     FROM #metadata_stage;
-      
+
     TRUNCATE TABLE #cohort_stage;
     DROP TABLE #cohort_stage;
     TRUNCATE TABLE #metadata_stage;
@@ -437,14 +440,14 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 #'
 #' @export
 computeCohortOperatingCharacteristics <- function(
-    connectionDetails = NULL,
-    connection = NULL,
-    cohortDatabaseSchema,
-    cohortTable,
-    cohortDefinitionId,
-    referenceCohortDatabaseSchema,
-    referenceCohortTableNames,
-    referenceCohortDefinitionId
+  connectionDetails = NULL,
+  connection = NULL,
+  cohortDatabaseSchema,
+  cohortTable,
+  cohortDefinitionId,
+  referenceCohortDatabaseSchema,
+  referenceCohortTableNames,
+  referenceCohortDefinitionId
 ) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
@@ -494,17 +497,19 @@ computeCohortOperatingCharacteristics <- function(
     reference_cohort_metadata_table = referenceCohortTableNames$referenceCohortMetadataTable,
     reference_cohort_definition_id = referenceCohortDefinitionId,
     snakeCaseToCamelCase = TRUE
-  ) 
+  )
   metrics <- tibble()
   for (certainty in c("high", "low", "all")) {
     if (certainty == "all") {
       subset <- confusionCounts |>
-        summarise(truePositives = sum(.data$truePositives),
-                  trueNegatives = sum(.data$trueNegatives),
-                  falsePositives = sum(.data$falsePositives),
-                  falseNegatives = sum(.data$falseNegatives),
-                  cases = sum(.data$cases),
-                  nonCases = sum(.data$nonCases))
+        summarise(
+          truePositives = sum(.data$truePositives),
+          trueNegatives = sum(.data$trueNegatives),
+          falsePositives = sum(.data$falsePositives),
+          falseNegatives = sum(.data$falseNegatives),
+          cases = sum(.data$cases),
+          nonCases = sum(.data$nonCases)
+        )
     } else {
       subset <- confusionCounts |>
         filter(.data$certainty == !!certainty)
@@ -525,7 +530,6 @@ computeCohortOperatingCharacteristics <- function(
 }
 
 computePerformanceMetrics <- function(tp, tn, fp, fn, cases, nonCases, cohortPrevalence) {
-
   safeBinomTest <- function(successes, trials) {
     if (trials == 0) {
       return(list(estimate = NA_real_, conf.int = c(NA_real_, NA_real_)))
@@ -581,4 +585,3 @@ computePerformanceMetrics <- function(tp, tn, fp, fn, cases, nonCases, cohortPre
   )
   return(metrics)
 }
-

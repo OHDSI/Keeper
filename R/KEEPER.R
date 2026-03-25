@@ -1,4 +1,4 @@
-# Copyright 2025 Observational Health Data Sciences and Informatics
+# Copyright 2026 Observational Health Data Sciences and Informatics
 #
 # This file is part of Keeper
 #
@@ -18,8 +18,8 @@
 "_PACKAGE"
 
 #' @import dplyr
-#' @importFrom stats runif
-#' @importFrom utils write.csv install.packages installed.packages
+#' @importFrom stats runif binom.test
+#' @importFrom utils write.csv install.packages packageVersion
 #' @import DatabaseConnector
 #' @import dplyr
 NULL

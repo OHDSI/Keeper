@@ -48,11 +48,13 @@ Next, we can have the LLM review the cases:
 
 ```{r eval = FALSE}
 promptSettings <- createPromptSettings()
-llmResponses <- reviewCases(keeper = keeper,
-                            settings = promptSettings,
-                            phenotypeName = "Type I Diabetes Mellitus (T1DM)",
-                            client = client,
-                            cacheFolder = "cache")
+llmResponses <- reviewCases(
+  keeper = keeper,
+  settings = promptSettings,
+  phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+  client = client,
+  cacheFolder = "cache"
+)
 ```
 ```{r echo=FALSE,eval=TRUE}
 message("Reviewing person 1 of 20\n...\nReviewing person 20 of 20\nReviewing cases took 3.9 mins and cost $NA")
@@ -132,11 +134,13 @@ For example, having our preferred model (GPT o3) review 10,000 cases typically c
 
 ```{r eval = FALSE}
 promptSettings <- createPromptSettings()
-llmResponsesHsc <- reviewCases(keeper = keeperHsc,
-                               settings = promptSettings,
-                               phenotypeName = "Type I Diabetes Mellitus (T1DM)",
-                               client = client,
-                               cacheFolder = "cacheVignetteHsc")
+llmResponsesHsc <- reviewCases(
+  keeper = keeperHsc,
+  settings = promptSettings,
+  phenotypeName = "Type I Diabetes Mellitus (T1DM)",
+  client = client,
+  cacheFolder = "cacheVignetteHsc"
+)
 ```
 
 ## Uploading the reference cohort

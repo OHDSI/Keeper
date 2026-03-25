@@ -39,8 +39,8 @@
 #' @param phenotypeName              (Optional) Name of the phenotype. Will be included in the output.
 #' @param useDescendants             Include the  descendants of the concepts specified in the `keeperConceptSets`, or
 #'                                   use only the verbatim concepts?
-#' @param removePii                  Remove person identifiable information such as person ID and cohort start date from 
-#'                                   the output? Can be set to `FALSE` to allow the Keeper results to be joined to 
+#' @param removePii                  Remove person identifiable information such as person ID and cohort start date from
+#'                                   the output? Can be set to `FALSE` to allow the Keeper results to be joined to
 #'                                   patient data later.
 #'
 #' @returns
@@ -307,15 +307,15 @@ generateKeeper <- function(connectionDetails = NULL,
       )
     )
   keeper <- bind_rows(keeper, metaData)
-  
+
   message("Computing cohort prevalence")
   sql <- "
     SELECT (
-        SELECT COUNT(DISTINCT subject_id) 
-        FROM @cohort_table 
+        SELECT COUNT(DISTINCT subject_id)
+        FROM @cohort_table
         WHERE cohort_definition_id = @cohort_definition_id
       ) * 1.0 / (
-        SELECT COUNT(*) 
+        SELECT COUNT(*)
         FROM @cdm_database_schema.person
       ) AS prevalence;
   "
@@ -376,7 +376,7 @@ generateKeeper <- function(connectionDetails = NULL,
 #' Covert Keeper profiles to a table
 #'
 #' @param keeper        Keeper profiles as created using the [generateKeeper()] function.
-#' @param removePii     Remove person identifiable information such as person ID and cohort start date from the output? 
+#' @param removePii     Remove person identifiable information such as person ID and cohort start date from the output?
 #'                      patient data later.
 #'
 #' @returns
@@ -450,32 +450,50 @@ convertKeeperToTable <- function(keeper, removePii = FALSE) {
     if (keeperTable == "presentation") {
       return(paste0(conceptName, if_else(extraData == "", "", sprintf(" (%s)", extraData))))
     } else if (keeperTable == "visitContext") {
-      return(sprintf("%s%s (%s)",
-                     conceptName[1],
-                     if_else(extraData[1] == "", "", sprintf(" - %s", extraData[1])),
-                     paste(if_else(startDay == endDay,
-                                   sprintf("day %s", startDay),
-                                   sprintf("days %s to %s", startDay, endDay)),
-                           collapse = ", ")))
+      return(sprintf(
+        "%s%s (%s)",
+        conceptName[1],
+        if_else(extraData[1] == "", "", sprintf(" - %s", extraData[1])),
+        paste(
+          if_else(startDay == endDay,
+            sprintf("day %s", startDay),
+            sprintf("days %s to %s", startDay, endDay)
+          ),
+          collapse = ", "
+        )
+      ))
     } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
-      return(sprintf("%s (%s)", 
-                     conceptName[1],
-                     paste(sprintf("day %d for %d day%s", 
-                                   startDay, 
-                                   endDay - startDay + 1,
-                                   if_else(endDay == startDay, "", "s")),
-                           collapse = ", ")))
+      return(sprintf(
+        "%s (%s)",
+        conceptName[1],
+        paste(
+          sprintf(
+            "day %d for %d day%s",
+            startDay,
+            endDay - startDay + 1,
+            if_else(endDay == startDay, "", "s")
+          ),
+          collapse = ", "
+        )
+      ))
     } else if (keeperTable == "measurements") {
-      return(sprintf("%s (day %s)", 
-                     conceptName[1],
-                     paste(if_else(extraData == "",
-                                   as.character(startDay),
-                                   sprintf("%d with value %s", startDay, extraData)),
-                           collapse = ", ")))     
+      return(sprintf(
+        "%s (day %s)",
+        conceptName[1],
+        paste(
+          if_else(extraData == "",
+            as.character(startDay),
+            sprintf("%d with value %s", startDay, extraData)
+          ),
+          collapse = ", "
+        )
+      ))
     } else {
-      return(sprintf("%s (day %s)", 
-                     conceptName[1],
-                     paste(startDay, collapse = ", ")))     
+      return(sprintf(
+        "%s (day %s)",
+        conceptName[1],
+        paste(startDay, collapse = ", ")
+      ))
     }
   }
 

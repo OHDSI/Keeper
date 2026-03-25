@@ -244,10 +244,11 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
 #'
 #' @export
 generateKeeperConceptSets <- function(
-    phenotype,
-    client,
-    vocabConnectionDetails,
-    vocabDatabaseSchema) {
+  phenotype,
+  client,
+  vocabConnectionDetails,
+  vocabDatabaseSchema
+) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(phenotype, min.chars = 1, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
