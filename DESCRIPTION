@@ -34,7 +34,8 @@ Suggests:
   shinyjs,
   readr,
   plotly,
-  pool
+  pool,
+  R6
 License: Apache License
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
