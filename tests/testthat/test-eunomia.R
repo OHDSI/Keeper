@@ -90,3 +90,32 @@ test_that("Create sensitive cohort in new cohort table on Eunomia", {
   DatabaseConnector::disconnect(connection)
   expect_gt(cohortCount[1, 1], 0)
 })
+
+test_that("Upload LLM reviews to Eunomia", {
+  llmReviews <- readRDS(system.file("llmReviews.rds", package = "Keeper"))
+  # Make up Pii:
+  llmReviews$personId <- round(runif(nrow(llmReviews), 1, 10000000))
+  llmReviews$cohortStartDate <- as.Date("2000-01-01")
+  
+  uploadReferenceCohort(
+    connectionDetails = connectionDetails,
+    referenceCohortDatabaseSchema = "main",
+    referenceCohortTableNames = createReferenceCohortTableNames("ref_cohort"),
+    referenceCohortDefinitionId = 1,
+    createReferenceCohortTables = TRUE,
+    reviews = llmReviews
+  )
+  connection <- DatabaseConnector::connect(connectionDetails)
+  cohortCount <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = "SELECT COUNT(*) FROM main.ref_cohort WHERE cohort_definition_id = 1;"
+  )
+  metadataCount <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = "SELECT COUNT(*) FROM main.ref_cohort_metadata WHERE cohort_definition_id = 1;"
+  )
+  DatabaseConnector::disconnect(connection)
+  expect_equal(cohortCount[1, 1], nrow(llmReviews))
+  expect_equal(metadataCount[1, 1], 1)
+
+})

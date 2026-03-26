@@ -117,7 +117,7 @@ reviewCases <- function(keeper,
     justification = as.character(NA),
     cohortPrevalence = keeperTable$cohortPrevalence,
     model = client$get_model(),
-    keeperVersion = packageVersion("Keeper")
+    keeperVersion = as.character(packageVersion("Keeper"))
   )
   if ("personId" %in% colnames(keeperTable)) {
     result$personId <- keeperTable$personId
