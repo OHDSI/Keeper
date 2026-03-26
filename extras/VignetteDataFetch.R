@@ -72,6 +72,8 @@ disconnect(connection)
 
 
 # Run Keeper on the cohort ---------------------------------------------------------------------------------------------
+conceptSets <- readr::read_csv( "inst/t1dmConceptSets.csv")
+
 keeper <- generateKeeper(
   connectionDetails = connectionDetails,
   cohortDatabaseSchema = cohortDatabaseSchema,
@@ -168,9 +170,9 @@ llmReviewsHsc <- reviewCases(keeper = keeperHsc,
                                settings = promptSettings,
                                phenotypeName = "Type I Diabetes Mellitus (T1DM)",
                                client = client,
-                               cacheFolder = "cacheVignetteHsc")
+                               cacheFolder = "e:/temp/keeperVignette/cacheVignetteHsc")
 
-saveRDS(llmReviewsHsc, "e:/temp/keeperVignette/llmReviewsHscHsc.rds")
+saveRDS(llmReviewsHsc, "e:/temp/keeperVignette/llmReviewsHsc.rds")
 
 
 # Upload reference cohort to server ------------------------------------------------------------------------------------
@@ -179,20 +181,20 @@ llmReviewsHsc <- readRDS("e:/temp/keeperVignette/llmReviewsHsc.rds")
 uploadReferenceCohort(
   connectionDetails = connectionDetails,
   referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
-  referenceCohortTable = referenceCohortTable,
+  referenceCohortTableNames = createReferenceCohortTableNames(referenceCohortTable),
   referenceCohortDefinitionId = 1,
-  createReferenceCohortTable = TRUE,
+  createReferenceCohortTables = TRUE,
   reviews = llmReviewsHsc
 )
 
 # Compute cohort operating characteristics -----------------------------------------------------------------------------
-computeCohortOperatingCharacteristics(
+metrics <- computeCohortOperatingCharacteristics(
   connectionDetails = connectionDetails,
   cohortDatabaseSchema = cohortDatabaseSchema,
   cohortTable = cohortTable,
   cohortDefinitionId = 1,
   referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
-  referenceCohortTable = referenceCohortTable,
+  referenceCohortTableNames = createReferenceCohortTableNames(referenceCohortTable),
   referenceCohortDefinitionId = 1
 )
 

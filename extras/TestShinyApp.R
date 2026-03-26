@@ -1,6 +1,6 @@
 library(testthat)
-keeper <- readRDS("extras/keeperSubset.rds")
-conceptSets <- readr::read_csv("extras/afConceptSets.csv", show_col_types = FALSE)
+keeper <- readRDS("inst/shuffledKeeper.rds")
+conceptSets <- readr::read_csv("inst/t1dmConceptSets.csv", show_col_types = FALSE)
 
 
 # Run Shiny app via function in package --------------------------------------------------------------------------------

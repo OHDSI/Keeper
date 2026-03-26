@@ -44,7 +44,10 @@ be created using [createReferenceCohortTableNames())].
 \value{
 A tibble with one row per certainty level (\code{"high"}, \code{"low"}, \code{"all"}) and columns for
 true positives, false positives, true negatives, false negatives, sensitivity, specificity,
-PPV (each with lower and upper confidence bounds), AUC, kappa, and certainty.
+PPV (each with lower and upper confidence bounds), AUC, kappa, disease prevalence and certainty.
+
+Specificity and prevalence are computed both within the reference cohort, and, based on the prevalence of the highly-
+sensitive cohort, also in the overall population.
 }
 \description{
 Computes operating characteristics (sensitivity, specificity, positive predictive value, AUC,

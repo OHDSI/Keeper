@@ -53,7 +53,12 @@ shinyServer(function(input, output, session) {
       if (is.na(decision))
         decision <- character(0)
       
+      certainty <- decisions$decisionsDataFrame[profile$index, "certainty"]
+      if (is.na(certainty))
+        certainty <- character(0)
+      
       updateRadioButtons(session, "decision", selected = decision)
+      updateRadioButtons(session, "certainty", selected = certainty)
       updateNumericInput(session, "indexDay", value = indexDay)
     }
   })
@@ -261,6 +266,36 @@ shinyServer(function(input, output, session) {
         generated_id = key$generatedId,
         adjudicator = dataList$adjudicator,
         decision = input$decision,
+        progressBar = FALSE,
+        reportOverallTime = FALSE
+      )
+    }
+  }, ignoreInit = TRUE)
+  
+  shiny::observeEvent(input$certainty, {
+    decisions$decisionsDataFrame[profile$index, "certainty"] <- input$certainty
+    if (dataList$decisions$type == "file") {
+      write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
+    } else if (dataList$decisions$type == "database") {
+      writeLines(sprintf("Updating database, setting certainty to %s", input$certainty))
+      key <- keeperSubset() |> 
+        head(1) |>
+        select(databaseId, phenotype, generatedId)
+      sql <- "UPDATE @database_schema.adjudications
+        SET certainty = '@certainty'
+        WHERE database_id = '@database_id'
+          AND phenotype = '@phenotype'
+          AND generated_id = @generated_id
+          AND adjudicator = '@adjudicator';"
+      DatabaseConnector::renderTranslateExecuteSql(
+        connection = connectionPool,
+        sql = sql,
+        database_schema = databaseSchema,
+        database_id = key$databaseId,
+        phenotype = key$phenotype,
+        generated_id = key$generatedId,
+        adjudicator = dataList$adjudicator,
+        certainty = input$certainty,
         progressBar = FALSE,
         reportOverallTime = FALSE
       )

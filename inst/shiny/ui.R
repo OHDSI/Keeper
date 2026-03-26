@@ -1,21 +1,29 @@
 instructions <- tagList(
-  p("Please determine whether the patient had the phenotype."),
-  p("Remember that recording a diagnosis for a disease could occur either because the patient had the disease or as justification for performing a diagnostic procedure to determine whether the patient has the disease. 
-A diagnosis by itself or accompanied with only diagnostic procedures may therefore be insufficient evidence, even if recorded more than once. 
-Lack of additional evidence of the phentoype other than the diagnosis and diagnostic procedures probably means that the patient was only being tested and does not actually have the phentoype. 
-However, it is unlikely that a patient will be tested many times over, so an abundance of diagnoses usually implies the patient has the disease."),
-  h4("Decision Threshold"),
-  p("Clinical data is rarely 100% definitive. 
-You must use your medical judgment to determine the most probable clinical reality based on the available evidence. 
-Do not require absolute certainty to make a determination."),
-  h4("Final Determination"),
-  p("In your final summary, provide one of the following conclusions:"),
+  p("Your task is to determine whether the patient had the phenotype."),
+  h3("Diagnostic Context & Rules"),
+  p("Remember that a recorded diagnosis code can indicate actual disease presence OR merely serve as justification for a diagnostic procedure (testing to rule out the disease).
+  A diagnosis alone, or accompanied only by diagnostic tests, may be insufficient evidence, even if recorded more than once.
+  A lack of corroborating evidence (such as specific treatments or consistent symptoms) usually means the patient was only being tested and does not actually have the disease.
+  However, it is unlikely that a patient will be tested many times over a long period, so an abundance of diagnoses or diagnoses paired with disease-specific treatments usually implies the patient has the disease."),
+  h3("Decision Threshold"),
+  p("Clinical data is rarely 100% definitive.
+  Use your medical judgment to determine the preponderance of evidence. 
+  Do not require absolute certainty; instead, determine the most clinically plausible scenario."),
+  h3("Final Determination"),
+  p("Carefully consider all the provided information, and paint a mental picture of the most likely scenarios.
+  Then, provide one of the following verdicts:"),
   tags$ul(
-    tags$li(tags$b("Yes"), ": The preponderance of evidence suggests the patient likely had the phentoype (e.g., specific treatments, consistent symptoms, or repeated diagnoses over time)."),
-    tags$li(tags$b("No"), ": The preponderance of evidence suggests the patient likely did not have the phentoype (e.g., it is more likely they were only being tested, the diagnosis was ruled out, or the codes were purely administrative)."),
-    tags$li(tags$b("Insufficient information"), ": The data is too ambiguous or vague that it is impossible to estimate which scenario is more likely. Do not use this label simply because the data are imperfect; if one scenario is even slightly more plausible than the other, choose", tags$b("Yes"), "or", tags$b("No"),"."),
+    tags$li(tags$b("Case"), ": The preponderance of evidence suggests the patient likely had the phentoype (e.g., specific treatments, consistent symptoms, or repeated diagnoses over time)."),
+    tags$li(tags$b("Non-case"), ": The preponderance of evidence suggests the patient likely did not have the phentoype (e.g., it is more likely they were only being tested, the diagnosis was ruled out, or the codes were purely administrative)."),
   ),
-  p("If your final determination is", tags$b("Yes"), ", also provide the relative day that is the likely day of onset. If there is no clear day of onset, simply enter 0.")
+  h3("Certainty Level"),
+  p("Indicate how certain you are in your verdict using one of two levels:"),
+  tags$ul(
+    tags$li(tags$b("Low"), ": You are closer to a 50-50 chance of being wrong."),
+    tags$li(tags$b("High"), ": You are close to certainty of being right. (Note: Do not default to \"low\" for \"Non-case\" verdicts; a pattern of testing without treatment, or explicit alternative diagnosis, warrants a \"high\" certainty \"Non-case\".)"),
+  ),
+  h3("Onset"),
+  p("If your verdict is \"Yes\", provide the relative day that is the likely day of onset. If there is no clear day of onset, return 0.")
 )
 
 colorLegendText <- "The color coding is based on a prior classification of concepts. These should be considered as general guidance rather than absolute truth."
@@ -38,7 +46,7 @@ shinyUI(
         background-color: #f9f9f9;
     }
   ")),
-  tags$script(HTML("
+    tags$script(HTML("
     // Function to hide all Bootstrap popovers
    function hideAllPopovers() {
       var popovers = document.querySelectorAll('[data-bs-toggle=\"popover\"]');
@@ -112,7 +120,11 @@ shinyUI(
              )),
           radioButtons("decision",
                        "Decision",
-                       choices = c("Case", "Non case", "Insufficient information"),
+                       choices = c("Case", "Non-case"),
+                       selected = character(0)),
+          radioButtons("certainty",
+                       "Certainty",
+                       choices = c("High", "Low"),
                        selected = character(0)),
           numericInput("indexDay", "Correct index day", value = NULL, step = 1),
         ),

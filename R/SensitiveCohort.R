@@ -447,7 +447,10 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 #' @returns
 #' A tibble with one row per certainty level (`"high"`, `"low"`, `"all"`) and columns for
 #' true positives, false positives, true negatives, false negatives, sensitivity, specificity,
-#' PPV (each with lower and upper confidence bounds), AUC, kappa, and certainty.
+#' PPV (each with lower and upper confidence bounds), AUC, kappa, disease prevalence and certainty.
+#' 
+#' Specificity and prevalence are computed both within the reference cohort, and, based on the prevalence of the highly-
+#' sensitive cohort, also in the overall population.
 #'
 #' @export
 computeCohortOperatingCharacteristics <- function(
@@ -510,7 +513,7 @@ computeCohortOperatingCharacteristics <- function(
     snakeCaseToCamelCase = TRUE
   )
   metrics <- tibble()
-  for (certainty in c("high", "low", "all")) {
+  for (certainty in c(confusionCounts$certainty, "all")) {
     if (certainty == "all") {
       subset <- confusionCounts |>
         summarise(
@@ -534,7 +537,8 @@ computeCohortOperatingCharacteristics <- function(
       nonCases = subset$nonCases,
       cohortPrevalence = metadata$cohortPrevalence
     ) |>
-      mutate(certainty = !!certainty)
+      mutate(certainty = !!certainty) |>
+      relocate("certainty")
     metrics <- bind_rows(metrics, subsetMetrics)
   }
   return(metrics)

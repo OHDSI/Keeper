@@ -169,7 +169,7 @@ uploadReferenceCohort(
 )
 
 # Compute cohort operating characteristics -----------------------------------------------------------------------------
-computeCohortOperatingCharacteristics(
+metrics <- computeCohortOperatingCharacteristics(
   connectionDetails = connectionDetails,
   cohortDatabaseSchema = cohortDatabaseSchema,
   cohortTable = cohortTable,
@@ -178,3 +178,5 @@ computeCohortOperatingCharacteristics(
   referenceCohortTableNames = createReferenceCohortTableNames(referenceCohortTable),
   referenceCohortDefinitionId = 1
 )
+saveRDS(metrics, "inst/metrics.rds")
+readr::write_csv(metrics, "e:/temp/metrics.csv")

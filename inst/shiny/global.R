@@ -5,16 +5,14 @@ library(bslib)
 library(pool)
 library(plotly)
 
-
-
 # .shinyArgs <- list(
 #   keeper = readRDS("e:/temp/KeeperMm.rds"),
 #   conceptSets = readr::read_csv("e:/temp/mmConceptSets.csv"),
 #   decisionsFileName = "e:/temp/Decisions.csv"
 # )
+# unlink("e:/temp/Decisions.csv")
 
-
-if (Sys.getenv("KEEPER_SERVER") != "") {
+if (!exists(".shinyArgs", envir = .GlobalEnv) && Sys.getenv("KEEPER_SERVER") != "") {
   Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "data")
 
   writeLines("Opening connection pool")
@@ -43,7 +41,8 @@ loadDecisionsFromFile <- function(fileName, keeper) {
     decisionsDataFrame <- keeper |>
       distinct(generatedId, databaseId, phenotype) |>
       mutate(decision = NA,
-             indexDay = 0)
+             certainty = NA,
+             indexDay = as.numeric(0))
     write_csv(decisionsDataFrame, fileName)
   }
   return(decisionsDataFrame)
@@ -122,6 +121,7 @@ getDataList <- function(session) {
         databaseId = "NA",
         phenotype = "NA",
         decision = NA,
+        certainty = NA,
         indexDay = 0
       )
     }

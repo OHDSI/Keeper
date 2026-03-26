@@ -206,8 +206,8 @@ metrics <- computeCohortOperatingCharacteristics(
 Finally, we can view the computed performance metrics (such as sensitivity, specificity, and PPV) for our target cohort:
 
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-# metrics <- readRDS(system.file("metrics.rds", package = "Keeper"))
+metrics <- readRDS(system.file("metrics.rds", package = "Keeper"))
 ```
 ```{r}
-# metrics
+metrics
 ```

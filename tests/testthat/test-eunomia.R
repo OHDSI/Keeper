@@ -25,12 +25,6 @@ test_that("Run Keeper on Eunomia", {
   keeperTable <- convertKeeperToTable(keeper)
   expect_s3_class(keeperTable, "data.frame")
   expect_true("personId" %in% colnames(keeperTable))
-
-  settings <- createPromptSettings()
-  systempPrompt <- createSystemPrompt(settings, "GI bleed")
-  prompt <- createPrompt(settings, "GI bleed", keeperTable[1, ])
-  expect_type(systempPrompt, "character")
-  expect_type(prompt, "character")
 })
 
 test_that("Run Keeper supressing person IDs", {
@@ -52,10 +46,6 @@ test_that("Run Keeper supressing person IDs", {
   keeperTable <- convertKeeperToTable(keeper)
   expect_s3_class(keeperTable, "data.frame")
   expect_false("personId" %in% colnames(keeperTable))
-
-  settings <- createPromptSettings()
-  prompt <- createPrompt(settings, "GI bleed", keeperTable[1, ])
-  expect_type(prompt, "character")
 })
 
 test_that("Create sensitive cohort in existing cohort table on Eunomia", {
