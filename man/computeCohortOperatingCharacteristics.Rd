@@ -2,7 +2,7 @@
 % Please edit documentation in R/SensitiveCohort.R
 \name{computeCohortOperatingCharacteristics}
 \alias{computeCohortOperatingCharacteristics}
-\title{Compute cohort operating characteristics}
+\title{Compute cohort operating characteristics based on a Reference Cohort}
 \usage{
 computeCohortOperatingCharacteristics(
   connectionDetails = NULL,

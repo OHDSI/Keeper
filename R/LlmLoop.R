@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Review cases using an LLM
+#' Review Keeper profiles using an LLM
 #'
 #' @param keeper      Output from the [generateKeeper()] function.
 #' @param settings    Prompt creating settings as created using the [createPromptSettings] function.

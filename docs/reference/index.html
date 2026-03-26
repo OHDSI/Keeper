@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/SettingKeeperParameters.html">Setting KEEPER parameters</a>
+      <a href="../articles/GeneratingKeeper.html">Generating Keeper profiles for review</a>
     </li>
     <li>
       <a href="../articles/UsingKeeperWithLlms.html">Using Keeper with Large Language Models</a>
@@ -67,25 +67,45 @@
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="createKeeper.html">createKeeper()</a></code> </p>
+          <p><code><a href="computeCohortOperatingCharacteristics.html">computeCohortOperatingCharacteristics()</a></code> </p>
         </td>
-        <td><p>Export person level data from OMOP CDM tables for eligible persons in the cohort.</p></td>
+        <td><p>Compute cohort operating characteristics based on a Reference Cohort</p></td>
       </tr><tr><td>
-          <p><code><a href="createPrompt.html">createPrompt()</a></code> </p>
+          <p><code><a href="convertKeeperToTable.html">convertKeeperToTable()</a></code> </p>
         </td>
-        <td><p>Create the main prompt based on a Keeper output row.</p></td>
+        <td><p>Convert Keeper profiles to a table</p></td>
       </tr><tr><td>
           <p><code><a href="createPromptSettings.html">createPromptSettings()</a></code> </p>
         </td>
         <td><p>Create settings for generating prompts</p></td>
       </tr><tr><td>
-          <p><code><a href="createSystemPrompt.html">createSystemPrompt()</a></code> </p>
+          <p><code><a href="createReferenceCohortTableNames.html">createReferenceCohortTableNames()</a></code> </p>
         </td>
-        <td><p>Create a system prompt for a LLM</p></td>
+        <td><p>Create reference cohort table names</p></td>
       </tr><tr><td>
-          <p><code><a href="parseLlmResponse.html">parseLlmResponse()</a></code> </p>
+          <p><code><a href="createSensitiveCohort.html">createSensitiveCohort()</a></code> </p>
         </td>
-        <td><p>Parse the response of a LLM</p></td>
+        <td><p>Create a highly-sensitive cohort for a phenotype</p></td>
+      </tr><tr><td>
+          <p><code><a href="generateKeeper.html">generateKeeper()</a></code> </p>
+        </td>
+        <td><p>Generate Keeper profiles</p></td>
+      </tr><tr><td>
+          <p><code><a href="generateKeeperConceptSets.html">generateKeeperConceptSets()</a></code> </p>
+        </td>
+        <td><p>Generate Keeper input concept sets</p></td>
+      </tr><tr><td>
+          <p><code><a href="launchReviewerApp.html">launchReviewerApp()</a></code> </p>
+        </td>
+        <td><p>Launch the reviewer Shiny app</p></td>
+      </tr><tr><td>
+          <p><code><a href="reviewCases.html">reviewCases()</a></code> </p>
+        </td>
+        <td><p>Review Keeper profiles using an LLM</p></td>
+      </tr><tr><td>
+          <p><code><a href="uploadReferenceCohort.html">uploadReferenceCohort()</a></code> </p>
+        </td>
+        <td><p>Upload a reference cohort</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -99,7 +119,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

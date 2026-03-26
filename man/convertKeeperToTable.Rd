@@ -2,7 +2,7 @@
 % Please edit documentation in R/GenerateKeeper.R
 \name{convertKeeperToTable}
 \alias{convertKeeperToTable}
-\title{Covert Keeper profiles to a table}
+\title{Convert Keeper profiles to a table}
 \usage{
 convertKeeperToTable(keeper, removePii = FALSE)
 }
@@ -16,5 +16,5 @@ patient data later.}
 A tibble with one row per person, and text columns for each Keeper category. Can be used for manual review.
 }
 \description{
-Covert Keeper profiles to a table
+Convert Keeper profiles to a table
 }

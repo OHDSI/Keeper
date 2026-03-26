@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/SettingKeeperParameters.html">Setting KEEPER parameters</a>
+      <a href="../articles/GeneratingKeeper.html">Generating Keeper profiles for review</a>
     </li>
     <li>
       <a href="../articles/UsingKeeperWithLlms.html">Using Keeper with Large Language Models</a>
@@ -64,6 +64,27 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="2.0.0" id="keeper-200">Keeper 2.0.0<a class="anchor" aria-label="anchor" href="#keeper-200"></a></h2>
+<p>This is a complete re-implementation of Keeper.</p>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li>
+<p>Changed <code>createKeeper()</code> to <code><a href="../reference/generateKeeper.html">generateKeeper()</a></code>, and made the following changes:</p>
+<ul><li><p>The concept set input arguments have been grouped in a single <code>keeperConceptSets</code> argument.</p></li>
+<li><p>The output has changed from a human-readable table to a structured intermediary format.</p></li>
+<li><p>Removed the ‘comorbidities’ category from both the input and the output, as this was ill-defined.</p></li>
+<li><p>The <code>databaseId</code> argument has been removed. Instead, the database name is extracted from the <code>cdm_source</code> table.</p></li>
+<li><p>Computes the prevalence of the input cohort in the overall population and stores it in the output table for later computations.</p></li>
+</ul></li>
+<li><p>Added the <code><a href="../reference/convertKeeperToTable.html">convertKeeperToTable()</a></code> to convert the output of <code><a href="../reference/generateKeeper.html">generateKeeper()</a></code> to the original human-readable table format.</p></li>
+<li><p>Added the <code><a href="../reference/reviewCases.html">reviewCases()</a></code> function that uses large language models (LLMs) to review Keeper profiles. It Uses the <a href="https://ellmer.tidyverse.org/index.html" class="external-link">ellmer</a> package to standardize communication with LLMs.</p></li>
+<li><p>Added the <code><a href="../reference/generateKeeperConceptSets.html">generateKeeperConceptSets()</a></code> function that uses LLMs, the OHDSI Vocabulary vector store, and Phoebe to suggest concept sets to be used as input for <code><a href="../reference/generateKeeper.html">generateKeeper()</a></code>.</p></li>
+<li><p>Added a Shiny app for human review of Keeper profiles. This can be launched using the <code><a href="../reference/launchReviewerApp.html">launchReviewerApp()</a></code> function. Experts can also deploy the Shiny app on a Shiny server with PostgreSQL backend.</p></li>
+<li><p>Added the <code><a href="../reference/createSensitiveCohort.html">createSensitiveCohort()</a></code> function. This creates a cohort based on the Keeper input concept sets which should include everyone in the database who potentially has the phenotype. This cohort can be used to estimate sensitivity (in addition to positive predictive value) of a phenotype algorithm.</p></li>
+<li><p>Added the <code><a href="../reference/uploadReferenceCohort.html">uploadReferenceCohort()</a></code> and <code><a href="../reference/computeCohortOperatingCharacteristics.html">computeCohortOperatingCharacteristics()</a></code> to use a large reference cohort (created by annotating a large sample of a sensitive cohort using LLMs) to evaluate phenotype definitions.</p></li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Avoiding incorrect person IDs due to integer overflow by using strings instead.</li>
+</ol></div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2.1" id="keeper-021">Keeper 0.2.1<a class="anchor" aria-label="anchor" href="#keeper-021"></a></h2>
 <p>Bugfixes:</p>
 <ol style="list-style-type: decimal"><li>Fixes error related to temp tables on platforms that require temp table emulation (e.g. DataBricks).</li>
@@ -76,10 +97,10 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.0" id="keeper-010">Keeper 0.1.0<a class="anchor" aria-label="anchor" href="#keeper-010"></a></h2>
 <p>Changes:</p>
-<ol style="list-style-type: decimal"><li><p>Change name from ‘KEEPER’ to ‘Keeper’, and <code>createKEEPER()</code> to <code><a href="../reference/createKeeper.html">createKeeper()</a></code> for consistency with HADES.</p></li>
-<li><p>Removed <code>vocabularyDatabaseSchema</code> argument of <code><a href="../reference/createKeeper.html">createKeeper()</a></code>, which wasn’t used, and the vocabulary should be in the CDM schema anyway.</p></li>
+<ol style="list-style-type: decimal"><li><p>Change name from ‘Keeper’ to ‘Keeper’, and <code>createKeeper()</code> to <code>createKeeper()</code> for consistency with HADES.</p></li>
+<li><p>Removed <code>vocabularyDatabaseSchema</code> argument of <code>createKeeper()</code>, which wasn’t used, and the vocabulary should be in the CDM schema anyway.</p></li>
 <li><p>Drop dependency on <code>stringr</code>.</p></li>
-<li><p>Removed <code>exportFolder</code> argument from <code><a href="../reference/createKeeper.html">createKeeper()</a></code>. The function now returns the Keeper output.</p></li>
+<li><p>Removed <code>exportFolder</code> argument from <code>createKeeper()</code>. The function now returns the Keeper output.</p></li>
 <li><p>Keeper output column names now use camelCase in line with Hades recommendations.</p></li>
 <li><p>Adding functions for converting Keeper output into prompts for large language models (LLMs), and for parsing the response of an LLM.</p></li>
 </ol></div>
@@ -97,7 +118,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

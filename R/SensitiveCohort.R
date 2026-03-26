@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Create a sensitive cohort
+#' Create a highly-sensitive cohort for a phenotype
 #'
 #' @description
 #' Creates a cohort that is highly sensitive. Nobody outside the cohort is expected to have the disease. As a
@@ -424,7 +424,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
   )
 }
 
-#' Compute cohort operating characteristics
+#' Compute cohort operating characteristics based on a Reference Cohort
 #'
 #' @description
 #' Computes operating characteristics (sensitivity, specificity, positive predictive value, AUC,

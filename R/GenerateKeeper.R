@@ -381,7 +381,7 @@ generateKeeper <- function(connectionDetails = NULL,
 }
 
 
-#' Covert Keeper profiles to a table
+#' Convert Keeper profiles to a table
 #'
 #' @param keeper        Keeper profiles as created using the [generateKeeper()] function.
 #' @param removePii     Remove person identifiable information such as person ID and cohort start date from the output?

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -50,7 +50,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/SettingKeeperParameters.html">Setting KEEPER parameters</a>
+      <a href="articles/GeneratingKeeper.html">Generating Keeper profiles for review</a>
     </li>
     <li>
       <a href="articles/UsingKeeperWithLlms.html">Using Keeper with Large Language Models</a>
@@ -99,35 +99,35 @@
 <h1 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h1>
 <ul>
-<li>Extracts patient level data for a) a random sample of patients in a cohort or b) patients in a user-specified list and formats it according to the KEEPER principles.</li>
-<li>Allows additional de-identification through replacing OMOP personId with a new random id.</li>
+<li><p>Extracts patient level data for a) a random sample of patients in a cohort or b) patients in a user-specified list and formats it according to the KEEPER principles.</p></li>
+<li><p>Supports review of patient profiles by humans through an interactive Shiny app.</p></li>
+<li><p>Supports review of patient profiles by large language models.</p></li>
 </ul>
 </div>
 <div class="section level1">
 <h1 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h1>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">keeper</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/createKeeper.html">createKeeper</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">keeperConceptSets</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/generateKeeperConceptSets.html">generateKeeperConceptSets</a></span><span class="op">(</span></span>
+<span>  phenotype <span class="op">=</span> <span class="st">"Gastrointestinal bleeding"</span>,</span>
+<span>  client <span class="op">=</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu"><a href="https://ellmer.tidyverse.org/reference/chat_openai_compatible.html" class="external-link">chat_openai_compatible</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  vocabConnectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>,</span>
+<span>  vocabDatabaseSchema <span class="op">=</span> <span class="st">"cdm"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">keeper</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/generateKeeper.html">generateKeeper</a></span><span class="op">(</span></span>
 <span>  connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>,</span>
-<span>  databaseId <span class="op">=</span> <span class="st">"Synpuf"</span>,</span>
-<span>  cdmDatabaseSchema <span class="op">=</span> <span class="st">"dbo"</span>,</span>
+<span>  cdmDatabaseSchema <span class="op">=</span> <span class="st">"cdm"</span>,</span>
 <span>  cohortDatabaseSchema <span class="op">=</span> <span class="st">"results"</span>,</span>
 <span>  cohortTable <span class="op">=</span> <span class="st">"cohort"</span>,</span>
 <span>  cohortDefinitionId <span class="op">=</span> <span class="fl">1234</span>,</span>
-<span>  cohortName <span class="op">=</span> <span class="st">"DM type I"</span>,</span>
 <span>  sampleSize <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  assignNewId <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  useAncestor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  doi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">435216</span>, <span class="fl">201254</span><span class="op">)</span>,</span>
-<span>  symptoms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">79936</span>, <span class="fl">432454</span>, <span class="fl">4232487</span>, <span class="fl">4229881</span>, <span class="fl">254761</span><span class="op">)</span>,</span>
-<span>  comorbidities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">141253</span>, <span class="fl">432867</span>, <span class="fl">436670</span>, <span class="fl">433736</span>, <span class="fl">255848</span><span class="op">)</span>,</span>
-<span>  drugs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">21600712</span>, <span class="fl">21602728</span>, <span class="fl">21603531</span><span class="op">)</span>,</span>
-<span>  diagnosticProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  measurements  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3004410</span>,<span class="fl">3005131</span>,<span class="fl">3005673</span>,<span class="fl">3010084</span>,<span class="fl">3033819</span>,<span class="fl">4149519</span>,<span class="fl">4229110</span>, <span class="fl">4020120</span><span class="op">)</span>,</span>
-<span>  alternativeDiagnosis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">192963</span>,<span class="fl">201826</span>,<span class="fl">441267</span>,<span class="fl">40443308</span><span class="op">)</span>,</span>
-<span>  treatmentProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4242748</span><span class="op">)</span>,</span>
-<span>  complications <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">201820</span>,<span class="fl">375545</span>,<span class="fl">380834</span>,<span class="fl">433968</span>,<span class="fl">442793</span>,<span class="fl">4016045</span>,<span class="fl">4209145</span>,<span class="fl">4299544</span><span class="op">)</span>                             </span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  removePii <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  phenotypeName <span class="op">=</span> <span class="st">"Gastrointestinal bleeding"</span>,</span>
+<span>  keeperConceptSets <span class="op">=</span> <span class="va">keeperConceptSets</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">keeperTable</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/convertKeeperToTable.html">convertKeeperToTable</a></span><span class="op">(</span><span class="va">keeper</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level1">
 <h1 id="technology">Technology<a class="anchor" aria-label="anchor" href="#technology"></a>
@@ -155,7 +155,7 @@
 <div class="section level1">
 <h1 id="system-requirements">System Requirements<a class="anchor" aria-label="anchor" href="#system-requirements"></a>
 </h1>
-<p>Requires R (version 3.6.0 or higher).</p>
+<p>Requires R (version 4.1.0 or higher).</p>
 </div>
 <div class="section level1">
 <h1 id="user-documentation">User Documentation<a class="anchor" aria-label="anchor" href="#user-documentation"></a>
@@ -163,9 +163,9 @@
 <p>Documentation can be found on the <a href="https://ohdsi.github.io/Keeper/" class="external-link">package website</a>.</p>
 <p>PDF versions of the documentation are also available:</p>
 <ul>
-<li>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/UsingKeeperWithLlms.pdf" class="external-link">Using Keeper with Large Language Models</a>
+<li>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/GeneratingKeeper.pdf" class="external-link">Generating KEEPER profiles for review</a>
 </li>
-<li>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/SettingKeeperParameters.pdf" class="external-link">Setting parameters for Keeper</a>
+<li>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/inst/doc/UsingKeeperWithLlms.pdf" class="external-link">Using Keeper with Large Language Models</a>
 </li>
 <li>Package manual: <a href="https://raw.githubusercontent.com/OHDSI/Keeper/main/extras/Keeper.pdf" class="external-link">Keeper manual</a>
 </li>
@@ -257,7 +257,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

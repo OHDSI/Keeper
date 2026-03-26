@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>/404.html</loc></url>
+<url><loc>/articles/GeneratingKeeper.html</loc></url>
 <url><loc>/articles/SettingKeeperParameters.html</loc></url>
 <url><loc>/articles/SettingKeeperParamethers.html</loc></url>
 <url><loc>/articles/UsingKeeperWithLlms.html</loc></url>
@@ -8,11 +9,20 @@
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
 <url><loc>/reference/Keeper-package.html</loc></url>
+<url><loc>/reference/computeCohortOperatingCharacteristics.html</loc></url>
+<url><loc>/reference/convertKeeperToTable.html</loc></url>
 <url><loc>/reference/createKeeper.html</loc></url>
 <url><loc>/reference/createPrompt.html</loc></url>
 <url><loc>/reference/createPromptSettings.html</loc></url>
+<url><loc>/reference/createReferenceCohortTableNames.html</loc></url>
+<url><loc>/reference/createSensitiveCohort.html</loc></url>
 <url><loc>/reference/createSystemPrompt.html</loc></url>
+<url><loc>/reference/generateKeeper.html</loc></url>
+<url><loc>/reference/generateKeeperConceptSets.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/launchReviewerApp.html</loc></url>
 <url><loc>/reference/parseLlmResponse.html</loc></url>
+<url><loc>/reference/reviewCases.html</loc></url>
+<url><loc>/reference/uploadReferenceCohort.html</loc></url>
 </urlset>
 

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/SettingKeeperParameters.html">Setting KEEPER parameters</a>
+      <a href="../articles/GeneratingKeeper.html">Generating Keeper profiles for review</a>
     </li>
     <li>
       <a href="../articles/UsingKeeperWithLlms.html">Using Keeper with Large Language Models</a>
@@ -69,47 +69,14 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">createPromptSettings</span><span class="op">(</span></span>
-<span>  writeNarrative <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  testingReminder <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  uncertaintyInstructions <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  discussEvidence <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  provideExamples <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  maxParts <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  maxDays <span class="op">=</span> <span class="fl">5</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">createPromptSettings</span><span class="op">(</span>maxParts <span class="op">=</span> <span class="fl">100</span>, maxDays <span class="op">=</span> <span class="fl">5</span>, legacy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
 
 
-<dl><dt id="arg-writenarrative">writeNarrative<a class="anchor" aria-label="anchor" href="#arg-writenarrative"></a></dt>
-<dd><p>Ask the LLM to write a clinical narrative matching
-the provided data?</p></dd>
-
-
-<dt id="arg-testingreminder">testingReminder<a class="anchor" aria-label="anchor" href="#arg-testingreminder"></a></dt>
-<dd><p>Remind the LLM that a diagnosis can be recorded
-just to justify a test, and therefore by itself
-is not sufficient evidence?</p></dd>
-
-
-<dt id="arg-uncertaintyinstructions">uncertaintyInstructions<a class="anchor" aria-label="anchor" href="#arg-uncertaintyinstructions"></a></dt>
-<dd><p>Provide instructions to the LLM on how to deal
-with uncertainty?</p></dd>
-
-
-<dt id="arg-discussevidence">discussEvidence<a class="anchor" aria-label="anchor" href="#arg-discussevidence"></a></dt>
-<dd><p>Prompt the LLM to first discuss evidence in favor
-and against the disease of interest?</p></dd>
-
-
-<dt id="arg-provideexamples">provideExamples<a class="anchor" aria-label="anchor" href="#arg-provideexamples"></a></dt>
-<dd><p>Provide examples? (few-shot prompting)</p></dd>
-
-
-<dt id="arg-maxparts">maxParts<a class="anchor" aria-label="anchor" href="#arg-maxparts"></a></dt>
+<dl><dt id="arg-maxparts">maxParts<a class="anchor" aria-label="anchor" href="#arg-maxparts"></a></dt>
 <dd><p>How many parts can a category have? For example,
 if <code>maxParts = 100</code> and there are more than 100
 measurements, a random sample of 100 will be
@@ -122,10 +89,14 @@ if <code>maxDays = 5</code> and there is a measurement code
 that appears on more than 5 days, a random sample
 of 5 days will be taken. Set to <code>0</code> if there is no maximum.</p></dd>
 
+
+<dt id="arg-legacy">legacy<a class="anchor" aria-label="anchor" href="#arg-legacy"></a></dt>
+<dd><p>IF TRUE, will use the prompt from the Nature Digital Medicine paper.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A settings object, to be used in <code><a href="createSystemPrompt.html">createSystemPrompt()</a></code> and <code><a href="createPrompt.html">createPrompt()</a></code>.</p>
+    <p>A settings object, to be used in <code><a href="reviewCases.html">reviewCases()</a></code>.</p>
     </div>
 
   </div>
@@ -140,7 +111,7 @@ of 5 days will be taken. Set to <code>0</code> if there is no maximum.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

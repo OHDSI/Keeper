@@ -2,7 +2,7 @@
 % Please edit documentation in R/SensitiveCohort.R
 \name{createSensitiveCohort}
 \alias{createSensitiveCohort}
-\title{Create a sensitive cohort}
+\title{Create a highly-sensitive cohort for a phenotype}
 \usage{
 createSensitiveCohort(
   connectionDetails = NULL,

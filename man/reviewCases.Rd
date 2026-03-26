@@ -2,7 +2,7 @@
 % Please edit documentation in R/LlmLoop.R
 \name{reviewCases}
 \alias{reviewCases}
-\title{Review cases using an LLM}
+\title{Review Keeper profiles using an LLM}
 \usage{
 reviewCases(
   keeper,
@@ -44,5 +44,5 @@ When the Keeper profiles were generated with \code{removePii = FALSE}, the follo
 }
 }
 \description{
-Review cases using an LLM
+Review Keeper profiles using an LLM
 }

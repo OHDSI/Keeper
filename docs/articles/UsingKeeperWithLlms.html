@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -49,7 +49,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/SettingKeeperParameters.html">Setting KEEPER parameters</a>
+      <a href="../articles/GeneratingKeeper.html">Generating Keeper profiles for review</a>
     </li>
     <li>
       <a href="../articles/UsingKeeperWithLlms.html">Using Keeper with Large Language Models</a>
@@ -87,7 +87,7 @@
                         <h4 data-toc-skip class="author">Martijn
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2025-09-11</h4>
+            <h4 data-toc-skip class="date">2026-03-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/Keeper/blob/HEAD/vignettes/UsingKeeperWithLlms.Rmd" class="external-link"><code>vignettes/UsingKeeperWithLlms.Rmd</code></a></small>
       <div class="hidden name"><code>UsingKeeperWithLlms.Rmd</code></div>
@@ -99,192 +99,259 @@ Schuemie</h4>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This vignette describes how one could use Keeper to generate patient
-summaries, and have them be reviewed by a large-language model
-(LLM).</p>
+<p>This vignette demonstrates how to use <strong>Keeper</strong> to
+generate patient summaries and systematically review them using a Large
+Language Model (LLM).</p>
+<p><strong>Prerequisites:</strong> Before proceeding, ensure you have
+read the <em>‘Generating Keeper profiles for review’</em> vignette. We
+will build directly on the Type 1 Diabetes Mellitus (T1DM) example
+established there, assuming you have already created the necessary
+objects and input concept sets.</p>
+<hr>
 </div>
 <div class="section level2">
-<h2 id="running-keeper">Running Keeper<a class="anchor" aria-label="anchor" href="#running-keeper"></a>
+<h2 id="workflow-1-direct-cohort-review">Workflow 1: Direct Cohort Review<a class="anchor" aria-label="anchor" href="#workflow-1-direct-cohort-review"></a>
 </h2>
-<p>As an example, we’ll run Keeper on Eunomia. Eunomia is an OHDSI
-package that contains a tiny simulated dataset in the Common Data Model
-(CDM). It is mostly focused on NSAIDs and gastrointestinal (GI)
-bleeding, so we’ll use GI bleed as our example outcome.</p>
-<div class="section level3">
-<h3 id="setting-up-eunomia">Setting up Eunomia<a class="anchor" aria-label="anchor" href="#setting-up-eunomia"></a>
-</h3>
-<p>First we must download and install Eunomia:</p>
+<p>In this first workflow, we will take an existing cohort, generate
+Keeper profiles, and use an LLM to evaluate those specific cases. We
+assume that Keeper has already been executed to produce the following
+output:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"Eunomia"</span><span class="op">)</span></span></code></pre></div>
-<p>Next, we can obtain connection details to the Eunomia database.
-(Note: this will download the database from the internet):</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ohdsi.github.io/Eunomia/" class="external-link">Eunomia</a></span><span class="op">)</span></span>
-<span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ohdsi.github.io/Eunomia/reference/getEunomiaConnectionDetails.html" class="external-link">getEunomiaConnectionDetails</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>We can have the default set of cohorts generated in Eunomia:</p>
+<code class="sourceCode R"><span><span class="va">keeper</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2,234 × 8</span></span></span>
+<span><span class="co">##    generatedId startDay endDay conceptId conceptName category target   extraData</span></span>
+<span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>          16        0      0        <span style="color: #BB0000;">NA</span> 67          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           8        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>           6        0      0        <span style="color: #BB0000;">NA</span> 72          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          14        0      0        <span style="color: #BB0000;">NA</span> 61          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>          10        0      0        <span style="color: #BB0000;">NA</span> 68          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>           5        0      0        <span style="color: #BB0000;">NA</span> 78          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>           7        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          15        0      0        <span style="color: #BB0000;">NA</span> 81          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           9        0      0        <span style="color: #BB0000;">NA</span> 79          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>          13        0      0        <span style="color: #BB0000;">NA</span> 79          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 2,224 more rows</span></span></span></code></pre>
+<div class="section level3">
+<h3 id="choosing-an-llm-provider">1. Choosing an LLM Provider<a class="anchor" aria-label="anchor" href="#choosing-an-llm-provider"></a>
+</h3>
+<p>Keeper integrates with the <code>ellmer</code> package, allowing you
+to connect to the LLM provider of your choice (e.g., Anthropic, Google,
+OpenAI, or a local model).</p>
+<p>For instance, to connect to OpenAI’s ChatGPT, you can use:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ohdsi.github.io/Eunomia/reference/createCohorts.html" class="external-link">createCohorts</a></span><span class="op">(</span><span class="va">connectionDetails</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Cohorts created in table main.cohort</span></span></code></pre>
-<pre><code><span><span class="co">##   cohortId       name</span></span>
-<span><span class="co">## 1        1  Celecoxib</span></span>
-<span><span class="co">## 2        2 Diclofenac</span></span>
-<span><span class="co">## 3        3    GiBleed</span></span>
-<span><span class="co">## 4        4     NSAIDs</span></span>
-<span><span class="co">##                                                                                        description</span></span>
-<span><span class="co">## 1    A simplified cohort definition for new users of celecoxib, designed specifically for Eunomia.</span></span>
-<span><span class="co">## 2    A simplified cohort definition for new users ofdiclofenac, designed specifically for Eunomia.</span></span>
-<span><span class="co">## 3 A simplified cohort definition for gastrointestinal bleeding, designed specifically for Eunomia.</span></span>
-<span><span class="co">## 4       A simplified cohort definition for new users of NSAIDs, designed specifically for Eunomia.</span></span>
-<span><span class="co">##   count</span></span>
-<span><span class="co">## 1  1844</span></span>
-<span><span class="co">## 2   850</span></span>
-<span><span class="co">## 3   479</span></span>
-<span><span class="co">## 4  2694</span></span></code></pre>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ellmer.tidyverse.org" class="external-link">ellmer</a></span><span class="op">)</span></span>
+<span><span class="va">client</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ellmer.tidyverse.org/reference/chat_openai.html" class="external-link">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><em>Note:</em> This requires the <code>OPENAI_API_KEY</code>
+environmental variable to be set. For detailed connection instructions
+across various providers, refer to the <a href="https://ellmer.tidyverse.org" class="external-link">ellmer package
+documentation</a>.</p>
+<p><strong>Model Requirements:</strong> The selected LLM must be capable
+of advanced reasoning and producing structured outputs. In our testing,
+OpenAI’s GPT-o3 yielded the best results.</p>
 </div>
 <div class="section level3">
-<h3 id="run-keeper">Run Keeper<a class="anchor" aria-label="anchor" href="#run-keeper"></a>
+<h3 id="executing-the-review">2. Executing the Review<a class="anchor" aria-label="anchor" href="#executing-the-review"></a>
 </h3>
-<p>Next, we run Keeper. We meticulously select concepts for each Keeper
-category:</p>
+<p>Once connected, we can command the LLM to review the patient
+cases:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">promptSettings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createPromptSettings.html">createPromptSettings</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">llmReviews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reviewCases.html">reviewCases</a></span><span class="op">(</span></span>
+<span>  keeper <span class="op">=</span> <span class="va">keeper</span>,</span>
+<span>  settings <span class="op">=</span> <span class="va">promptSettings</span>,</span>
+<span>  phenotypeName <span class="op">=</span> <span class="st">"Type I Diabetes Mellitus (T1DM)"</span>,</span>
+<span>  client <span class="op">=</span> <span class="va">client</span>,</span>
+<span>  cacheFolder <span class="op">=</span> <span class="st">"cache"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Reviewing person 1 of 20</span></span>
+<span><span class="co">## ...</span></span>
+<span><span class="co">## Reviewing person 20 of 20</span></span>
+<span><span class="co">## Reviewing cases took 3.9 mins and cost $0.50</span></span></code></pre>
+<p><strong>Key Parameters:</strong> * <code>phenotypeName</code>: This
+string is inserted directly into the LLM prompt. It must exactly match
+the disease you are adjudicating. * <code>cacheFolder</code>: A local
+directory where prompts and responses are safely cached. If the process
+is interrupted, re-running the function will skip previously generated
+responses.</p>
+<p>We can inspect the resulting adjudications:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">keeper</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createKeeper.html">createKeeper</a></span><span class="op">(</span></span>
-<span>    connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>,</span>
-<span>    databaseId <span class="op">=</span> <span class="st">"Synpuf"</span>,</span>
-<span>    cdmDatabaseSchema <span class="op">=</span> <span class="st">"main"</span>,</span>
-<span>    cohortDatabaseSchema <span class="op">=</span> <span class="st">"main"</span>,</span>
-<span>    cohortTable <span class="op">=</span> <span class="st">"cohort"</span>,</span>
-<span>    cohortDefinitionId <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>    cohortName <span class="op">=</span> <span class="st">"GI Bleed"</span>,</span>
-<span>    sampleSize <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>    assignNewId <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    useAncestor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    doi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4202064</span>, <span class="fl">192671</span>, <span class="fl">2108878</span>, <span class="fl">2108900</span>, <span class="fl">2002608</span><span class="op">)</span>,</span>
-<span>    symptoms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4103703</span>, <span class="fl">443530</span>, <span class="fl">4245614</span>, <span class="fl">28779</span><span class="op">)</span>,</span>
-<span>    comorbidities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">81893</span>, <span class="fl">201606</span>, <span class="fl">313217</span>, <span class="fl">318800</span>, <span class="fl">432585</span>, <span class="fl">4027663</span>, <span class="fl">4180790</span>, <span class="fl">4212540</span>,</span>
-<span>                      <span class="fl">40481531</span>, <span class="fl">42535737</span>, <span class="fl">46271022</span><span class="op">)</span>, </span>
-<span>    drugs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">904453</span>, <span class="fl">906780</span>, <span class="fl">923645</span>, <span class="fl">929887</span>, <span class="fl">948078</span>, <span class="fl">953076</span>, <span class="fl">961047</span>, <span class="fl">985247</span>, <span class="fl">992956</span>, </span>
-<span>              <span class="fl">997276</span>, <span class="fl">1102917</span>, <span class="fl">1113648</span>, <span class="fl">1115008</span>, <span class="fl">1118045</span>, <span class="fl">1118084</span>, <span class="fl">1124300</span>, <span class="fl">1126128</span>, </span>
-<span>              <span class="fl">1136980</span>, <span class="fl">1146810</span>, <span class="fl">1150345</span>, <span class="fl">1153928</span>, <span class="fl">1177480</span>, <span class="fl">1178663</span>, <span class="fl">1185922</span>, <span class="fl">1195492</span>, </span>
-<span>              <span class="fl">1236607</span>, <span class="fl">1303425</span>, <span class="fl">1313200</span>, <span class="fl">1353766</span>, <span class="fl">1507835</span>, <span class="fl">1522957</span>, <span class="fl">1721543</span>, <span class="fl">1746940</span>, </span>
-<span>              <span class="fl">1777806</span>, <span class="fl">19044727</span>, <span class="fl">19119253</span>, <span class="fl">36863425</span><span class="op">)</span>, </span>
-<span>    diagnosticProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4087381</span>, <span class="fl">4143985</span>, <span class="fl">4294382</span>, <span class="fl">42872565</span>, <span class="fl">45888171</span>, <span class="fl">46257627</span><span class="op">)</span>, </span>
-<span>    measurements    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3000905</span>, <span class="fl">3000963</span>, <span class="fl">3003458</span>, <span class="fl">3012471</span>, <span class="fl">3016251</span>, <span class="fl">3018677</span>, <span class="fl">3020416</span>, </span>
-<span>                     <span class="fl">3022217</span>, <span class="fl">3023314</span>, <span class="fl">3024929</span>, <span class="fl">3034426</span><span class="op">)</span>, </span>
-<span>    alternativeDiagnosis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">24966</span>, <span class="fl">76725</span>, <span class="fl">195562</span>, <span class="fl">316457</span>, <span class="fl">318800</span>, <span class="fl">4096682</span><span class="op">)</span>, </span>
-<span>    treatmentProcedures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, </span>
-<span>    complications <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">132797</span>, <span class="fl">196152</span>, <span class="fl">439777</span>, <span class="fl">4192647</span><span class="op">)</span>      </span>
-<span>  <span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span></span></code></pre>
-<pre><code><span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span></span></code></pre>
-<pre><code><span><span class="co">## Getting cohort table.</span></span>
-<span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span></span></code></pre>
-<pre><code><span><span class="co">## Getting patient data for keeperOutput.</span></span>
-<span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |===========                                                           |  15%  |                                                                              |=============                                                         |  18%  |                                                                              |===============                                                       |  21%  |                                                                              |=================                                                     |  24%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |=========================                                             |  36%  |                                                                              |============================                                          |  39%  |                                                                              |==============================                                        |  42%  |                                                                              |================================                                      |  45%  |                                                                              |==================================                                    |  48%  |                                                                              |====================================                                  |  52%  |                                                                              |======================================                                |  55%  |                                                                              |========================================                              |  58%  |                                                                              |==========================================                            |  61%  |                                                                              |=============================================                         |  64%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |=====================================================                 |  76%  |                                                                              |=======================================================               |  79%  |                                                                              |=========================================================             |  82%  |                                                                              |===========================================================           |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%</span></span></code></pre>
-<p>The output is a table with one row per person:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">keeper</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 100 × 18</span></span></span>
-<span><span class="co">##    personId   age gender observationPeriod            visitContext  presentation</span></span>
-<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>        9    37 Female -13752.0 days - 4861.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>       89    42 Female -15141.0 days - 6594.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>       85    40 Female -14725.0 days - 3916.0 days  <span style="color: #949494;">""</span>            Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>       59    37 Male   -13464.0 days - 2461.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>       38    35 Female -12933.0 days - 11238.0 days <span style="color: #949494;">""</span>            Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>        5    42 Male   -15114.0 days - 6117.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>       60    38 Male   -14108.0 days - 6913.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>       91    46 Male   -16833.0 days - 5147.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>       86    42 Male   -15402.0 days - 6621.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>        4    44 Male   -16313.0 days - 8551.0 days  <span style="color: #949494;">"</span>Inpatient V… Gastrointes…</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 12 more variables: comorbidities &lt;chr&gt;, symptoms &lt;chr&gt;, priorDisease &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   priorDrugs &lt;chr&gt;, priorTreatmentProcedures &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   diagnosticProcedures &lt;chr&gt;, measurements &lt;chr&gt;, alternativeDiagnosis &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   afterDisease &lt;chr&gt;, afterTreatmentProcedures &lt;chr&gt;, afterDrugs &lt;chr&gt;,</span></span></span>
-<span><span class="co">## <span style="color: #949494;">#   death &lt;chr&gt;</span></span></span></code></pre>
+<code class="sourceCode R"><span><span class="va">llmReviews</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 20 × 9</span></span></span>
+<span><span class="co">##    generatedId phenotype                 isCase certainty indexDay justification</span></span>
+<span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>          16 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           8 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence su…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>           6 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          14 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>• Only one …</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>          10 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>           5 Type I Diabetes Mellitus… yes    low              0 <span style="color: #949494;">"</span>• The patie…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>           7 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          15 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           9 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>• Only a si…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>          13 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence ag…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">11</span>          17 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence in…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">12</span>          18 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">13</span>          19 Type I Diabetes Mellitus… no     low             <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>There are o…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">14</span>           3 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Multiple Ty…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">15</span>           1 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>Multiple in…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">16</span>           2 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Multiple T1…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">17</span>          12 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">18</span>          11 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence FO…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">19</span>          20 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">20</span>           4 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 3 more variables: cohortPrevalence &lt;dbl&gt;, model &lt;chr&gt;, keeperVersion &lt;chr&gt;</span></span></span></code></pre>
+<p>With this data, computing the positive predictive value (PPV) of the
+reviewed cohort is straightforward:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">llmReviews</span><span class="op">$</span><span class="va">isCase</span> <span class="op">==</span> <span class="st">"yes"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 0.25</span></span></code></pre>
+<hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="llm-review">LLM review<a class="anchor" aria-label="anchor" href="#llm-review"></a>
+<h2 id="workflow-2-validating-with-a-reference-cohort">Workflow 2: Validating with a Reference Cohort<a class="anchor" aria-label="anchor" href="#workflow-2-validating-with-a-reference-cohort"></a>
 </h2>
-<p>We can convert the Keeper output to prompts for a LLM, and parse the
-output of the LLM to get a classification of whether the patient truly
-had GI bleeding.</p>
+<p>Instead of analyzing an existing cohort just to find its PPV, we can
+build a <strong>Highly-Sensitive Cohort (HSC)</strong>. An HSC is
+designed to be overly broad, ensuring no true cases are missed.</p>
+<p>By taking a large sample of this HSC and having an LLM review it, we
+create a gold-standard <strong>Reference Cohort</strong>. This reference
+cohort can then be used to rapidly evaluate the PPV <em>and</em>
+sensitivity of any other cohort definitions for the same phenotype.</p>
+<div class="float">
+<img src="Diagram.png" width="350" alt="Using a reference cohort (a sample of a highly-sensitive cohort) to evaluate cohorts for a phenotype."><div class="figcaption">Using a reference cohort (a sample of a
+highly-sensitive cohort) to evaluate cohorts for a phenotype.</div>
+</div>
 <div class="section level3">
-<h3 id="generating-prompts">Generating prompts<a class="anchor" aria-label="anchor" href="#generating-prompts"></a>
+<h3 id="creating-the-highly-sensitive-cohort">1. Creating the Highly-Sensitive Cohort<a class="anchor" aria-label="anchor" href="#creating-the-highly-sensitive-cohort"></a>
 </h3>
-<p>We need two prompts: the system prompt is a general description of
-how the LLM should behave. The (main) prompt contains the
-patient-specific information. First we create settings, then we generate
-the system prompt:</p>
+<p>The <code><a href="../reference/createSensitiveCohort.html">createSensitiveCohort()</a></code> function automatically
+constructs this broad cohort using the same input concept sets utilized
+by <code><a href="../reference/generateKeeper.html">generateKeeper()</a></code>.</p>
+<p>The cohort is constructed by combining two sets:</p>
+<ol style="list-style-type: decimal">
+<li><p>Anybody who has one of the condition concepts of the disease of
+interest, indexed on the first occurrence.</p></li>
+<li><p>Anybody who has ‘highly specific concepts’ from at least two
+Keeper categories (symptoms, drugs, etc.), indexed on the first
+occurrence.</p></li>
+</ol>
+<p>Highly specific concepts are concepts where at least 10% of those who
+have that concept also have a condition concept for the disease of
+interest.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/createSensitiveCohort.html">createSensitiveCohort</a></span><span class="op">(</span></span>
+<span>  connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>,</span>
+<span>  cdmDatabaseSchema <span class="op">=</span> <span class="va">cdmDatabaseSchema</span>,</span>
+<span>  cohortDatabaseSchema <span class="op">=</span> <span class="va">cohortDatabaseSchema</span>,</span>
+<span>  cohortTable <span class="op">=</span> <span class="va">cohortTable</span>,</span>
+<span>  cohortDefinitionId <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  createCohortTable <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keeperConceptSets <span class="op">=</span> <span class="va">conceptSets</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Here, we assign <code>cohortDefinitionId = 2</code> to prevent
+overwriting the simpler cohort (ID 1) we created in the previous
+vignette.</p>
+</div>
+<div class="section level3">
+<h3 id="running-keeper-on-the-hsc">2. Running Keeper on the HSC<a class="anchor" aria-label="anchor" href="#running-keeper-on-the-hsc"></a>
+</h3>
+<p>Next, we extract the patient profiles for our new sensitive
+cohort:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">keeperHsc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generateKeeper.html">generateKeeper</a></span><span class="op">(</span></span>
+<span>  connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>,</span>
+<span>  cohortDatabaseSchema <span class="op">=</span> <span class="va">cohortDatabaseSchema</span>,</span>
+<span>  cdmDatabaseSchema <span class="op">=</span> <span class="va">cdmDatabaseSchema</span>,</span>
+<span>  cohortTable <span class="op">=</span> <span class="va">cohortTable</span>,</span>
+<span>  cohortDefinitionId <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  sampleSize <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  phenotypeName <span class="op">=</span> <span class="st">"Type I Diabetes Mellitus (T1DM)"</span>,</span>
+<span>  keeperConceptSets <span class="op">=</span> <span class="va">conceptSets</span>,</span>
+<span>  removePii <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><strong>Important considerations:</strong> * <strong>Sample
+Size:</strong> We sample 10,000 persons to guarantee enough true
+positive cases for robust PPV and sensitivity calculations. *
+<strong>PII Handling:</strong> We set <code>removePii = FALSE</code> so
+that the resulting LLM adjudications can be joined accurately with
+specific target cohorts later during evaluation.</p>
+</div>
+<div class="section level3">
+<h3 id="adjudicating-the-hsc-via-llm">3. Adjudicating the HSC via LLM<a class="anchor" aria-label="anchor" href="#adjudicating-the-hsc-via-llm"></a>
+</h3>
+<p>We now send all 10,000 sampled profiles to the LLM for review.</p>
+<blockquote>
+<p><strong>Cost Warning:</strong> Adjudicating a dataset of this size
+can incur significant API costs. For example, using our preferred model
+(GPT-o3) to review 10,000 cases typically costs between $60 and $80.</p>
+</blockquote>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">promptSettings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createPromptSettings.html">createPromptSettings</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">llmReviewsHsc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reviewCases.html">reviewCases</a></span><span class="op">(</span></span>
+<span>  keeper <span class="op">=</span> <span class="va">keeperHsc</span>,</span>
+<span>  settings <span class="op">=</span> <span class="va">promptSettings</span>,</span>
+<span>  client <span class="op">=</span> <span class="va">client</span>,</span>
+<span>  cacheFolder <span class="op">=</span> <span class="st">"cacheVignetteHsc"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Once complete, this dataset becomes our <em>Reference
+Cohort</em>.</p>
+</div>
+<div class="section level3">
+<h3 id="storing-the-reference-cohort">4. Storing the Reference Cohort<a class="anchor" aria-label="anchor" href="#storing-the-reference-cohort"></a>
+</h3>
+<p>To use the reference cohort across different analyses, we upload it
+back to our database server:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Use the default settings:</span></span>
-<span><span class="va">settings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createPromptSettings.html">createPromptSettings</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">systempPrompt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createSystemPrompt.html">createSystemPrompt</a></span><span class="op">(</span>setting <span class="op">=</span> <span class="va">settings</span>, </span>
-<span>                                    diseaseName <span class="op">=</span> <span class="st">"Gastrointestinal bleeding"</span><span class="op">)</span>  </span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="va">systempPrompt</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Act as a medical doctor reviewing a patient's healthcare data captured during routine clinical care, such as electronic health records and insurance claims.</span></span>
-<span><span class="co">## Write a medical narrative that fits the recorded health data followed by a determination of whether the patient had Gastrointestinal bleeding.</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Remember that recording a diagnosis for a disease could occur either because the patient had the disease or as justification for performing a diagnostic procedure to determine whether the patient has the disease. A diagnosis by itself or accompanied with only diagnostic procedures may therefore be insufficient evidence, even if recorded more than once. Lack of additional evidence of Gastrointestinal bleeding other than the diagnosis and diagnostic procedures probably means that the patient was only being tested, and does not actually have Gastrointestinal bleeding. However, it unlikely that a patient will be tested many times over, so an abundance of diagnoses will mean the patient has the disease.</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## In your final summary, indicate "yes" if the most probable scenario is that the patient had Gastrointestinal bleeding.</span></span>
-<span><span class="co">## Indicate "no" if it is not the most probable scenario, for example when it is more likely that the patient was tested for the disease but the diagnosis was not confirmed. Also indicate "no" when there is insufficient information to say anything about the relative probability of scenarios.</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Use the following format:</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Clinical narrative:</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Evidence in favor of Gastrointestinal bleeding:</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Evidence against Gastrointestinal bleeding:</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Summary: (Only "yes" or "no")</span></span></code></pre>
-<p>Then, for each patient we can generate the main prompt:</p>
+<code class="sourceCode R"><span><span class="va">referenceCohortDatabaseSchema</span> <span class="op">&lt;-</span> <span class="st">"cdm"</span></span>
+<span><span class="va">referenceCohortTable</span> <span class="op">&lt;-</span> <span class="st">"reference_cohort"</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/uploadReferenceCohort.html">uploadReferenceCohort</a></span><span class="op">(</span></span>
+<span>  connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>,</span>
+<span>  referenceCohortDatabaseSchema <span class="op">=</span> <span class="va">referenceCohortDatabaseSchema</span>,</span>
+<span>  referenceCohortTableNames <span class="op">=</span> <span class="fu"><a href="../reference/createReferenceCohortTableNames.html">createReferenceCohortTableNames</a></span><span class="op">(</span><span class="va">referenceCohortTable</span><span class="op">)</span>,</span>
+<span>  referenceCohortDefinitionId <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  createReferenceCohortTables <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  reviews <span class="op">=</span> <span class="va">llmReviewsHsc</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Setting <code>createReferenceCohortTables = TRUE</code> generates two
+tables (<code>reference_cohort</code> and
+<code>reference_cohort_metadata</code>). We also assign a
+<code>referenceCohortDefinitionId</code> of <code>1</code> to uniquely
+identify it for future comparisons.</p>
+</div>
+<div class="section level3">
+<h3 id="evaluating-target-cohorts">5. Evaluating Target Cohorts<a class="anchor" aria-label="anchor" href="#evaluating-target-cohorts"></a>
+</h3>
+<p>With our reference cohort safely stored in the database, evaluating
+any standard T1DM cohort is highly efficient. Let’s evaluate the simple
+target cohort (<code>cohortDefinitionId = 1</code>) from the previous
+vignette:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">metrics</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeCohortOperatingCharacteristics.html">computeCohortOperatingCharacteristics</a></span><span class="op">(</span></span>
+<span>  connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>,</span>
+<span>  cohortDatabaseSchema <span class="op">=</span> <span class="va">cohortDatabaseSchema</span>,</span>
+<span>  cohortTable <span class="op">=</span> <span class="va">cohortTable</span>,</span>
+<span>  cohortDefinitionId <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  referenceCohortDatabaseSchema <span class="op">=</span> <span class="va">referenceCohortDatabaseSchema</span>,</span>
+<span>  referenceCohortTableNames <span class="op">=</span> <span class="fu"><a href="../reference/createReferenceCohortTableNames.html">createReferenceCohortTableNames</a></span><span class="op">(</span><span class="va">referenceCohortTable</span><span class="op">)</span>,</span>
+<span>  referenceCohortDefinitionId <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Finally, we can view the computed performance metrics (such as
+sensitivity, specificity, and PPV) for our target cohort:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">row</span> <span class="op">&lt;-</span> <span class="va">keeper</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
-<span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createPrompt.html">createPrompt</a></span><span class="op">(</span>setting <span class="op">=</span> <span class="va">settings</span>, </span>
-<span>                       diseaseName <span class="op">=</span> <span class="st">"Gastrointestinal bleeding"</span>,</span>
-<span>                       keeperRow <span class="op">=</span> <span class="va">row</span><span class="op">)</span>  </span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="va">prompt</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Demographics and details about the visit: Female, thirty-seven yo; Visit: Inpatient Visit (1.0 days)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Diagnoses recorded on the day of the visit: Gastrointestinal hemorrhage;</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Diagnoses recorded prior to the visit: None</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Treatments recorded prior to the visit: Ibuprofen (day -6182.0, for 28.0 days); celecoxib (day -17.0, for 0.0 days);</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Diagnostic procedures recorded proximal to the visit: None</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Laboratory tests recorded proximal to the visit: None</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Alternative diagnoses recorded proximal to the visit: None</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Diagnoses recorded after the visit: None</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Treatments recorded during or after the visit: Naproxen (day 1436.0, for 35.0 days);</span></span></code></pre>
-</div>
-<div class="section level3">
-<h3 id="generate-a-response">Generate a response<a class="anchor" aria-label="anchor" href="#generate-a-response"></a>
-</h3>
-<p>Next, we can use the system prompt and prompt together to query the
-LLM. Many LLMs are available, including open source ones. Setting up and
-interacting with the LLM is beyond the scope of this vignette. Here we
-assume a LLM was used to generate this response:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">response</span> <span class="op">&lt;-</span> <span class="st">"Summary: yes"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="parse-the-response">Parse the response<a class="anchor" aria-label="anchor" href="#parse-the-response"></a>
-</h3>
-<p>LLMs can be quite verbose, and often we just want a yes or no answer.
-For this we can use the <code><a href="../reference/parseLlmResponse.html">parseLlmResponse()</a></code> function that
-uses a set of patterns to decide between ‘yes’, ‘no’, or ‘I don’t
-know’:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/parseLlmResponse.html">parseLlmResponse</a></span><span class="op">(</span><span class="va">response</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "yes"</span></span></code></pre>
+<code class="sourceCode R"><span><span class="va">metrics</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 21</span></span></span>
+<span><span class="co">##   certainty    tp    fp    tn    fn sensitivity sensitivityLb sensitivityUb</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> low         100    20    57    55       0.645         0.564         0.720</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> high        941   215  <span style="text-decoration: underline;">8</span>358     7       0.993         0.985         0.997</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> all        <span style="text-decoration: underline;">1</span>041   235  <span style="text-decoration: underline;">8</span>415    62       0.944         0.929         0.957</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 13 more variables: specificity &lt;dbl&gt;, specificityLb &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   specificityUb &lt;dbl&gt;, specificityOverall &lt;dbl&gt;, specificityOverallLb &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   specificityOverallUb &lt;dbl&gt;, ppv &lt;dbl&gt;, ppvLb &lt;dbl&gt;, ppvUb &lt;dbl&gt;, auc &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   kappa &lt;dbl&gt;, prevalence &lt;dbl&gt;, prevalenceOverall &lt;dbl&gt;</span></span></span></code></pre>
 </div>
 </div>
   </div>
@@ -304,7 +371,7 @@ know’:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
