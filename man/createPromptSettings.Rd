@@ -20,7 +20,7 @@ of 5 days will be taken. Set to \code{0} if there is no maximum.}
 \item{legacy}{IF TRUE, will use the prompt from the Nature Digital Medicine paper.}
 }
 \value{
-A settings object, to be used in \link{createSystemPrompt} and \link{createPrompt}.
+A settings object, to be used in \code{\link[=reviewCases]{reviewCases()}}.
 }
 \description{
 Create settings for generating prompts

@@ -26,7 +26,7 @@
 #'                                of 5 days will be taken. Set to `0` if there is no maximum.
 #' @param legacy                  IF TRUE, will use the prompt from the Nature Digital Medicine paper.
 #'
-#' @return A settings object, to be used in [createSystemPrompt] and [createPrompt].
+#' @return A settings object, to be used in [reviewCases()].
 #'
 #' @export
 createPromptSettings <- function(maxParts = 100,

@@ -115,13 +115,13 @@ client <- chat_azure_openai(
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
-llmResponses <- reviewCases(keeper = keeper,
+llmReviews <- reviewCases(keeper = keeper,
                             settings = promptSettings,
                             phenotypeName = "Type I Diabetes Mellitus (T1DM)",
                             client = client,
                             cacheFolder = "cacheVignette")
 
-saveRDS(llmResponses, "inst/llmResponses.rds")
+saveRDS(llmReviews, "inst/llmReviews.rds")
 
 
 # Create sensitive cohort ----------------------------------------------------------------------------------------------
@@ -164,17 +164,17 @@ client <- chat_azure_openai(
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
-llmResponsesHsc <- reviewCases(keeper = keeperHsc,
+llmReviewsHsc <- reviewCases(keeper = keeperHsc,
                                settings = promptSettings,
                                phenotypeName = "Type I Diabetes Mellitus (T1DM)",
                                client = client,
                                cacheFolder = "cacheVignetteHsc")
 
-saveRDS(llmResponsesHsc, "e:/temp/keeperVignette/llmResponsesHsc.rds")
+saveRDS(llmReviewsHsc, "e:/temp/keeperVignette/llmReviewsHscHsc.rds")
 
 
 # Upload reference cohort to server ------------------------------------------------------------------------------------
-llmResponsesHsc <- readRDS("e:/temp/keeperVignette/llmResponsesHsc.rds")
+llmReviewsHsc <- readRDS("e:/temp/keeperVignette/llmReviewsHsc.rds")
 
 uploadReferenceCohort(
   connectionDetails = connectionDetails,
@@ -182,7 +182,7 @@ uploadReferenceCohort(
   referenceCohortTable = referenceCohortTable,
   referenceCohortDefinitionId = 1,
   createReferenceCohortTable = TRUE,
-  reviews = llmResponsesHsc
+  reviews = llmReviewsHsc
 )
 
 # Compute cohort operating characteristics -----------------------------------------------------------------------------

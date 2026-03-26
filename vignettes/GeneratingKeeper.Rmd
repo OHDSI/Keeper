@@ -289,7 +289,7 @@ keeper <- generateKeeper(
   cohortDefinitionId = 1,
   sampleSize = 20,
   keeperConceptSets = conceptSets,
-  phenotypeName = "T1DM",
+  phenotypeName = "Type I Diabetes Mellitus (T1DM)",
   removePii = TRUE
 )
 ```
@@ -302,7 +302,7 @@ We use `cohortDefinitionId = 1` because that was implied in our code in the [pre
 We specify a `sampleSize` of 20, meaning Keeper will randomly select up to 20 persons from the cohort. 
 Alternatively, we could have provided a specific set of person IDs for Keeper to restrict its query to. 
 
-We provide a `phenotypeName` strictly for administrative purposes. 
+We provide a `phenotypeName` that will be stored with the Keeper profiles. 
 We also set `removePii = TRUE` so that the output will not contain the original person IDs or absolute dates, ensuring the output is completely anonymized with no personally identifying information (PII).
 
 ## Keeper Output

@@ -8,7 +8,9 @@ KEEPER is part of [HADES](https://ohdsi.github.io/Hades/).
 
 Introduction
 ============
+
 An R package for reviewing patient profiles for phenotype validation. 
+
 
 Features
 ========
@@ -38,7 +40,7 @@ keeper <- generateKeeper(
   cohortTable = "cohort",
   cohortDefinitionId = 1234,
   sampleSize = 100,
-  removePersonId = TRUE,
+  removePii = TRUE,
   phenotypeName = "Gastrointestinal bleeding",
   keeperConceptSets = keeperConceptSets
 )
@@ -73,7 +75,7 @@ KEEPER is an R package.
 
 System Requirements
 ===================
-Requires R (version 3.6.0 or higher). 
+Requires R (version 4.1.0 or higher). 
 
 
 User Documentation
