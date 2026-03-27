@@ -3,41 +3,12 @@ library(dplyr)
 library(tidyr)
 library(ellmer)
 library(openxlsx)
+source("extras/KeeperEvaluation/ConvertOldToNewFormat.R")
 
 
 # Settings -------------------------------------------------------------------------------------------------------------
-# Nemotron 3 Nano running on local LM Studio with original full prompt
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "nvidia/nemotron-3-nano"
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cache"
-resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoOldPrompt.xlsx"
 
-# Nemotron 3 Nano running on local LM Studio with additional timing reminder, removing narrative request.
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "nvidia/nemotron-3-nano"
-)
-promptSettings <- createPromptSettings(timingReminder = TRUE, writeNarrative = FALSE)
-cacheFolder <- "cacheTiming"
-resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoTiming.xlsx"
-
-# Nemotron 3 Nano running on local LM Studio with additional timing and missing reminder.
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "nvidia/nemotron-3-nano"
-)
-promptSettings <- createPromptSettings(missingReminder = TRUE, timingReminder = TRUE, writeNarrative = FALSE)
-cacheFolder <- "cacheTimingMissing"
-resultsFile <- "extras/KeeperEvaluation/MetricsNemotron3NanoTimingMissing.xlsx"
-
-
-# GPT-o3 running on Azure with original full prompt
+# GPT-o3 running on Azure with prompt withnew prompt
 client <- chat_azure_openai(
   endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
   api_version = "2024-12-01-preview",
@@ -45,135 +16,8 @@ client <- chat_azure_openai(
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
-cacheFolder <- "cache"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3OldPrompt.xlsx"
-
-# GPT-o3 running on Azure with additional timing reminder, removing narrative request.
-client <- chat_azure_openai(
-  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
-  api_version = "2024-12-01-preview",
-  model = "o3",
-  credentials = function() keyring::key_get("genai_api_gpt4_key")
-)
-promptSettings <- createPromptSettings(timingReminder = TRUE, writeNarrative = FALSE)
-cacheFolder <- "cacheTiming"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3Timing.xlsx"
-
-# GPT-o3 running on Azure with additional timing reminder.
-client <- chat_azure_openai(
-  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
-  api_version = "2024-12-01-preview",
-  model = "o3",
-  credentials = function() keyring::key_get("genai_api_gpt4_key")
-)
-promptSettings <- createPromptSettings(timingReminder = TRUE)
-cacheFolder <- "cacheTimingNarrative"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3TimingNarrative.xlsx"
-
-# GPT-o3 running on Azure without narrative request
-client <- chat_azure_openai(
-  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
-  api_version = "2024-12-01-preview",
-  model = "o3",
-  credentials = function() keyring::key_get("genai_api_gpt4_key")
-)
-promptSettings <- createPromptSettings(writeNarrative = FALSE)
-cacheFolder <- "cacheNoNarrative"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3NoNarrative.xlsx"
-
-# DeepSeek R1 Distill Llam 70B running on local LM Studio with original full prompt
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "deepseek-r1-distill-llama-70b"
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cacheDeepSeek"
-resultsFile <- "extras/KeeperEvaluation/MetricsDeepSeekOldPrompt.xlsx"
-
-# GLM 4.7 Flash running on local LM Studio with original full prompt
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "zai-org/glm-4.7-flash"
-)
-promptSettings <- createPromptSettings(timingReminder = FALSE)
-cacheFolder <- "cacheGlm47"
-resultsFile <- "extras/KeeperEvaluation/MetricsGlm47OldPrompt.xlsx"
-
-# GPT-o3 running on Azure with new prompt
-client <- chat_azure_openai(
-  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
-  api_version = "2024-12-01-preview",
-  model = "o3",
-  credentials = function() keyring::key_get("genai_api_gpt4_key")
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cacheNewPrompt"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3NewPrompt.xlsx"
-
-# GLM 4.7 Flash running on local LM Studio with new prompt
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "zai-org/glm-4.7-flash"
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cacheGlm47NewPrompt"
-resultsFile <- "extras/KeeperEvaluation/MetricsGlm47NewPrompt.xlsx"
-
-# Medgemma 27B running on local LM Studio with new prompt
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "medgemma-27b-text-it-mlx"
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cacheMedgemma"
-resultsFile <- "extras/KeeperEvaluation/MetricsMedgemmaNewPrompt.xlsx"
-
-# Medgemma 27B running on local LM Studio with legacy prompt
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "medgemma-27b-text-it-mlx"
-)
-promptSettings <- createPromptSettings(legacy = TRUE)
-cacheFolder <- "cacheMedgemmaLegacy"
-resultsFile <- "extras/KeeperEvaluation/MetricsMedgemmaLegacyPrompt.xlsx"
-
-# GPT-o3 running on Azure with prompt per March 3, 2026
-client <- chat_azure_openai(
-  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
-  api_version = "2024-12-01-preview",
-  model = "o3",
-  credentials = function() keyring::key_get("genai_api_gpt4_key")
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cacheMarch3Prompt"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3March3Prompt.xlsx"
-
-# Qwen3.5 35B running on local LM Studio with current prompt
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "qwen3.5-35b-a3b"
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cacheQwen35"
-resultsFile <- "extras/KeeperEvaluation/MetricsQwen35.xlsx"
-
-
-# GPT-o3 running on Azure with prompt with uncertainty
-client <- chat_azure_openai(
-  endpoint = gsub("/openai/deployments.*", "", keyring::key_get("genai_o3_endpoint")),
-  api_version = "2024-12-01-preview",
-  model = "o3",
-  credentials = function() keyring::key_get("genai_api_gpt4_key")
-)
-promptSettings <- createPromptSettings()
-cacheFolder <- "cacheUncertaintyPrompt"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3UncertaintyPrompt.xlsx"
+cacheFolder <- "cacheMarch27Prompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3March27Prompt.xlsx"
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
@@ -197,9 +41,11 @@ groups <- keeper |>
 
 allResults <- list()
 # group = groups[[1]]
+group = group[10, ]
 for (group in groups) {
   message("Evaluating ", group$cohortName[1])
-  result <- reviewCases(keeper = group,
+  newFormat <- convertKeeperTableToKeeper(group)
+  result <- reviewCases(keeper = newFormat,
                         settings = promptSettings,
                         phenotypeName = group$cohortName[1],
                         client = client,
@@ -215,7 +61,7 @@ computeCohensKappa <- function(agreement) {
   return((agreement - 0.5) / 0.5)
 }
 perPersonId <- allResults |>
-  rename(system = "isCase") |>
+  rename(system = "isCase", personId = "generatedId") |>
   inner_join(keeper |>
                select("personId", "goldStandard"),
              by = join_by(personId)) |>

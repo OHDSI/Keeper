@@ -16,10 +16,6 @@
 
 #' Create settings for generating prompts
 
-#' @param maxParts                How many parts can a category have? For example,
-#'                                if `maxParts = 100` and there are more than 100
-#'                                measurements, a random sample of 100 will be
-#'                                taken. Set to `0` if there is no maximum.
 #' @param maxDays                 How many days can a single code have? For example,
 #'                                if `maxDays = 5` and there is a measurement code
 #'                                that appears on more than 5 days, a random sample
@@ -29,11 +25,9 @@
 #' @return A settings object, to be used in [reviewCases()].
 #'
 #' @export
-createPromptSettings <- function(maxParts = 100,
-                                 maxDays = 5,
+createPromptSettings <- function(maxDays = 20,
                                  legacy = FALSE) {
   settings <- list(
-    maxParts = maxParts,
     maxDays = maxDays,
     legacy = legacy
   )
@@ -53,9 +47,147 @@ createSystemPrompt <- function(settings, phenotypeName) {
   return(prompt)
 }
 
-createPrompt <- function(settings,
+# Modern prompt --------------------------------------------------------------------------------------------------------
+createPrompt <- function(settings, subset) {
+  if (nrow(subset) == 0) {
+    return("No data")
+  }
+  prompt <- c(
+    "# Healthcare data"
+  )
+
+  # Demographics
+  age <- subset |>
+    filter(.data$category == "age") |>
+    pull(.data$conceptName)
+  sex <- subset |>
+    filter(.data$category == "sex") |>
+    pull(.data$conceptName)
+  observationPeriod <- subset |>
+    filter(.data$category == "observationPeriod") |>
+    select("startDay", "endDay")
+  race <- subset |>
+    filter(.data$category == "race") |>
+    pull(.data$conceptName)
+  ethnicity <- subset |>
+    filter(.data$category == "ethnicity") |>
+    pull(.data$conceptName)
+  demographics <- c(
+    sprintf("Age: %s", age),
+    sprintf("Sex: %s", sex),
+    sprintf("Observation period: day %d - day %d", observationPeriod$startDay, observationPeriod$endDay)
+  )
+  if (race != "") {
+    demographics <- c(demographics, sprintf("Race: %s", race))
+  }
+  if (ethnicity != "") {
+    demographics <- c(demographics, sprintf("Ethnicity: %s", ethnicity))
+  }
+  prompt <- c(prompt,
+              "## Demographics", 
+              paste(demographics, collapse = "\n"))
+  
+  
+  keeperTables <- c("presentation",
+                    "visits",
+                    "symptoms",
+                    "priorDisease",
+                    "priorDrugs",
+                    "priorTreatmentProcedures",
+                    "measurements",
+                    "alternativeDiagnoses",
+                    "diagnosticProcedures",
+                    "postDisease",
+                    "postDrugs",
+                    "postTreatmentProcedures",
+                    "death")
+  
+  for (keeperTable in keeperTables) {
+    labels <- subset |>
+      filter(.data$category == keeperTable) |>
+      mutate(extraGroup = if (keeperTable %in% c("presentation", "visits")) .data$extraData else "") |>
+      group_by(.data$conceptName, .data$target, .data$extraGroup) |>
+      slice_sample(n = settings$maxDays) |>
+      arrange(.data$startDay) |>
+      summarise(label = generateLabel(.data$conceptName, .data$startDay, .data$endDay, .data$extraData, keeperTable), .groups = "drop") |>
+      mutate(          
+        sortOrder = case_when(
+          .data$target == "Disease of interest" ~ 2,
+          .data$target == "Both" ~ 1,
+          .data$target == "Alternative diagnoses" ~ 0,
+          TRUE ~ -1)) |>
+      arrange(desc(.data$sortOrder), .data$label) |>
+      pull(.data$label)
+    
+    prompt <- c(prompt,
+                sprintf("## %s", case_when(
+                  keeperTable == "presentation" ~ "Conditions recorded on day 0",
+                  keeperTable == "visits" ~ "Visits recorded proximal to day 0",
+                  keeperTable == "symptoms" ~ "Symptoms recorded prior to day 0",
+                  keeperTable == "priorDisease" ~ "Diagnoses recorded prior to day 0",
+                  keeperTable == "priorDrugs" ~ "Drug treatments recorded prior to day 0",
+                  keeperTable == "priorTreatmentProcedures" ~ "Treatment procedures recorded prior to day 0",
+                  keeperTable == "diagnosticProcedures" ~ "Diagnostic procedures recorded proximal to day 0",
+                  keeperTable == "measurements" ~ "Laboratory Tests recorded proximal to day 0",
+                  keeperTable == "alternativeDiagnoses" ~ "Alternative Diagnoses recorded proximal to day 0",
+                  keeperTable == "postDisease" ~ "Diagnoses recorded after day 0",
+                  keeperTable == "postDrugs" ~ "Drug treatments recorded on or after day 0",
+                  keeperTable == "postTreatmentProcedures" ~ "Treatment procedures recorded on or after day 0",
+                  TRUE ~ prettifyName(keeperTable))), 
+                paste(labels, collapse = "\n"))
+  }
+  prompt <- paste(prompt, collapse = "\n\n")
+  # writeLines(prompt)
+  return(prompt)
+}
+
+generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable) {
+  if (keeperTable == "presentation") {
+    return(paste0(conceptName, if_else(extraData == "", "", sprintf(" (%s)", extraData))))
+  } else if (keeperTable == "visits") {
+    return(sprintf("%s%s (%s)",
+                   conceptName[1],
+                   if_else(extraData[1] == "", "", sprintf(" - %s", extraData[1])),
+                   paste(if_else(startDay == endDay,
+                                 sprintf("day %s", startDay),
+                                 sprintf("days %s to %s", startDay, endDay)),
+                         collapse = ", ")))
+  } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
+    return(sprintf("%s (%s)", 
+                   conceptName[1],
+                   paste(sprintf("day %d for %d day%s", 
+                                 startDay, 
+                                 endDay - startDay + 1,
+                                 if_else(endDay == startDay, "", "s")),
+                         collapse = ", ")))
+  } else if (keeperTable == "measurements") {
+    return(sprintf("%s (day %s)", 
+                   conceptName[1],
+                   paste(if_else(extraData == "",
+                                 as.character(startDay),
+                                 sprintf("%d with value %s", startDay, extraData)),
+                         collapse = ", ")))     
+  } else {
+    return(sprintf("%s (day %s)", 
+                   conceptName[1],
+                   paste(startDay, collapse = ", ")))     
+  }
+}
+
+prettifyName <- function(name){
+  name <- gsub("([A-Z])", " \\1", name)
+  name <- tolower(name)
+  name <- gsub("([a-z])([0-9])", "\\1_\\2", name)
+  name <- tolower(name)
+  name <- gsub("\\b([a-z])", "\\U\\1", name, perl = TRUE)
+  return(name)
+}
+
+# Legacy prompt --------------------------------------------------------------------------------------------------------
+createLegacyPrompt <- function(settings,
                          phenotypeName,
-                         keeperTableRow) {
+                         subset) {
+  keeperTableRow <- convertKeeperToTable(subset)
   prompt <- c(
     "Healthcare data:",
     ""
@@ -71,36 +203,30 @@ createPrompt <- function(settings,
   ))
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded on the day of the visit: %s",
-    formatPresentation(keeperTableRow$presentation,
-      maxParts = settings$maxParts
-    )
+    formatPresentation(keeperTableRow$presentation)
   ))
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded prior to the visit: %s",
     formatList(keeperTableRow$priorDisease, keeperTableRow$symptoms,
-      maxParts = settings$maxParts,
-      maxDays = settings$maxDays
+               maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Treatments recorded prior to the visit: %s",
     formatList(keeperTableRow$priorDrugs, keeperTableRow$priorTreatmentProcedures,
-      maxParts = settings$maxParts,
-      maxDays = settings$maxDays
+               maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Diagnostic procedures recorded proximal to the visit: %s",
     formatList(keeperTableRow$diagnosticProcedures,
-      maxParts = settings$maxParts,
-      maxDays = settings$maxDays
+               maxDays = settings$maxDays
     )
   ))
   prompt <- c(prompt, sprintf(
     "Laboratory tests recorded proximal to the visit: %s",
     formatList(keeperTableRow$measurements,
-      maxParts = settings$maxParts,
-      maxDays = settings$maxDays
+               maxDays = settings$maxDays
     )
   ))
   if ("alternativeDiagnosis" %in% colnames(keeperTableRow)) {
@@ -109,8 +235,7 @@ createPrompt <- function(settings,
   prompt <- c(prompt, sprintf(
     "Alternative diagnoses recorded proximal to the visit: %s",
     formatList(keeperTableRow$alternativeDiagnoses,
-      maxParts = settings$maxParts,
-      maxDays = settings$maxDays
+               maxDays = settings$maxDays
     )
   ))
   if ("afterDisease" %in% colnames(keeperTableRow)) {
@@ -119,21 +244,19 @@ createPrompt <- function(settings,
   prompt <- c(prompt, sprintf(
     "Diagnoses recorded after the visit: %s",
     formatList(keeperTableRow$postDisease,
-      maxParts = settings$maxParts,
-      maxDays = settings$maxDays
+               maxDays = settings$maxDays
     )
   ))
-  if ("afterDisease" %in% colnames(keeperTableRow)) {
+  if ("afterDrugs" %in% colnames(keeperTableRow)) {
     keeperTableRow$postDrugs <- keeperTableRow$afterDrugs
   }
-  if ("afterDisease" %in% colnames(keeperTableRow)) {
+  if ("afterTreatmentProcedures" %in% colnames(keeperTableRow)) {
     keeperTableRow$postTreatmentProcedures <- keeperTableRow$afterTreatmentProcedures
   }
   prompt <- c(prompt, sprintf(
     "Treatments recorded during or after the visit: %s",
     formatList(keeperTableRow$postDrugs, keeperTableRow$postTreatmentProcedures,
-      maxParts = settings$maxParts,
-      maxDays = settings$maxDays
+               maxDays = settings$maxDays
     )
   ))
   prompt <- paste(prompt, collapse = "\n\n")
@@ -151,7 +274,7 @@ formatVisitContext <- function(visitContext) {
 
 formatPresentation <- function(presentation, maxParts = 0) {
   presentation <- gsub("\\(Claim, ", "(", formatList(presentation,
-    maxParts = maxParts
+                                                     maxParts = maxParts
   ))
   return(presentation)
 }
@@ -199,3 +322,5 @@ removeExcessDays <- function(dayString, maxDays) {
     return(NA)
   }
 }
+
+

@@ -46,46 +46,18 @@ reviewCases <- function(keeper,
                         phenotypeName = NULL,
                         client,
                         cacheFolder) {
-  if ("age" %in% colnames(keeper)) {
-    format <- "keeperTable"
-  } else {
-    format <- "keeper"
-  }
-  
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(keeper, add = errorMessages)
-  if (format == "keeper") {
-    checkmate::assertNames(colnames(keeper), must.include = c(
-      "generatedId",
-      "startDay",
-      "endDay",
-      "conceptId",
-      "conceptName",
-      "category",
-      "target",
-      "extraData"
-    ), add = errorMessages)
-  } else {
-    checkmate::assertNames(colnames(keeper), must.include = c(
-      "age",
-      "gender",
-      "observationPeriod",
-      "visitContext",
-      "presentation",
-      "comorbidities",
-      "symptoms",
-      "priorDisease",
-      "priorDrugs",
-      "priorTreatmentProcedures",
-      "diagnosticProcedures",
-      "measurements",
-      "alternativeDiagnosis",
-      "afterDisease",
-      "afterTreatmentProcedures",
-      "afterDrugs",
-      "death"
-    ), add = errorMessages)
-  }
+  checkmate::assertNames(colnames(keeper), must.include = c(
+    "generatedId",
+    "startDay",
+    "endDay",
+    "conceptId",
+    "conceptName",
+    "category",
+    "target",
+    "extraData"
+  ), add = errorMessages)
   checkmate::assertClass(settings, "PromptSettings", add = errorMessages)
   checkmate::assertCharacter(phenotypeName, null.ok = TRUE, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
@@ -96,47 +68,30 @@ reviewCases <- function(keeper,
   
   maxRetries <- 5
   
-  if (format == "keeper") {
-    keeperTable <- convertKeeperToTable(keeper)
-  } else {
-    keeperTable <- keeper
-    if (!"generatedId" %in% colnames(keeperTable)) {
-      keeperTable$generatedId <- keeperTable$personId
-    }
-  }
-  if (!is.null(phenotypeName)) {
-    keeperTable$phenotype <- phenotypeName
-  }
+  keeperSplit <- split(keeper, keeper$generatedId)
   
-  result <- tibble(
-    generatedId = keeperTable$generatedId,
-    phenotype = keeperTable$phenotype,
-    isCase = as.character(NA),
-    certainty = as.character(NA),
-    indexDay = as.numeric(NA),
-    justification = as.character(NA),
-    cohortPrevalence = keeperTable$cohortPrevalence,
-    model = client$get_model(),
-    keeperVersion = as.character(packageVersion("Keeper"))
-  )
-  if ("personId" %in% colnames(keeperTable)) {
-    result$personId <- keeperTable$personId
-    result$cohortStartDate <- keeperTable$cohortStartDate
-  }
   if (!dir.exists(cacheFolder)) {
     dir.create(cacheFolder)
   }
   
   cost <- 0
-  nPersons <- nrow(keeperTable)
-  for (i in seq_len(nPersons)) {
+  nPersons <- length(keeperSplit)
+  results <- list()
+  for (i in seq_along(keeperSplit)) {
     message(sprintf("Reviewing person %d of %d", i, nPersons))
     if (i %% 100 == 0) {
       message(sprintf("- Cost so far: $%0.2f", cost))
     }
-    row <- keeperTable[i, ]
+    keeperSubset <- keeperSplit[[i]]
+    if (is.null(phenotypeName)) {
+      phenotype <- keeperSubset |>
+        filter(.data$category == "phenotype") |>
+        pull(.data$conceptName)
+    } else {
+      phenotype <- phenotypeName
+    }
     
-    responseFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder)
+    responseFileName <- generateCacheFileName(phenotype, keeperSubset$generatedId[1], cacheFolder)
     if (file.exists(responseFileName)) {
       if (settings$legacy) {
         response <- paste(readLines(responseFileName), collapse = "\n")
@@ -146,16 +101,23 @@ reviewCases <- function(keeper,
         parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       }
     } else {
-      systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = row$phenotype)
-      prompt <- createPrompt(
-        settings = settings,
-        phenotypeName = row$phenotype,
-        keeperTableRow = row
-      )
+      systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = phenotype)
+      if (settings$legacy) {
+        prompt <- createLegacyPrompt(
+          settings = settings,
+          phenotypeName = phenotype,
+          subset = keeperSubset
+        )
+      } else {
+        prompt <- createPrompt(
+          settings = settings,
+          subset = keeperSubset
+        )
+      }
       
       # Store full prompt for easy review:
       fullPrompt <- sprintf("[System Prompt]\n%s\n[Prompt]\n%s", systemPrompt, prompt)
-      promptFileName <- generateCacheFileName(row$phenotype, row$generatedId, cacheFolder, type = "prompt")
+      promptFileName <- generateCacheFileName(phenotype, keeperSubset$generatedId[1], cacheFolder, type = "prompt")
       writeLines(fullPrompt, promptFileName)
       
       # Ellmer is supposed to retry automatically, but I haven't seen it work when using LM Studio, so using own retry loop:
@@ -201,10 +163,36 @@ reviewCases <- function(keeper,
         }
       }
     }
-    result$isCase[i] <- parsedResponse$isCase
-    result$certainty[i] <- parsedResponse$certainty
-    result$indexDay[i] <- parsedResponse$indexDay
-    result$justification[i] <- parsedResponse$justification
+    
+    cohortPrevalence <-  keeperSubset |>
+      filter(.data$category == "cohortPrevalence") |>
+      pull(.data$conceptName) |>
+      as.numeric()
+    
+    resultsRow <- tibble(
+      generatedId = keeperSubset$generatedId[1],
+      phenotype = phenotype
+    ) |> 
+      bind_cols(parsedResponse) |>
+      mutate(
+        cohortPrevalence = cohortPrevalence,
+        model = client$get_model(),
+        keeperVersion = as.character(packageVersion("Keeper"))
+      )
+    if ("personId" %in% keeperSubset$conceptName) {
+      personId <-  keeperSubset |>
+        filter(.data$category == "personId") |>
+        pull(.data$conceptName) 
+      cohortStartDate <-  keeperSubset |>
+        filter(.data$category == "cohortStartDate") |>
+        pull(.data$conceptName) 
+      resultsRow <- resultsRow |>
+        mutate(
+          personId = personId,
+          cohortStartDate = cohortStartDate
+        )
+    }
+    results[[i]] <- resultsRow
   }
   delta <- Sys.time() - startTime
   message(paste0(
@@ -215,7 +203,7 @@ reviewCases <- function(keeper,
     " and cost $",
     round(cost, 2)
   ))
-  return(result)
+  return(bind_rows(results))
 }
 
 generateCacheFileName <- function(phenotypeName, generatedId, cacheFolder, type = "response") {

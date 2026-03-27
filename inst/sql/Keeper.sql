@@ -129,7 +129,7 @@ GROUP BY generated_id,
 	concept_name,
 	extra_data;
 	
--- Visit
+-- Visits
 SELECT generated_id,
 	DATEDIFF(DAY, cohort_start_date, visit_start_date) AS start_day,
 	DATEDIFF(DAY, cohort_start_date, visit_end_date) AS end_day,	
@@ -137,7 +137,7 @@ SELECT generated_id,
 	CASE WHEN visit_concept.concept_id = 0 THEN '' ELSE visit_concept.concept_name END AS concept_name,
 	CASE WHEN specialty.concept_name IS NULL OR specialty.concept_id = 0 THEN '' ELSE specialty.concept_name END AS extra_data,
 	1 AS target
-INTO #visit_context
+INTO #visits
 FROM #cohort cohort
 INNER JOIN @cdm_database_schema.visit_occurrence
 	ON visit_occurrence.person_id = cohort.subject_id
@@ -432,7 +432,7 @@ GROUP BY generated_id,
 SELECT generated_id,
 	DATEDIFF(DAY, cohort_start_date, death_date) AS start_day,
 	cause_concept_id AS concept_id,
-	CASE WHEN concept_name IS NULL THEN '' ELSE concept_name END AS concept_name,
+	CASE WHEN concept_name IS NULL THEN 'Death' ELSE CONCAT('Death due to ', concept_name) END AS concept_name,
 	1 AS target
 INTO #death
 FROM #cohort cohort

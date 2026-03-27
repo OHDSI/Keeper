@@ -6,8 +6,8 @@ library(pool)
 library(plotly)
 
 # .shinyArgs <- list(
-#   keeper = readRDS("e:/temp/KeeperMm.rds"),
-#   conceptSets = readr::read_csv("e:/temp/mmConceptSets.csv"),
+#   keeper = readRDS("E:/KeeperReferenceCohorts/afibKeeper.rds"),
+#   conceptSets = readr::read_csv("../../extras/atrialFibrillationConceptSets.csv"),
 #   decisionsFileName = "e:/temp/Decisions.csv"
 # )
 # unlink("e:/temp/Decisions.csv")

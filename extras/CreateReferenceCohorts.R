@@ -80,7 +80,7 @@ keeper <- generateKeeper(
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortTable = cohortTable,
   cohortDefinitionId = 1,
-  sampleSize = 100,
+  sampleSize = 10,
   phenotypeName = "Atrial fibrillation",
   keeperConceptSets = conceptSets,
   removePii = TRUE

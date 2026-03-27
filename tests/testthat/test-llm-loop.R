@@ -9,7 +9,7 @@ test_that("reviewCases validates Chat client input", {
     age = 50,
     gender = "Male",
     observationPeriod = "(day-365, day0)",
-    visitContext = "Outpatient",
+    visits = "Outpatient",
     presentation = "None",
     comorbidities = "None",
     symptoms = "None",

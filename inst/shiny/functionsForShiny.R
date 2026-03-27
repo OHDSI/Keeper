@@ -1,7 +1,7 @@
 generateLabel <- function(conceptName, startDay, endDay, extraData, keeperTable) {
   if (keeperTable == "presentation") {
     return(paste0(conceptName, if_else(extraData == "", "", sprintf(" (%s)", extraData))))
-  } else if (keeperTable == "visitContext") {
+  } else if (keeperTable == "visits") {
     return(sprintf("%s%s (%s)",
                    conceptName[1],
                    if_else(extraData[1] == "", "", sprintf(" - %s", extraData[1])),
@@ -36,8 +36,8 @@ getPopoverContent <- function(section, conceptSets = NULL, phenotype = NULL) {
     return(tags$p("Patient demographics, including the age at day 0."))
   } else if (section == "presentation") {
     return(tags$p("Any condition observed on day 0."))
-  } else if (section == "visitContext") {
-    return(tags$p("Any visit that occurred on day 0 or included day 0."))
+  } else if (section == "visits") {
+    return(tags$p("Any visit that occurred in the 30 days prior to 30 days after."))
   } else if (section == "symptoms") {
     text <- "Symptoms that occurred in the 30 days prior, excluding day 0. Symptoms can be conditions or observations."
     categories <- "symptoms"

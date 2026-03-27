@@ -4,14 +4,9 @@
 \alias{createPromptSettings}
 \title{Create settings for generating prompts}
 \usage{
-createPromptSettings(maxParts = 100, maxDays = 5, legacy = FALSE)
+createPromptSettings(maxDays = 20, legacy = FALSE)
 }
 \arguments{
-\item{maxParts}{How many parts can a category have? For example,
-if \code{maxParts = 100} and there are more than 100
-measurements, a random sample of 100 will be
-taken. Set to \code{0} if there is no maximum.}
-
 \item{maxDays}{How many days can a single code have? For example,
 if \code{maxDays = 5} and there is a measurement code
 that appears on more than 5 days, a random sample

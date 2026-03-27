@@ -177,7 +177,7 @@ generateKeeper <- function(connectionDetails = NULL,
   keeperTables <- c(
     "demographics",
     "presentation",
-    "visit_context",
+    "visits",
     "symptoms",
     "prior_disease",
     "post_disease",
@@ -440,7 +440,7 @@ convertKeeperToTable <- function(keeper, removePii = FALSE) {
   
   keeperTables <- c(
     "presentation",
-    "visitContext",
+    "visits",
     "symptoms",
     "priorDisease",
     "postDisease",

@@ -21,8 +21,14 @@ generateLabelForPlot <- function(conceptName, startDay, endDay, extraData, keepe
   
   if (keeperTable == "presentation") {
     labels <- paste0(conceptName, if_else(extraData == "",  "", sprintf(" (%s)", extraData)))
-  } else if (keeperTable == "visitContext") {
-    labels <- paste0(conceptName, if_else(startDay == endDay, "", sprintf(" (%d days)", endDay - startDay)))
+  } else if (keeperTable == "visits") {
+    labels <- sprintf("%s%s%s",
+                   conceptName,
+                   if_else(extraData == "", "", sprintf(" - %s", extraData)),
+                   paste(if_else(startDay == endDay,
+                                 "",
+                                 sprintf(" (for %d days)", endDay - startDay)),
+                         collapse = ", "))
   } else if (keeperTable %in% c("priorDrugs", "postDrugs")) {
     labels <- sprintf("%s (%s)", 
                       conceptName,
@@ -48,7 +54,7 @@ generateLabelForPlot <- function(conceptName, startDay, endDay, extraData, keepe
 plotTimeline <- function(subset) {
   
   keeperTables <- c("presentation",
-                    "visitContext",
+                    "visits",
                     "symptoms",
                     "priorDisease",
                     "priorDrugs",
@@ -67,7 +73,7 @@ plotTimeline <- function(subset) {
   
   vizGroups <- tibble(
     visualGroup = c("Presentation",
-                    "Visit Context",
+                    "Visits",
                     "Disease",
                     "Symptoms",
                     "Alternative Diagnoses",
