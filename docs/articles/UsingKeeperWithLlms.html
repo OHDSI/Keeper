@@ -87,7 +87,7 @@
                         <h4 data-toc-skip class="author">Martijn
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2026-03-26</h4>
+            <h4 data-toc-skip class="date">2026-03-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/Keeper/blob/HEAD/vignettes/UsingKeeperWithLlms.Rmd" class="external-link"><code>vignettes/UsingKeeperWithLlms.Rmd</code></a></small>
       <div class="hidden name"><code>UsingKeeperWithLlms.Rmd</code></div>
@@ -176,19 +176,21 @@ is interrupted, re-running the function will skip previously generated
 responses.</p>
 <p>We can inspect the resulting adjudications:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">llmReviews</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Revmove non-ASCII:</span></span>
+<span><span class="va">llmReviews</span><span class="op">$</span><span class="va">justification</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"[^\u0001-\u007F]+|&lt;U\\+\\w+&gt;"</span>,<span class="st">""</span>, <span class="va">llmReviews</span><span class="op">$</span><span class="va">justification</span><span class="op">)</span></span>
+<span><span class="va">llmReviews</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 20 × 9</span></span></span>
 <span><span class="co">##    generatedId phenotype                 isCase certainty indexDay justification</span></span>
 <span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 1</span>          16 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           8 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence su…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 3</span>           6 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          14 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>• Only one …</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          14 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span> Only one c…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 5</span>          10 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>           5 Type I Diabetes Mellitus… yes    low              0 <span style="color: #949494;">"</span>• The patie…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>           5 Type I Diabetes Mellitus… yes    low              0 <span style="color: #949494;">"</span> The patien…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 7</span>           7 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          15 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           9 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>• Only a si…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           9 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span> Only a sin…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span>          13 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence ag…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">11</span>          17 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence in…</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">12</span>          18 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>

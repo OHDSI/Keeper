@@ -82,6 +82,8 @@ We can inspect the resulting adjudications:
 llmReviews <- readRDS(system.file("llmReviews.rds", package = "Keeper"))
 ```
 ```{r}
+# Revmove non-ASCII:
+llmReviews$justification <- gsub("[^\u0001-\u007F]+|<U\\+\\w+>","", llmReviews$justification)
 llmReviews
 ```
 

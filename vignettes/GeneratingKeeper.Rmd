@@ -23,7 +23,7 @@ library(Keeper)
 
 This vignette describes how to use Keeper to generate patient summaries for case adjudication from data mapped to the OMOP Common Data Model (CDM).
 
-Keeper extracts and summarizes patient-level data for individuals in a specified cohort to facilitate the review of patient profiles. Such examinations can be used to interactively develop a phenotype (cohort definition) of a disease or—in its primary use case—to determine if patients truly have the disease and subsequently calculate positive predictive value (PPV). 
+Keeper extracts and summarizes patient-level data for individuals in a specified cohort to facilitate the review of patient profiles. Such examinations can be used to interactively develop a phenotype (cohort definition) of a disease or - in its primary use case - to determine if patients truly have the disease and subsequently calculate positive predictive value (PPV). 
 
 This review should be conducted by someone familiar with the disease of interest, the underlying data, and the data collection process. Alternatively, the review can be performed by large language models (LLMs), which additionally enables the calculation of sensitivity and specificity. Please refer to the *Using Keeper with LLMs* vignette for more details on that use case.
 
@@ -168,7 +168,6 @@ Diagnostic procedures are looked up in the `PROCEDURE_OCCURRENCE` table within 3
 
 Measurements are laboratory tests used to diagnose T1DM and differential diagnoses:
 
-* 4215993 Administration of insulin
 * 3004410 Hemoglobin A1c/Hemoglobin.total in Blood
 * 3007263 Hemoglobin A1c/Hemoglobin.total in Blood by calculation
 * 40762352 Hemoglobin A1c/Hemoglobin.total in Blood by IFCC protocol
@@ -213,7 +212,7 @@ Keeper creates profiles of persons in a specified cohort. Cohorts can be created
 
 More information on creating cohorts can be found in [the Book of OHDSI](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html).
 
-When using LLMs, it is also possible to create a highly sensitive cohort—a cohort that is unlikely to miss any true cases. Please refer to the *Using Keeper with LLMs* vignette for instructions on creating highly sensitive cohorts.
+When using LLMs, it is also possible to create a highly sensitive cohort - a cohort that is unlikely to miss any true cases. Please refer to the *Using Keeper with LLMs* vignette for instructions on creating highly sensitive cohorts.
 
 For this example, we will use the `Capr` package to define a simple cohort definition:
 
