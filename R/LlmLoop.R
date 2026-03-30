@@ -179,7 +179,7 @@ reviewCases <- function(keeper,
         model = client$get_model(),
         keeperVersion = as.character(packageVersion("Keeper"))
       )
-    if ("personId" %in% keeperSubset$conceptName) {
+    if ("personId" %in% keeperSubset$category) {
       personId <-  keeperSubset |>
         filter(.data$category == "personId") |>
         pull(.data$conceptName) 

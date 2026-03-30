@@ -40,8 +40,8 @@ groups <- keeper |>
   group_split()
 
 allResults <- list()
-# group = groups[[1]]
-group = group[10, ]
+# group = groups[[2]]
+# group = group[13, ]
 for (group in groups) {
   message("Evaluating ", group$cohortName[1])
   newFormat <- convertKeeperTableToKeeper(group)
@@ -122,6 +122,5 @@ cl <- computeOperatingCharacteristics(filter(perPersonId, certainty == "low"))
 ch$certainty <- "high"
 cl$certainty <- "low"
 bind_rows(ch, cl)
-# FN    FP    TN    TP  sens  spec   ppv   npv agree kappa certainty
-# 20     8    99   156 0.886 0.925 0.951 0.832 0.901 0.802 high     
-#  2     9     8    26 0.929 0.471 0.743 0.8   0.756 0.511 low  
+
+

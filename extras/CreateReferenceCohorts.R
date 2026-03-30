@@ -80,7 +80,7 @@ keeper <- generateKeeper(
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortTable = cohortTable,
   cohortDefinitionId = 1,
-  sampleSize = 10,
+  sampleSize = 20,
   phenotypeName = "Atrial fibrillation",
   keeperConceptSets = conceptSets,
   removePii = TRUE
@@ -106,7 +106,7 @@ llmResponses <- reviewCases(keeper = keeper,
                             client = client,
                             cacheFolder = file.path(folder, "cacheAfib"))
 llmResponses |>
-  group_by(isCase) |>
+  group_by(isCase, certainty) |>
   summarise(n())
 saveRDS(llmResponses, file.path(folder, "llmReviewsAfib.rds"))
 
@@ -124,6 +124,13 @@ createSensitiveCohort(
 )
 
 # Run Keeper on the sensitive cohort -----------------------------------------------------------------------------------
+personIds <- NULL
+# keeper <- readRDS(file.path(folder, "keeperAfibHsc.rds"))
+# personIds <- keeper |>
+#   filter(category == "personId") |>
+#   pull(conceptName)
+# oldKeeper <- keeper
+
 keeperHsc <- generateKeeper(
   connectionDetails = connectionDetails,
   cohortDatabaseSchema = cohortDatabaseSchema,
@@ -131,10 +138,29 @@ keeperHsc <- generateKeeper(
   cohortTable = cohortTable,
   cohortDefinitionId = 2,
   sampleSize = 10000,
+  personIds = personIds,
   phenotypeName = "Atrial Fibrillation",
   keeperConceptSets = conceptSets,
   removePii = FALSE
 )
+
+# newIds <- keeperHsc |>
+#   filter(category == "personId") |>
+#   select(personId = "conceptName", "generatedId")
+# newToOldIds <- newIds |>
+#   inner_join(oldKeeper  |>
+#                filter(category == "personId") |>
+#                select(personId = "conceptName", oldId = "generatedId"),
+#                by = join_by("personId"))
+# keeperHsc <- keeperHsc |>
+#   inner_join(newToOldIds, by = join_by("generatedId")) |>
+#   mutate(generatedId = oldId) |>
+#   select(-"oldId")
+# 
+# keeperHsc |>
+#   distinct(generatedId) |>
+#   count()
+
 saveRDS(keeperHsc, file.path(folder, "keeperAfibHsc.rds"))
 
 
@@ -149,15 +175,15 @@ client <- chat_azure_openai(
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
-llmResponsesHsc <- reviewCases(keeper = keeperHsc,
-                               settings = promptSettings,
-                               client = client,
-                               cacheFolder =  file.path(folder, "cacheAfibHsc"))
-saveRDS(llmResponsesHsc, file.path(folder, "llmReviewsAfibHsc.rds"))
+llmReviewsHsc <- reviewCases(keeper = keeperHsc,
+                             settings = promptSettings,
+                             client = client,
+                             cacheFolder =  file.path(folder, "cacheAfibHsc"))
+saveRDS(llmReviewsHsc, file.path(folder, "llmReviewsAfibHsc.rds"))
 
 
 # Upload reference cohort to server ------------------------------------------------------------------------------------
-llmResponsesHsc <- readRDS(file.path(folder, "llmReviewsAfibHsc.rds"))
+llmReviewsHsc <- readRDS(file.path(folder, "llmReviewsAfibHsc.rds"))
 
 uploadReferenceCohort(
   connectionDetails = connectionDetails,
@@ -165,7 +191,7 @@ uploadReferenceCohort(
   referenceCohortTableNames = createReferenceCohortTableNames(referenceCohortTable),
   referenceCohortDefinitionId = 1,
   createReferenceCohortTables = TRUE,
-  reviews = llmResponsesHsc
+  reviews = llmReviewsHsc
 )
 
 # Compute cohort operating characteristics -----------------------------------------------------------------------------

@@ -75,7 +75,7 @@ createPrompt <- function(settings, subset) {
   demographics <- c(
     sprintf("Age: %s", age),
     sprintf("Sex: %s", sex),
-    sprintf("Observation period: day %d - day %d", observationPeriod$startDay, observationPeriod$endDay)
+    sprintf("Observation period: day %d to day %d", observationPeriod$startDay, observationPeriod$endDay)
   )
   if (race != "") {
     demographics <- c(demographics, sprintf("Race: %s", race))

@@ -137,24 +137,39 @@ convertKeeperTableToKeeper <- function(source_data) {
   
   # Attempt to parse 'startDay' and 'endDay' from parenthesis if it contains "day"
   # Otherwise, treat the content inside parenthesis as `extraData`
-  df_events <- df_events %>%
-    mutate(
-      is_day_data = str_detect(parenthesis_data, "day"),
-      startDay = case_when(
-        is_day_data ~ as.numeric(str_extract(parenthesis_data, "(?<=day )-?\\d+")),
-        TRUE ~ NA_real_
-      ),
-      duration = case_when(
-        is_day_data & str_detect(parenthesis_data, "for") ~ as.numeric(str_extract(parenthesis_data, "(?<=for )\\d+")),
-        TRUE ~ 0
-      ),
-      endDay = ifelse(is_day_data & !is.na(duration), startDay + duration, startDay),
-      extraData = case_when(
-        !is_day_data ~ parenthesis_data,
-        TRUE ~ NA_character_
-      )
-    ) %>%
-    select(-raw_value, -parenthesis_data, -is_day_data, -duration)
+  df_events_2 <- list()
+  for (i in seq_len(nrow(df_events))) {
+    row <- df_events[i, ]
+    if (is.na(row$parenthesis_data)) {
+      startDays <- 0
+      endDays <- 0
+      extraData <- row$parenthesis_data      
+    } else if (str_detect(row$parenthesis_data, "for")) {
+      startDays <- as.numeric(str_extract(row$parenthesis_data, "-?\\d+"))
+      endDays <- startDays + as.numeric(gsub("for ", "", str_extract(row$parenthesis_data, "for \\d+")))
+      extraData <- ""
+    } else if (str_detect(row$parenthesis_data, "day")) {
+      startDays <- as.numeric(str_extract_all(row$parenthesis_data, "-?\\d+", simplify = TRUE))
+      endDays <- startDays
+      extraData <- ""
+    } else {
+      startDays <- 0
+      endDays <- 0
+      extraData <- row$parenthesis_data
+    }
+    newRow <- tibble(
+      generatedId = row$generatedId,
+      startDay = startDays,
+      endDay = endDays,
+      conceptId = row$conceptId,
+      conceptName = row$conceptName,
+      category = row$category,
+      target = row$target,
+      extraData = extraData
+    )
+    df_events_2[[i]] <- newRow
+  }
+  df_events_2 <- bind_rows(df_events_2)
   
   df_concept_prevalence <- source_data %>%
     select(generatedId) %>%
@@ -168,7 +183,7 @@ convertKeeperTableToKeeper <- function(source_data) {
     )
   
   # 4. Combine all the processed datasets together
-  target_data <- bind_rows(df_age, df_sex, df_obs, df_race, df_eth, df_visit, df_events, df_concept_prevalence) %>%
+  target_data <- bind_rows(df_age, df_sex, df_obs, df_race, df_eth, df_visit, df_events_2, df_concept_prevalence) %>%
     # Arrange to match final layout schema
     select(generatedId, startDay, endDay, conceptId, conceptName, category, target, extraData) %>%
     # Sort by ID (optional, to keep records of the same patient together)
