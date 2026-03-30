@@ -87,7 +87,7 @@
                         <h4 data-toc-skip class="author">Martijn
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2026-03-27</h4>
+            <h4 data-toc-skip class="date">2026-03-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/Keeper/blob/HEAD/vignettes/UsingKeeperWithLlms.Rmd" class="external-link"><code>vignettes/UsingKeeperWithLlms.Rmd</code></a></small>
       <div class="hidden name"><code>UsingKeeperWithLlms.Rmd</code></div>
@@ -118,20 +118,20 @@ assume that Keeper has already been executed to produce the following
 output:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">keeper</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2,234 × 8</span></span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2,613 × 8</span></span></span>
 <span><span class="co">##    generatedId startDay endDay conceptId conceptName category target   extraData</span></span>
 <span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>          16        0      0        <span style="color: #BB0000;">NA</span> 67          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           8        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>           6        0      0        <span style="color: #BB0000;">NA</span> 72          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          14        0      0        <span style="color: #BB0000;">NA</span> 61          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>          10        0      0        <span style="color: #BB0000;">NA</span> 68          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>           5        0      0        <span style="color: #BB0000;">NA</span> 78          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>           7        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          15        0      0        <span style="color: #BB0000;">NA</span> 81          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           9        0      0        <span style="color: #BB0000;">NA</span> 79          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>          13        0      0        <span style="color: #BB0000;">NA</span> 79          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 2,224 more rows</span></span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>           4        0      0        <span style="color: #BB0000;">NA</span> 67          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           8        0      0        <span style="color: #BB0000;">NA</span> 75          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>          16        0      0        <span style="color: #BB0000;">NA</span> 67          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          10        0      0        <span style="color: #BB0000;">NA</span> 79          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>          13        0      0        <span style="color: #BB0000;">NA</span> 78          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>          18        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>          19        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          12        0      0        <span style="color: #BB0000;">NA</span> 75          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>          17        0      0        <span style="color: #BB0000;">NA</span> 81          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>           7        0      0        <span style="color: #BB0000;">NA</span> 76          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 2,603 more rows</span></span></span></code></pre>
 <div class="section level3">
 <h3 id="choosing-an-llm-provider">1. Choosing an LLM Provider<a class="anchor" aria-label="anchor" href="#choosing-an-llm-provider"></a>
 </h3>
@@ -181,33 +181,33 @@ responses.</p>
 <span><span class="va">llmReviews</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 20 × 9</span></span></span>
 <span><span class="co">##    generatedId phenotype                 isCase certainty indexDay justification</span></span>
-<span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>          16 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           8 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence su…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>           6 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          14 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span> Only one c…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>          10 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>           5 Type I Diabetes Mellitus… yes    low              0 <span style="color: #949494;">"</span> The patien…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>           7 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          15 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           9 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span> Only a sin…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>          13 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence ag…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">11</span>          17 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence in…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">12</span>          18 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">13</span>          19 Type I Diabetes Mellitus… no     low             <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>There are o…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">14</span>           3 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Multiple Ty…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">15</span>           1 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>Multiple in…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">16</span>           2 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Multiple T1…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">17</span>          12 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">18</span>          11 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence FO…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">19</span>          20 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>The patient…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">20</span>           4 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
+<span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>           1 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only a sing…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           2 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>           3 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>1. Repeated…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>           4 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only one is…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>           5 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence FO…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>           6 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The chart c…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>           7 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only one is…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>           8 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span> The patien…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           9 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The only re…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>          10 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence FO…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">11</span>          11 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">12</span>          12 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence FO…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">13</span>          13 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence su…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">14</span>          14 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Single ment…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">15</span>          15 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence fo…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">16</span>          16 Type I Diabetes Mellitus… yes    high             0 <span style="color: #949494;">"</span>Multiple di…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">17</span>          17 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Evidence ag…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">18</span>          18 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only one cl…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">19</span>          19 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>The patient…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">20</span>          20 Type I Diabetes Mellitus… no     high            <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>Only one is…</span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 3 more variables: cohortPrevalence &lt;dbl&gt;, model &lt;chr&gt;, keeperVersion &lt;chr&gt;</span></span></span></code></pre>
 <p>With this data, computing the positive predictive value (PPV) of the
 reviewed cohort is straightforward:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">llmReviews</span><span class="op">$</span><span class="va">isCase</span> <span class="op">==</span> <span class="st">"yes"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.25</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.1</span></span></code></pre>
 <hr>
 </div>
 </div>
@@ -347,9 +347,9 @@ sensitivity, specificity, and PPV) for our target cohort:</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 21</span></span></span>
 <span><span class="co">##   certainty    tp    fp    tn    fn sensitivity sensitivityLb sensitivityUb</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> low         100    20    57    55       0.645         0.564         0.720</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> high        941   215  <span style="text-decoration: underline;">8</span>358     7       0.993         0.985         0.997</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> all        <span style="text-decoration: underline;">1</span>041   235  <span style="text-decoration: underline;">8</span>415    62       0.944         0.929         0.957</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> low          92    16    43    51       0.643         0.559         0.722</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> high        924   241  <span style="text-decoration: underline;">8</span>371    12       0.987         0.978         0.993</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> all        <span style="text-decoration: underline;">1</span>016   257  <span style="text-decoration: underline;">8</span>414    63       0.942         0.926         0.955</span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 13 more variables: specificity &lt;dbl&gt;, specificityLb &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   specificityUb &lt;dbl&gt;, specificityOverall &lt;dbl&gt;, specificityOverallLb &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   specificityOverallUb &lt;dbl&gt;, ppv &lt;dbl&gt;, ppvLb &lt;dbl&gt;, ppvUb &lt;dbl&gt;, auc &lt;dbl&gt;,</span></span></span>

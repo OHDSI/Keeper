@@ -13,6 +13,8 @@ Changes:
     
     - Removed the 'comorbidities' category from both the input and the output, as this was ill-defined. 
     
+    - Replaced `visitContext`, which was a visit spanning day 0, with `visit`, a list of visits in the 30 days prior to 30 days after.
+    
     - The `databaseId` argument has been removed. Instead, the database name is extracted from the `cdm_source` table.
     
     - Computes the prevalence of the input cohort in the overall population and stores it in the output table for later computations.

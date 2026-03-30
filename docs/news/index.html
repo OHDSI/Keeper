@@ -72,6 +72,7 @@
 <ul><li><p>The concept set input arguments have been grouped in a single <code>keeperConceptSets</code> argument.</p></li>
 <li><p>The output has changed from a human-readable table to a structured intermediary format.</p></li>
 <li><p>Removed the ‘comorbidities’ category from both the input and the output, as this was ill-defined.</p></li>
+<li><p>Replaced <code>visitContext</code>, which was a visit spanning day 0, with <code>visit</code>, a list of visits in the 30 days prior to 30 days after.</p></li>
 <li><p>The <code>databaseId</code> argument has been removed. Instead, the database name is extracted from the <code>cdm_source</code> table.</p></li>
 <li><p>Computes the prevalence of the input cohort in the overall population and stores it in the output table for later computations.</p></li>
 </ul></li>
