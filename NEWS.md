@@ -1,3 +1,11 @@
+Keeper 2.0.1
+============
+
+Bug fixes:
+
+1. Added missing 'phenotype' field to the metadata table in `uploadReferenceCohort()`.
+
+
 Keeper 2.0.0
 ============
 

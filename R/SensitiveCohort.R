@@ -320,6 +320,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 
       CREATE TABLE @reference_cohort_database_schema.@reference_cohort_metadata_table (
         cohort_definition_id INT,
+        phenotype VARCHAR,
         cohort_prevalence FLOAT,
         model VARCHAR,
         keeperVersion VARCHAR
@@ -396,12 +397,14 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 
     INSERT INTO @reference_cohort_database_schema.@reference_cohort_metadata_table (
       cohort_definition_id,
+      phenotype,
       cohort_prevalence,
       model,
       keeperVersion
     )
     SELECT
       CAST(@reference_cohort_definition_id AS INT) AS cohort_definition_id,
+      phenotype,
       cohort_prevalence,
       model,
       keeper_version
