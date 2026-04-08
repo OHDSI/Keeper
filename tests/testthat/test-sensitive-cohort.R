@@ -23,7 +23,10 @@ test_that("uploadReferenceCohort enforces connection input", {
     cohortPrevalence = 0.2,
     model = "test-model",
     keeperVersion = "0.0.0",
-    stringsAsFactors = FALSE
+    stringsAsFactors = FALSE,
+    observationPeriodStartDay = -1000,
+    observationPeriodEndDay = 1000
+    
   )
 
   expect_error(
@@ -51,6 +54,8 @@ test_that("uploadReferenceCohort rejects non-unique metadata", {
     cohortPrevalence = c(0.2, 0.3),
     model = c("test-model", "test-model-2"),
     keeperVersion = c("0.0.0", "0.0.0"),
+    observationPeriodStartDay = -1000,
+    observationPeriodEndDay = 1000,
     stringsAsFactors = FALSE
   )
 
@@ -104,3 +109,4 @@ test_that("computePerformanceMetrics handles undefined sensitivity", {
   expect_equal(as.vector(metrics$specificity), 1, tolerance = 1e-8)
   expect_equal(metrics$ppv, NA_real_)
 })
+
