@@ -1,5 +1,9 @@
-Keeper 2.0.1
+Keeper 2.1.0
 ============
+
+Changes:
+
+1. Restricting concept classes for recommended drugs to ingredient or higher.
 
 Bug fixes:
 
