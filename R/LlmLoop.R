@@ -186,10 +186,14 @@ reviewCases <- function(keeper,
       cohortStartDate <-  keeperSubset |>
         filter(.data$category == "cohortStartDate") |>
         pull(.data$conceptName) 
+      observationPeriod <-  keeperSubset |>
+        filter(.data$category == "observationPeriod")
       resultsRow <- resultsRow |>
         mutate(
           personId = personId,
-          cohortStartDate = cohortStartDate
+          cohortStartDate = cohortStartDate,
+          observationPeriodStartDay = observationPeriod$startDay,
+          observationPeriodEndDay = observationPeriod$endDay
         )
     }
     results[[i]] <- resultsRow

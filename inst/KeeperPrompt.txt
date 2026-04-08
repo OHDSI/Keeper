@@ -26,7 +26,7 @@ Indicate how certain you are in your verdict using one of two levels:
 "High": You are close to certainty of being right. (Note: Do not default to "low" for "No" verdicts; a pattern of testing without treatment, or explicit alternative diagnosis, warrants a "high" certainty "No".)
 
 Onset:
-If your verdict is "Yes", provide the relative day that is the likely day of onset. If there is no clear day of onset, return 0.
+If your verdict is "Yes", provide the relative day corresponding to the most likely onset. If no clear onset day can be identified return -9999.
 
 Output Format: 
 Provide your response in a single JSON object. 

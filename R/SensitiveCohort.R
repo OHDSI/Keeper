@@ -315,7 +315,9 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
         cohort_start_date DATE,
         is_case INT,
         certainty VARCHAR(4),
-        justification VARCHAR
+        justification VARCHAR,
+        observation_period_start_date DATE,
+        observation_period_end_date DATE
       );
 
       CREATE TABLE @reference_cohort_database_schema.@reference_cohort_metadata_table (
@@ -339,15 +341,17 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
   table <- reviews |>
     select(
       "personId",
-      "cohortStartDate",
+      startDate = "cohortStartDate",
       "indexDay",
       "isCase",
       "certainty",
       "justification",
+      "observationPeriodStartDay",
+      "observationPeriodEndDay"
     ) |>
     mutate(
       isCase = if_else(.data$isCase == "yes", 1, 0),
-      indexDay = if_else(is.na(.data$indexDay), 0, (.data$indexDay))
+      indexDay = if_else(is.na(.data$indexDay), 0, .data$indexDay)
     )
   DatabaseConnector::insertTable(
     connection = connection,
@@ -384,15 +388,19 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
       cohort_start_date,
       is_case,
       certainty,
-      justification
+      justification,
+      observation_period_start_date,
+      observation_period_end_date
     )
     SELECT
       CAST(@reference_cohort_definition_id AS INT) AS cohort_definition_id,
       CAST(person_id AS BIGINT) AS subject_id,
-      DATEADD(DAY, index_day, cohort_start_date) AS cohort_start_date,
+      CASE WHEN index_day = -9999 THEN NULL ELSE DATEADD(DAY, index_day, start_date) END AS cohort_start_date,
       is_case,
       certainty,
-      justification
+      justification,
+      DATEADD(DAY, observation_period_start_day, start_date) AS observation_period_start_date,
+      DATEADD(DAY, observation_period_end_day, start_date) AS observation_period_end_date
     FROM #cohort_stage;
 
     INSERT INTO @reference_cohort_database_schema.@reference_cohort_metadata_table (
@@ -446,6 +454,13 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 #' @param referenceCohortTableNames      The table names where the reference cohort and metadata are stored. Should
 #'                                       be created using [createReferenceCohortTableNames())].
 #' @param referenceCohortDefinitionId    The cohort definition ID of the reference cohort.
+#' @param type                           If `type = "incident"`, phenotypes are evaluated to also get the right cohort
+#'                                       start date. If `type = "prevalent"`, the evaluation only asks whether the 
+#'                                       phentype correctly classified a person as case or non-case.
+#' @param washoutPeriod                  The minimum required continuous observation time prior to index date for a 
+#'                                       person to be included in the cohort. People with a cohort start date within
+#'                                       the washout period will be removed before computing performance metrics.
+#' @param stratifyByCertainty            Stratify the output by LLM certainty level? 
 #'
 #' @returns
 #' A tibble with one row per certainty level (`"high"`, `"low"`, `"all"`) and columns for
@@ -464,7 +479,10 @@ computeCohortOperatingCharacteristics <- function(
   cohortDefinitionId,
   referenceCohortDatabaseSchema,
   referenceCohortTableNames,
-  referenceCohortDefinitionId
+  referenceCohortDefinitionId,
+  type = "incident",
+  washoutPeriod = 365,
+  stratifyByCertainty = FALSE
 ) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
@@ -479,6 +497,10 @@ computeCohortOperatingCharacteristics <- function(
     "referenceCohortMetadataTable"
   ), add = errorMessages)
   checkmate::assertIntegerish(referenceCohortDefinitionId, len = 1, add = errorMessages)
+  checkmate::assertCharacter(type, len = 1, add = errorMessages)
+  checkmate::assertChoice(type, choices = c("incident", "prevalent"), add = errorMessages)
+  checkmate::assertIntegerish(washoutPeriod, len = 1, add = errorMessages)
+  checkmate::assertLogical(stratifyByCertainty, len = 1, add = errorMessages)
   checkmate::reportAssertions(errorMessages)
   if (is.null(connectionDetails) && is.null(connection)) {
     stop("Must provide either connectionDetails or a connection.")
@@ -495,13 +517,33 @@ computeCohortOperatingCharacteristics <- function(
     reference_cohort_definition_id = referenceCohortDefinitionId,
     cohort_database_schema = cohortDatabaseSchema,
     cohort_table = cohortTable,
-    cohort_definition_id = cohortDefinitionId
+    cohort_definition_id = cohortDefinitionId,
+    type = type,
+    washout_period = washoutPeriod
   )
   confusionCounts <- DatabaseConnector::querySql(
     connection = connection,
     sql = sql,
     snakeCaseToCamelCase = TRUE
   )
+  sql <- "
+    SELECT certainty,
+      SUM(is_case) AS cases,
+      COUNT(*) - SUM(is_case) AS non_cases
+    FROM @reference_cohort_database_schema.@reference_cohort_table
+    WHERE cohort_definition_id = @reference_cohort_definition_id
+    GROUP BY certainty;
+  "
+  caseCounts <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = sql,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_cohort_table = referenceCohortTableNames$referenceCohortTable,
+    reference_cohort_definition_id = referenceCohortDefinitionId,
+    snakeCaseToCamelCase = TRUE
+  )  
+  counts <- confusionCounts |>
+    inner_join(caseCounts, by = join_by("certainty"))
   sql <- "
     SELECT *
     FROM @reference_cohort_database_schema.@reference_cohort_metadata_table
@@ -516,9 +558,14 @@ computeCohortOperatingCharacteristics <- function(
     snakeCaseToCamelCase = TRUE
   )
   metrics <- tibble()
-  for (certainty in c(confusionCounts$certainty, "all")) {
+  if (stratifyByCertainty) {
+    certaintyLevels <- c(counts$certainty, "all")
+  } else {
+    certaintyLevels <- "all"
+  }
+  for (certainty in certaintyLevels) {
     if (certainty == "all") {
-      subset <- confusionCounts |>
+      subset <- counts |>
         summarise(
           truePositives = sum(.data$truePositives),
           trueNegatives = sum(.data$trueNegatives),
@@ -528,7 +575,7 @@ computeCohortOperatingCharacteristics <- function(
           nonCases = sum(.data$nonCases)
         )
     } else {
-      subset <- confusionCounts |>
+      subset <- counts |>
         filter(.data$certainty == !!certainty)
     }
     subsetMetrics <- computePerformanceMetrics(
