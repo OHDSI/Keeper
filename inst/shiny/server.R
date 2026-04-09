@@ -3,9 +3,39 @@ source("PlotKeeper.R")
 
 shinyServer(function(input, output, session) {
   
-  dataList <- getDataList(session)
+  dataList <- reactiveValues(
+    keeper = data.frame(),
+    conceptSets = data.frame(),
+    hasPersonIds = FALSE,
+    nProfiles = 0
+  )
   
-  decisions <- reactiveValues(decisionsDataFrame = dataList$decisions$decisionsDataFrame)
+  decisions <- reactiveValues(
+    decisionsDataFrame = data.frame()
+  )
+  
+  if (mode == "local") {
+    temp <- getDataList()
+    dataList$decisions <- temp$decisions
+    dataList$keeper <- temp$keeper
+    dataList$conceptSets <- temp$conceptSets
+    dataList$hasPersonIds <- temp$hasPersonIds
+    dataList$nProfiles <- temp$nProfiles
+    decisions$decisionsDataFrame <- temp$decisions$decisionsDataFrame
+    initialized <- TRUE
+  } else {
+    shiny::observeEvent(input$adjudicator, {
+      temp <- getDataList(input$adjudicator)
+      dataList$decisions <- temp$decisions
+      dataList$keeper <- temp$keeper
+      dataList$conceptSets <- temp$conceptSets
+      dataList$hasPersonIds <- temp$hasPersonIds
+      dataList$nProfiles <- temp$nProfiles
+      decisions$decisionsDataFrame <- temp$decisions$decisionsDataFrame
+      initialized <- TRUE
+    })
+    initialized <- FALSE
+  }
   
   profile <- shiny::reactiveValues(index = 1)
   
@@ -41,9 +71,7 @@ shinyServer(function(input, output, session) {
       head(1) |>
       pull(phenotype)
   })
-  
-  output$adjudicator <- shiny::renderText(dataList$decisions$adjudicator)
-  
+
   output$maxLabel <- shiny::renderText(sprintf("/ %d", dataList$nProfiles))
   
   observe({
@@ -52,7 +80,6 @@ shinyServer(function(input, output, session) {
       decision <- decisions$decisionsDataFrame[profile$index, "decision"]
       if (is.na(decision))
         decision <- character(0)
-      
       certainty <- decisions$decisionsDataFrame[profile$index, "certainty"]
       if (is.na(certainty))
         certainty <- character(0)
@@ -233,7 +260,7 @@ shinyServer(function(input, output, session) {
     
     table <- tags$table(tags$tr(cells), 
                         style = "border-collapse: separate; border-spacing: 20px; margin-right: auto; margin-top: -10px; margin-bottom: -20px;")
-
+    
     return(table)
   })
   
@@ -245,6 +272,7 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(input$decision, {
     decisions$decisionsDataFrame[profile$index, "decision"] <- input$decision
     if (dataList$decisions$type == "file") {
+      writeLines(sprintf("Updating file, setting decision to %s", input$decision))
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting decision to %s", input$decision))
@@ -264,7 +292,7 @@ shinyServer(function(input, output, session) {
         database_id = key$databaseId,
         phenotype = key$phenotype,
         generated_id = key$generatedId,
-        adjudicator = dataList$adjudicator,
+        adjudicator = input$adjudicator,
         decision = input$decision,
         progressBar = FALSE,
         reportOverallTime = FALSE
@@ -275,6 +303,7 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(input$certainty, {
     decisions$decisionsDataFrame[profile$index, "certainty"] <- input$certainty
     if (dataList$decisions$type == "file") {
+      writeLines(sprintf("Updating file, setting certainty to %s", input$certainty))
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting certainty to %s", input$certainty))
@@ -294,7 +323,7 @@ shinyServer(function(input, output, session) {
         database_id = key$databaseId,
         phenotype = key$phenotype,
         generated_id = key$generatedId,
-        adjudicator = dataList$adjudicator,
+        adjudicator = input$adjudicator,
         certainty = input$certainty,
         progressBar = FALSE,
         reportOverallTime = FALSE
@@ -309,6 +338,7 @@ shinyServer(function(input, output, session) {
     req(!is.na(delayedIndexDay()))
     decisions$decisionsDataFrame[profile$index, "indexDay"] <- delayedIndexDay()
     if (dataList$decisions$type == "file") {
+      writeLines(sprintf("Updating file, setting index_day to %s", delayedIndexDay()))
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting index_day to %s", delayedIndexDay()))
@@ -328,7 +358,7 @@ shinyServer(function(input, output, session) {
         database_id = key$databaseId,
         phenotype = key$phenotype,
         generated_id = key$generatedId,
-        adjudicator = dataList$adjudicator,
+        adjudicator = input$adjudicator,
         index_day = delayedIndexDay(),
         progressBar = FALSE,
         reportOverallTime = FALSE

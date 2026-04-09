@@ -104,10 +104,9 @@ shinyUI(
         textOutput("database"),
         h3("Phenotype"),
         textOutput("phenotype"),
-        conditionalPanel(
-          condition = "output.adjudicator != ''",
+        if (mode == "server") list(
           h3("Reviewer"),
-          textOutput("adjudicator"),
+          selectInput("adjudicator", NULL, choices = adjudicators, selected = adjudicators[1])
         ),
         h3("Person ID"),
         textOutput("personId"),

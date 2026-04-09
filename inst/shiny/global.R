@@ -5,16 +5,21 @@ library(bslib)
 library(pool)
 library(plotly)
 
+
 # .shinyArgs <- list(
-#   keeper = readRDS("E:/KeeperReferenceCohorts/afibKeeper.rds"),
-#   conceptSets = readr::read_csv("../../extras/atrialFibrillationConceptSets.csv"),
+#   keeper = readRDS("../shuffledKeeper.rds"),
+#   conceptSets = readr::read_csv("../t1dmConceptSets.csv"),
 #   decisionsFileName = "e:/temp/Decisions.csv"
 # )
 # unlink("e:/temp/Decisions.csv")
 
-if (!exists(".shinyArgs", envir = .GlobalEnv) && Sys.getenv("KEEPER_SERVER") != "") {
+if (exists(".shinyArgs", envir = .GlobalEnv)) {
+  mode <- "local"
+  adjudicators <- NULL
+} else if (Sys.getenv("KEEPER_SERVER") != "") {
+  mode <- "server"
   Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "data")
-
+  
   writeLines("Opening connection pool")
   connectionPool <- pool::dbPool(
     drv = DatabaseConnector::DatabaseConnectorDriver(),
@@ -30,6 +35,20 @@ if (!exists(".shinyArgs", envir = .GlobalEnv) && Sys.getenv("KEEPER_SERVER") != 
       pool::poolClose(connectionPool)
     }
   })
+  
+  sql = "
+      SELECT DISTINCT adjudicator 
+      FROM @database_schema.adjudications 
+      ORDER BY adjudicator;
+    "
+  adjudicators <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connectionPool,
+    sql = sql,
+    database_schema = databaseSchema
+  ) |>
+    pull(adjudicator)
+} else {
+  stop("No arguments provided, and no server details found")
 }
 
 loadDecisionsFromFile <- function(fileName, keeper) {
@@ -42,7 +61,8 @@ loadDecisionsFromFile <- function(fileName, keeper) {
       distinct(generatedId, databaseId, phenotype) |>
       mutate(decision = NA,
              certainty = NA,
-             indexDay = as.numeric(0))
+             indexDay = 0) |>
+      as.data.frame()
     write_csv(decisionsDataFrame, fileName)
   }
   return(decisionsDataFrame)
@@ -63,8 +83,8 @@ addDatabaseIdPhenotypeIfNeeded <- function(keeper) {
   return(keeper)
 }
 
-getDataList <- function(session) {
-  if (exists(".shinyArgs", envir = .GlobalEnv)) {
+getDataList <- function(adjudicator = NULL) {
+  if (mode == "local") {
     writeLines("Using user-provided Keeper data")
     args <- get(".shinyArgs", envir = .GlobalEnv)
     keeper <- args$keeper
@@ -76,15 +96,9 @@ getDataList <- function(session) {
       fileName = decisionsFileName,
       decisionsDataFrame = loadDecisionsFromFile(decisionsFileName, keeper)
     )
-  } else if (Sys.getenv("KEEPER_SERVER") != "") {
-    writeLines("Loading Keeper data from database server")
+  } else if (mode == "server") {
+    writeLines(paste("Loading KEEPER data from database server for user", adjudicator))
     
-    if (is.null(session$user)) {
-      writeLines("Could not detect user. Setting to default")
-      adjudicator <- "TEST_USER"
-    } else {
-      adjudicator <- toupper(session$user)
-    }
     sql <- "
       SELECT keeper.* 
       FROM @database_schema.adjudications 
@@ -104,9 +118,10 @@ getDataList <- function(session) {
       as_tibble()
     sql <- "
       SELECT * 
-    FROM @database_schema.adjudications 
-    WHERE adjudicator = '@adjudicator'
-    ORDER BY sort_order;"
+      FROM @database_schema.adjudications 
+      WHERE adjudicator = '@adjudicator'
+      ORDER BY sort_order;
+    "
     decisionsDataFrame <- DatabaseConnector::renderTranslateQuerySql(
       connection = connectionPool,
       sql = sql,
@@ -139,20 +154,6 @@ getDataList <- function(session) {
       snakeCaseToCamelCase = TRUE
     ) |>
       as_tibble()
-
-  } else {
-    writeLines("Loading Keeper data from data folder")
-    # keeper <- readRDS("/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/KeeperMm - Copy.rds")
-    # decisionsFileName <- "/Users/schuemie/Library/CloudStorage/OneDrive-JNJ/QuickShare/Decisions.csv"
-    keeper <- readRDS("data/Keeper.rds")
-    keeper <- addDatabaseIdPhenotypeIfNeeded(keeper)
-    conceptSets <- readRDS("data/ConceptSets.rds")
-    decisionsFileName <- "data/Decisions.csv"
-    decisions <- list(
-      type = "file",
-      fileName = decisionsFileName,
-      decisionsDataFrame = loadDecisionsFromFile(decisionsFileName, keeper)
-    )
   }
   
   return(list(keeper = keeper,
