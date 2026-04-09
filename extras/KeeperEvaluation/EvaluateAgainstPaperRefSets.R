@@ -19,6 +19,30 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheMarch27Prompt"
 resultsFile <- "extras/KeeperEvaluation/MetricsO3March27Prompt.xlsx"
 
+
+# Nemotron Cascade 2 30B running on local LM Studio with original full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "nemotron-cascade-2-30b-a3b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheNemotronCascade2"
+resultsFile <- "extras/KeeperEvaluation/MetricsNemotronCascade2.xlsx"
+
+# Gemma 4 31B running on local LM Studio with original full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "unsloth/gemma-4-31b-it"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheGemma4"
+resultsFile <- "extras/KeeperEvaluation/MetricsGemma4.xlsx"
+
+
+
+
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
 keeper <- read.xlsx(keeperFile) |>
