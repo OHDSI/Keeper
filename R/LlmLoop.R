@@ -66,6 +66,8 @@ reviewCases <- function(keeper,
   
   startTime <- Sys.time()
   
+  structured <- supportsStructuredOutput(client)
+  
   maxRetries <- 5
   
   keeperSplit <- split(keeper, keeper$generatedId)
@@ -133,15 +135,20 @@ reviewCases <- function(keeper,
               writeLines(response, responseFileName)
               parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
             } else {
-              response <- client$chat_structured(prompt,
-                                                 echo = "none",
-                                                 type = ellmer::type_object(
-                                                   justification = ellmer::type_string(),
-                                                   verdict = ellmer::type_string(),
-                                                   certainty = ellmer::type_string(),
-                                                   day_of_onset = ellmer::type_integer()
-                                                 )
-              )
+              if (structured) {
+                response <- client$chat_structured(prompt,
+                                                   echo = "none",
+                                                   type = ellmer::type_object(
+                                                     justification = ellmer::type_string(),
+                                                     verdict = ellmer::type_string(),
+                                                     certainty = ellmer::type_string(),
+                                                     day_of_onset = ellmer::type_integer()
+                                                   )
+                )
+              } else {
+                response <- client$chat(prompt, echo = "none")
+                response <- jsonlite::fromJSON(response)
+              }
               jsonlite::write_json(response, responseFileName)
               parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
             }
@@ -157,10 +164,10 @@ reviewCases <- function(keeper,
               stop("Exceeding maximum number of retries when calling LLM")
             }
           }
-        )
-        if (!is.null(parsedResponse)) {
-          break
-        }
+                )
+                if (!is.null(parsedResponse)) {
+                  break
+                }
       }
     }
     
@@ -222,4 +229,20 @@ generateCacheFileName <- function(phenotypeName, generatedId, cacheFolder, type 
   fileName <- paste(fileName, "txt", sep = ".")
   
   return(file.path(cacheFolder, fileName))
+}
+
+
+supportsStructuredOutput <- function(client) {
+  test_type <- type_object(
+    supported = type_boolean("Always return true")
+  )
+  success <- tryCatch({
+    res <- client$chat_structured("Respond using the schema.", 
+                                  type = test_type, 
+                                  echo = "none")
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+  return(success)
 }
