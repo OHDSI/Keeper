@@ -16,8 +16,8 @@ client <- chat_azure_openai(
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
-cacheFolder <- "cacheMarch27Prompt"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3March27Prompt.xlsx"
+cacheFolder <- "cacheApril9Prompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3April9Prompt.xlsx"
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"

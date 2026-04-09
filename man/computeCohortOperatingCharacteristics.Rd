@@ -14,7 +14,7 @@ computeCohortOperatingCharacteristics(
   referenceCohortTableNames,
   referenceCohortDefinitionId,
   type = "incident",
-  washoutPeriod = 365,
+  washoutPeriod = 0,
   stratifyByCertainty = FALSE
 )
 }
