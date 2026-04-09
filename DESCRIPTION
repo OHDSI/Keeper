@@ -1,8 +1,8 @@
 Package: Keeper
 Type: Package
 Title: An R package to review patient profiles for phenotype validation
-Version: 2.0.1
-Date: 2026-04-02
+Version: 2.1.0
+Date: 2026-04-08
 Authors@R: c(
     person("Ostropolets", "Anna", email = "ostropolets@ohdsi.org", role = c("aut", "cre")),
     person("Schuemie", "Martjn", role = c("aut")),

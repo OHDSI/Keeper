@@ -12,7 +12,10 @@ computeCohortOperatingCharacteristics(
   cohortDefinitionId,
   referenceCohortDatabaseSchema,
   referenceCohortTableNames,
-  referenceCohortDefinitionId
+  referenceCohortDefinitionId,
+  type = "incident",
+  washoutPeriod = 0,
+  stratifyByCertainty = FALSE
 )
 }
 \arguments{
@@ -40,6 +43,16 @@ be created using [createReferenceCohortTableNames())].
 [createReferenceCohortTableNames())]: R:createReferenceCohortTableNames())}
 
 \item{referenceCohortDefinitionId}{The cohort definition ID of the reference cohort.}
+
+\item{type}{If \code{type = "incident"}, phenotypes are evaluated to also get the right cohort
+start date. If \code{type = "prevalent"}, the evaluation only asks whether the
+phentype correctly classified a person as case or non-case.}
+
+\item{washoutPeriod}{The minimum required continuous observation time prior to index date for a
+person to be included in the cohort. People with a cohort start date within
+the washout period will be removed before computing performance metrics.}
+
+\item{stratifyByCertainty}{Stratify the output by LLM certainty level?}
 }
 \value{
 A tibble with one row per certainty level (\code{"high"}, \code{"low"}, \code{"all"}) and columns for

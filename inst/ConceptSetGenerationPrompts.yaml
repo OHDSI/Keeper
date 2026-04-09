@@ -135,7 +135,11 @@
 
   domains:
     - Drug
-    
+  conceptClasses:
+    - Ingredient
+    - ATC 3rd
+    - ATC 4th
+    - Vaccine Group
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor
     You are provided a list of Medical Conditions and a list of candidate Concepts.

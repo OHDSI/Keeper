@@ -96,6 +96,8 @@ test_that("Upload LLM reviews to Eunomia", {
   # Make up Pii:
   llmReviews$personId <- round(runif(nrow(llmReviews), 1, 10000000))
   llmReviews$cohortStartDate <- as.Date("2000-01-01")
+  llmReviews$observationPeriodStartDay <- -1000
+  llmReviews$observationPeriodEndDay <- 1000
   
   uploadReferenceCohort(
     connectionDetails = connectionDetails,

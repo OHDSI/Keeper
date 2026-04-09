@@ -16,8 +16,8 @@ client <- chat_azure_openai(
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
-cacheFolder <- "cacheMarch27Prompt"
-resultsFile <- "extras/KeeperEvaluation/MetricsO3March27Prompt.xlsx"
+cacheFolder <- "cacheApril9Prompt"
+resultsFile <- "extras/KeeperEvaluation/MetricsO3April9Prompt.xlsx"
 
 
 # Nemotron Cascade 2 30B running on local LM Studio with original full prompt

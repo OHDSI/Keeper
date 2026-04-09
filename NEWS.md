@@ -1,5 +1,16 @@
-Keeper 2.0.1
+Keeper 2.1.0
 ============
+
+Changes:
+
+1. Restricting concept classes for recommended drugs to ingredient or higher.
+
+2. LLM review now clearly marks when the date of onset is unclear.
+
+3. The observation period start and end days are now also stored in the output of `reviewCases()` when `removePii = FALSE`.
+
+4. Added `washoutPeriod`, `type`, and '`stratifyByCertainty` arguments to the `computeCohortOperatingCharacteristics()` function.
+
 
 Bug fixes:
 
