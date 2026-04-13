@@ -40,7 +40,7 @@ shinyServer(function(input, output, session) {
   profile <- shiny::reactiveValues(index = 1)
   
   keeperSubset <- shiny::reactive({
-    key <- isolate(decisions$decisionsDataFrame)[profile$index, ] |>
+    key <- decisions$decisionsDataFrame[profile$index, ] |>
       select(databaseId, phenotype, generatedId)
     subset <- dataList$keeper |>
       inner_join(key, by = join_by(databaseId, phenotype, generatedId))
