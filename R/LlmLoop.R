@@ -233,8 +233,8 @@ generateCacheFileName <- function(phenotypeName, generatedId, cacheFolder, type 
 
 
 supportsStructuredOutput <- function(client) {
-  test_type <- type_object(
-    supported = type_boolean("Always return true")
+  test_type <- ellmer::type_object(
+    supported = ellmer::type_boolean("Always return true")
   )
   success <- tryCatch({
     res <- client$chat_structured("Respond using the schema.", 
@@ -243,6 +243,7 @@ supportsStructuredOutput <- function(client) {
     TRUE
   }, error = function(e) {
     FALSE
+    message("LLM does not appear to support structured output")
   })
   return(success)
 }
