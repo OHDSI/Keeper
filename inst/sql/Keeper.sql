@@ -98,6 +98,7 @@ SELECT generated_id,
 	MAX(COALESCE(target, -1)) AS target
 INTO #presentation
 FROM (
+  -- Condition occurrences
 	SELECT generated_id,
 		concept.concept_id,
 		concept.concept_name,	
@@ -117,12 +118,42 @@ FROM (
 	LEFT JOIN @cdm_database_schema.concept type_concept
 		ON condition_type_concept_id = type_concept.concept_id
 			AND condition_type_concept_id != 0
-	LEFT JOIN @cdm_database_schema.concept  status_concept
+	LEFT JOIN @cdm_database_schema.concept status_concept
 		ON condition_status_concept_id = status_concept.concept_id
 			AND condition_status_concept_id != 0
 	LEFT JOIN #full_concept_sets full_concept_sets
 		ON condition_concept_id = full_concept_sets.concept_id
 	WHERE condition_concept_id != 0
+	
+	UNION ALL
+	
+	-- observations
+	SELECT generated_id,
+		observation_concept_id AS concept_id,
+		concept.concept_name,
+		CASE 
+			WHEN value_as_concept_id != 0 AND value_concept.concept_name IS NOT NULL THEN value_concept.concept_name
+			WHEN value_as_number IS NOT NULL THEN CONCAT(
+				value_as_number,
+				CASE WHEN unit_concept_id = 0 OR unit_concept.concept_name IS NULL THEN '' ELSE CONCAT(' ', unit_concept.concept_name) END
+			)
+			WHEN value_as_string IS NOT NULL THEN value_as_string
+			ELSE ''
+		END AS extra_data,
+		target
+	FROM #cohort cohort
+	INNER JOIN @cdm_database_schema.observation
+		ON cohort.subject_id = observation.person_id
+			AND observation_date = cohort_start_date
+	INNER JOIN @cdm_database_schema.concept 
+		ON observation_concept_id = concept.concept_id
+	LEFT JOIN @cdm_database_schema.concept value_concept
+		ON value_as_concept_id = value_concept.concept_id
+	LEFT JOIN @cdm_database_schema.concept unit_concept
+		ON unit_concept_id = unit_concept.concept_id
+	LEFT JOIN #full_concept_sets full_concept_sets
+		ON observation_concept_id = full_concept_sets.concept_id
+	WHERE observation_concept_id != 0
 	) tmp
 GROUP BY generated_id,
 	concept_id,

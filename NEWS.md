@@ -11,6 +11,10 @@ Changes:
 
 4. Added `washoutPeriod`, `type`, and '`stratifyByCertainty` arguments to the `computeCohortOperatingCharacteristics()` function.
 
+5. The `computeCohortOperatingCharacteristics()` now handles recurrent cohorts.
+
+6. Added observations to the presentation category.
+
 
 Bug fixes:
 
