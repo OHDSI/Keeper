@@ -517,7 +517,7 @@ convertKeeperToTable <- function(keeper, removePii = FALSE) {
         ),
         extraGroup = if (keeperTable %in% c("presentation", "visitContext")) .data$extraData else ""
       ) |>
-      group_by(.data$generatedId, .data$conceptName, .data$sortOrder, .data$extraGroup) |>
+      group_by(.data$generatedId, .data$conceptId, .data$conceptName, .data$sortOrder, .data$extraGroup) |>
       arrange(.data$startDay) |>
       summarise(label = generateLabel(.data$conceptName, .data$startDay, .data$endDay, .data$extraData, keeperTable), .groups = "drop") |>
       group_by(.data$generatedId) |>

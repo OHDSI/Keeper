@@ -15,6 +15,8 @@ Changes:
 
 6. Added observations to the presentation category.
 
+7. Switched from `condition_era` to `condition_occurrence`.
+
 
 Bug fixes:
 
