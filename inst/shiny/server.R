@@ -248,26 +248,18 @@ shinyServer(function(input, output, session) {
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting decision to %s", input$decision))
-      key <- keeperSubset() |> 
+      key <- keeperSubset() |>
         head(1) |>
         select(databaseId, phenotype, generatedId)
-      sql <- "UPDATE @database_schema.adjudications
-        SET decision = '@decision'
-        WHERE database_id = '@database_id'
-          AND phenotype = '@phenotype'
-          AND generated_id = @generated_id
-          AND adjudicator = '@adjudicator';"
-      DatabaseConnector::renderTranslateExecuteSql(
-        connection = connectionPool,
-        sql = sql,
-        database_schema = databaseSchema,
-        database_id = key$databaseId,
-        phenotype = key$phenotype,
-        generated_id = key$generatedId,
-        adjudicator = dataList$adjudicator,
-        decision = input$decision,
-        progressBar = FALSE,
-        reportOverallTime = FALSE
+      Keeper:::updateAdjudication(
+        connection     = connectionPool,
+        databaseSchema = databaseSchema,
+        column         = "decision",
+        value          = input$decision,
+        databaseId     = key$databaseId,
+        phenotype      = key$phenotype,
+        generatedId    = key$generatedId,
+        adjudicator    = dataList$adjudicator
       )
     }
   }, ignoreInit = TRUE)
@@ -278,26 +270,18 @@ shinyServer(function(input, output, session) {
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting certainty to %s", input$certainty))
-      key <- keeperSubset() |> 
+      key <- keeperSubset() |>
         head(1) |>
         select(databaseId, phenotype, generatedId)
-      sql <- "UPDATE @database_schema.adjudications
-        SET certainty = '@certainty'
-        WHERE database_id = '@database_id'
-          AND phenotype = '@phenotype'
-          AND generated_id = @generated_id
-          AND adjudicator = '@adjudicator';"
-      DatabaseConnector::renderTranslateExecuteSql(
-        connection = connectionPool,
-        sql = sql,
-        database_schema = databaseSchema,
-        database_id = key$databaseId,
-        phenotype = key$phenotype,
-        generated_id = key$generatedId,
-        adjudicator = dataList$adjudicator,
-        certainty = input$certainty,
-        progressBar = FALSE,
-        reportOverallTime = FALSE
+      Keeper:::updateAdjudication(
+        connection     = connectionPool,
+        databaseSchema = databaseSchema,
+        column         = "certainty",
+        value          = input$certainty,
+        databaseId     = key$databaseId,
+        phenotype      = key$phenotype,
+        generatedId    = key$generatedId,
+        adjudicator    = dataList$adjudicator
       )
     }
   }, ignoreInit = TRUE)
@@ -312,26 +296,18 @@ shinyServer(function(input, output, session) {
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
     } else if (dataList$decisions$type == "database") {
       writeLines(sprintf("Updating database, setting index_day to %s", delayedIndexDay()))
-      key <- keeperSubset() |> 
+      key <- keeperSubset() |>
         head(1) |>
         select(databaseId, phenotype, generatedId)
-      sql <- "UPDATE @database_schema.adjudications
-        SET index_day = @index_day
-        WHERE database_id = '@database_id'
-          AND phenotype = '@phenotype'
-          AND generated_id = @generated_id
-          AND adjudicator = '@adjudicator';"
-      DatabaseConnector::renderTranslateExecuteSql(
-        connection = connectionPool,
-        sql = sql,
-        database_schema = databaseSchema,
-        database_id = key$databaseId,
-        phenotype = key$phenotype,
-        generated_id = key$generatedId,
-        adjudicator = dataList$adjudicator,
-        index_day = delayedIndexDay(),
-        progressBar = FALSE,
-        reportOverallTime = FALSE
+      Keeper:::updateAdjudication(
+        connection     = connectionPool,
+        databaseSchema = databaseSchema,
+        column         = "index_day",
+        value          = delayedIndexDay(),
+        databaseId     = key$databaseId,
+        phenotype      = key$phenotype,
+        generatedId    = key$generatedId,
+        adjudicator    = dataList$adjudicator
       )
     }
   }, ignoreInit = TRUE)
