@@ -106,7 +106,7 @@ createPrompt <- function(settings, subset) {
     labels <- subset |>
       filter(.data$category == keeperTable) |>
       mutate(extraGroup = if (keeperTable %in% c("presentation", "visits")) .data$extraData else "") |>
-      group_by(.data$conceptName, .data$target, .data$extraGroup) |>
+      group_by(.data$conceptId, .data$conceptName, .data$target, .data$extraGroup) |>
       slice_sample(n = settings$maxDays) |>
       arrange(.data$startDay) |>
       summarise(label = generateLabel(.data$conceptName, .data$startDay, .data$endDay, .data$extraData, keeperTable), .groups = "drop") |>
