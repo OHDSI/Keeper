@@ -34,7 +34,7 @@ resultsFile <- "extras/KeeperEvaluation/MetricsNemotronCascade2.xlsx"
 client <- chat_openai_compatible(
   base_url = "http://localhost:1234/v1",
   credentials = function() "lm-studio",
-  model = "unsloth/gemma-4-31b-it"
+  model = "google/gemma-4-31b"
 )
 promptSettings <- createPromptSettings()
 cacheFolder <- "cacheGemma4"
