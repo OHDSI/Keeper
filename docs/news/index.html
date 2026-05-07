@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.0</span>
       </span>
     </div>
 
@@ -63,6 +63,20 @@
       <small>Source: <a href="https://github.com/OHDSI/Keeper/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.1.0" id="keeper-210">Keeper 2.1.0<a class="anchor" aria-label="anchor" href="#keeper-210"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li><p>Restricting concept classes for recommended drugs to ingredient or higher.</p></li>
+<li><p>LLM review now clearly marks when the date of onset is unclear.</p></li>
+<li><p>The observation period start and end days are now also stored in the output of <code><a href="../reference/reviewCases.html">reviewCases()</a></code> when <code>removePii = FALSE</code>.</p></li>
+<li><p>Added <code>washoutPeriod</code>, <code>type</code>, and ’<code>stratifyByCertainty</code> arguments to the <code><a href="../reference/computeCohortOperatingCharacteristics.html">computeCohortOperatingCharacteristics()</a></code> function.</p></li>
+<li><p>The <code><a href="../reference/computeCohortOperatingCharacteristics.html">computeCohortOperatingCharacteristics()</a></code> now handles recurrent cohorts.</p></li>
+<li><p>Added observations to the presentation category.</p></li>
+<li><p>Switched from <code>condition_era</code> to <code>condition_occurrence</code>.</p></li>
+</ol><p>Bug fixes:</p>
+<ol style="list-style-type: decimal"><li><p>Added missing ‘phenotype’ field to the metadata table in <code><a href="../reference/uploadReferenceCohort.html">uploadReferenceCohort()</a></code>.</p></li>
+<li><p>Fixed error in Shiny app when two standard concepts have the same name.</p></li>
+</ol></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.0" id="keeper-200">Keeper 2.0.0<a class="anchor" aria-label="anchor" href="#keeper-200"></a></h2>
 <p>This is a complete re-implementation of Keeper.</p>

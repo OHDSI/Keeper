@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.0</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@
                         <h4 data-toc-skip class="author">Martijn
 Schuemie</h4>
             
-            <h4 data-toc-skip class="date">2026-03-30</h4>
+            <h4 data-toc-skip class="date">2026-05-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/Keeper/blob/HEAD/vignettes/UsingKeeperWithLlms.Rmd" class="external-link"><code>vignettes/UsingKeeperWithLlms.Rmd</code></a></small>
       <div class="hidden name"><code>UsingKeeperWithLlms.Rmd</code></div>
@@ -118,20 +118,20 @@ assume that Keeper has already been executed to produce the following
 output:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">keeper</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2,613 × 8</span></span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6,241 × 8</span></span></span>
 <span><span class="co">##    generatedId startDay endDay conceptId conceptName category target   extraData</span></span>
 <span><span class="co">##          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>           4        0      0        <span style="color: #BB0000;">NA</span> 67          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           8        0      0        <span style="color: #BB0000;">NA</span> 75          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>          16        0      0        <span style="color: #BB0000;">NA</span> 67          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>          10        0      0        <span style="color: #BB0000;">NA</span> 79          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>          13        0      0        <span style="color: #BB0000;">NA</span> 78          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>          18        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>          19        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          12        0      0        <span style="color: #BB0000;">NA</span> 75          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>          17        0      0        <span style="color: #BB0000;">NA</span> 81          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>           7        0      0        <span style="color: #BB0000;">NA</span> 76          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 2,603 more rows</span></span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>           2        0      0        <span style="color: #BB0000;">NA</span> 71          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>           9        0      0        <span style="color: #BB0000;">NA</span> 70          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>          15        0      0        <span style="color: #BB0000;">NA</span> 76          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>           8        0      0        <span style="color: #BB0000;">NA</span> 78          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>           3        0      0        <span style="color: #BB0000;">NA</span> 69          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>          19        0      0        <span style="color: #BB0000;">NA</span> 74          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>           6        0      0        <span style="color: #BB0000;">NA</span> 82          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>          11        0      0        <span style="color: #BB0000;">NA</span> 73          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>           7        0      0        <span style="color: #BB0000;">NA</span> 68          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>          13        0      0        <span style="color: #BB0000;">NA</span> 83          age      Disease… <span style="color: #BB0000;">NA</span>       </span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 6,231 more rows</span></span></span></code></pre>
 <div class="section level3">
 <h3 id="choosing-an-llm-provider">1. Choosing an LLM Provider<a class="anchor" aria-label="anchor" href="#choosing-an-llm-provider"></a>
 </h3>
@@ -344,12 +344,10 @@ vignette:</p>
 sensitivity, specificity, and PPV) for our target cohort:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metrics</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 21</span></span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 21</span></span></span>
 <span><span class="co">##   certainty    tp    fp    tn    fn sensitivity sensitivityLb sensitivityUb</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> low          92    16    43    51       0.643         0.559         0.722</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> high        924   241  <span style="text-decoration: underline;">8</span>371    12       0.987         0.978         0.993</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> all        <span style="text-decoration: underline;">1</span>016   257  <span style="text-decoration: underline;">8</span>414    63       0.942         0.926         0.955</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> all         478   140  <span style="text-decoration: underline;">2</span>689    36       0.930         0.904         0.950</span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 13 more variables: specificity &lt;dbl&gt;, specificityLb &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   specificityUb &lt;dbl&gt;, specificityOverall &lt;dbl&gt;, specificityOverallLb &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   specificityOverallUb &lt;dbl&gt;, ppv &lt;dbl&gt;, ppvLb &lt;dbl&gt;, ppvUb &lt;dbl&gt;, auc &lt;dbl&gt;,</span></span></span>

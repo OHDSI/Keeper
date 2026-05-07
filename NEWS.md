@@ -22,6 +22,8 @@ Bug fixes:
 
 1. Added missing 'phenotype' field to the metadata table in `uploadReferenceCohort()`.
 
+2. Fixed error in Shiny app when two standard concepts have the same name.
+
 
 Keeper 2.0.0
 ============
