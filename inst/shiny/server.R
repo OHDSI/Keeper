@@ -40,10 +40,12 @@ shinyServer(function(input, output, session) {
   profile <- shiny::reactiveValues(index = 1)
   
   keeperSubset <- shiny::reactive({
-    key <- decisions$decisionsDataFrame[profile$index, ] |>
+    # Using isolate so a change in decision of index day does not trigger rebuilding the profile
+    key <- isolate(decisions$decisionsDataFrame)[profile$index, ] |>
       select(databaseId, phenotype, generatedId)
     subset <- dataList$keeper |>
       inner_join(key, by = join_by(databaseId, phenotype, generatedId))
+    print("Check")
     return(subset)
   })
   
@@ -114,6 +116,7 @@ shinyServer(function(input, output, session) {
         as.numeric(input$profileIndex) <= dataList$nProfiles &&
         as.numeric(input$profileIndex) != isolate(profile$index)) {
       profile$index <- as.numeric(input$profileIndex)
+      delayedIndexDay <- NULL
     }
   }, ignoreInit = TRUE)
   
@@ -332,11 +335,11 @@ shinyServer(function(input, output, session) {
   }, ignoreInit = TRUE)
   
   # Using delay to avoid unstable behavior of numeric input when rapidly changing the index day:
-  delayedIndexDay <- debounce(reactive(input$indexDay), millis = 500)
+  delayedIndexDay <- debounce(reactive(input$indexDay), millis = 200)
   
   shiny::observeEvent(delayedIndexDay(), {
     req(!is.na(delayedIndexDay()))
-    decisions$decisionsDataFrame[profile$index, "indexDay"] <- delayedIndexDay()
+    isolate(decisions$decisionsDataFrame[profile$index, "indexDay"] <- delayedIndexDay())
     if (dataList$decisions$type == "file") {
       writeLines(sprintf("Updating file, setting index_day to %s", delayedIndexDay()))
       write_csv(decisions$decisionsDataFrame, dataList$decisions$fileName)
