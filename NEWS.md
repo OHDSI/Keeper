@@ -1,3 +1,11 @@
+Keeper 2.1.1
+============
+
+Bug fixes:
+
+1. Fixed bug in Shiny app where the index day input was carried over from one person to the next.
+
+
 Keeper 2.1.0
 ============
 
