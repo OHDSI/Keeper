@@ -1,3 +1,11 @@
+Keeper 2.1.2
+============
+
+Bug fixes:
+
+1. Adding NPV to the output of `computeCohortOperatingCharacteristics()`.
+
+
 Keeper 2.1.1
 ============
 

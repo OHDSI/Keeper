@@ -465,9 +465,9 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
 #' @returns
 #' A tibble with one row per certainty level (`"high"`, `"low"`, `"all"`) and columns for
 #' true positives, false positives, true negatives, false negatives, sensitivity, specificity,
-#' PPV (each with lower and upper confidence bounds), AUC, kappa, disease prevalence and certainty.
+#' PPV, NPV (each with lower and upper confidence bounds), AUC, kappa, disease prevalence and certainty.
 #' 
-#' Specificity and prevalence are computed both within the reference cohort, and, based on the prevalence of the highly-
+#' Specificity, NPV, and prevalence are computed both within the reference cohort, and, based on the prevalence of the highly-
 #' sensitive cohort, also in the overall population.
 #'
 #' @export
@@ -609,10 +609,13 @@ computePerformanceMetrics <- function(tp, tn, fp, fn, cases, nonCases, cohortPre
     numerator / denominator
   }
 
+  tnOverall <- round(tn / cohortPrevalence)
   sens <- safeBinomTest(tp, tp + fn)
   spec <- safeBinomTest(tn, tn + fp)
-  specOverall <- safeBinomTest(round(tn / cohortPrevalence), round(tn / cohortPrevalence) + fp)
+  specOverall <- safeBinomTest(tnOverall, tnOverall + fp)
   pospv <- safeBinomTest(tp, tp + fp)
+  negpv <- safeBinomTest(tn, tn + fn)
+  negpvOverall <- safeBinomTest(tnOverall, tnOverall + fn)
   n <- tp + tn + fp + fn
   prev <- as.numeric(cases) / (cases + nonCases)
   prevOverall <- as.numeric(cases) / ((cases + nonCases) / cohortPrevalence)
@@ -643,6 +646,12 @@ computePerformanceMetrics <- function(tp, tn, fp, fn, cases, nonCases, cohortPre
     ppv = pospv$estimate,
     ppvLb = pospv$conf.int[1],
     ppvUb = pospv$conf.int[2],
+    npv = negpv$estimate,
+    npvLb = negpv$conf.int[1],
+    npvUb = negpv$conf.int[2],
+    npvOverall = negpvOverall$estimate,
+    npvOverallLb = negpvOverall$conf.int[1],
+    npvOverallUb = negpvOverall$conf.int[2],
     auc = (sens$estimate + spec$estimate) / 2,
     kappa = kappa,
     prevalence = prev,
