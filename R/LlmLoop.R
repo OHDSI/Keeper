@@ -147,6 +147,8 @@ reviewCases <- function(keeper,
                 )
               } else {
                 response <- client$chat(prompt, echo = "none")
+                # Needed for Gemma 4:
+                response <- gsub("^```json|```$", "", response)
                 response <- jsonlite::fromJSON(response)
               }
               jsonlite::write_json(response, responseFileName)
