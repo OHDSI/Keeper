@@ -52,6 +52,13 @@ for (testServer in testServers) {
     expect_s3_class(keeper, "data.frame")
     expect_true("personId" %in% keeper$category)
     
+    if (testServer$connectionDetails$dbms == "iris") {
+      # For unknown reasons the insertion of the concept sets fails on IRIS the first time after having run 
+      # generateKeeper(). It want to convert a string (the target) column to a NUMERIC. This may be a JDBC driver bug.
+      # For now solving this by reconnecting:
+      DatabaseConnector::disconnect(connection)
+      connection <- DatabaseConnector::connect(testServer$connectionDetails)
+    }
     # Create highly-sensitive cohort
     specConcepts <- createSensitiveCohort(
       connection = connection,
