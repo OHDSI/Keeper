@@ -35,7 +35,8 @@ Suggests:
   readr,
   plotly,
   pool,
-  R6
+  R6,
+  duckdb
 License: Apache License
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/Keeper/, https://github.com/OHDSI/Keeper
