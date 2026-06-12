@@ -3,7 +3,7 @@ Keeper 2.1.3
 
 Bug fixes:
 
-1. Fix error on SQL Server.
+1. Fix errors on SQL Server, IRIS, BigQuery.
 
 Added unit tests for all supported database platforms.
 

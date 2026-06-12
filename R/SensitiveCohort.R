@@ -180,7 +180,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
 
   message("Removing temp tables")
   toDelete <- c("#concept_sets", "#doi_cohort", "#combi_cohort")
-  sql <- paste(sprintf("TRUNCATE TABLE %s; DROP TABLE %s;", toDelete, toDelete), collapse = "\n")
+  sql <- paste(sprintf("DROP TABLE %s;", toDelete), collapse = "\n")
   DatabaseConnector::renderTranslateExecuteSql(
     connection = connection,
     sql = sql,

@@ -9,7 +9,7 @@ gibConceptSets <- gibConceptSets |>
   slice_head(n = 1) |>
   ungroup()
 
-# testServer = testServers[[5]]
+# testServer = testServers[[1]]
 for (testServer in testServers) {
   test_that(addDbmsToLabel("Run Keeper on database", testServer), {
     # Create tiny cohort

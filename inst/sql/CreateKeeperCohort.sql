@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS #cohort;
+
 SELECT subject_id,
 	generated_id,
 	cohort_start_date

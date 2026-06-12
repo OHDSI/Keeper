@@ -29,7 +29,7 @@ FROM (
 		SUM(concept_person_count) AS concept_person_count,
 		SUM(concept_doi_person_count) AS concept_doi_person_count
 	FROM (
-		SELECT concept_id,
+		(SELECT concept_id,
 		  concept_name,
 		  vocabulary_id,
 		  concept_set_name,
@@ -53,11 +53,11 @@ FROM (
 		GROUP BY concept_id,
 		  concept_name,
 		  vocabulary_id,
-		  concept_set_name
+		  concept_set_name)
 
 		UNION ALL
 		
-		SELECT concept_id,
+		(SELECT concept_id,
 		  concept_name,
 		  vocabulary_id,
 		  concept_set_name,
@@ -81,11 +81,11 @@ FROM (
 		GROUP BY concept_id,
 		  concept_name,
 		  vocabulary_id,
-		  concept_set_name
+		  concept_set_name)
 		  
 		UNION ALL
 		
-		SELECT concept_id,
+		(SELECT concept_id,
 		  concept_name,
 		  vocabulary_id,
 		  concept_set_name,
@@ -109,11 +109,11 @@ FROM (
 		GROUP BY concept_id,
 		  concept_name,
 		  vocabulary_id,
-		  concept_set_name
+		  concept_set_name)
 		
 		UNION ALL
 		
-		SELECT concept_id,
+		(SELECT concept_id,
 		  concept_name,
 		  vocabulary_id,
 		  concept_set_name,
@@ -137,11 +137,11 @@ FROM (
 		GROUP BY concept_id,
 		  concept_name,
 		  vocabulary_id,
-		  concept_set_name
+		  concept_set_name)
 		  
 		UNION ALL
 		
-		SELECT concept_id,
+		(SELECT concept_id,
 		  concept_name,
 		  vocabulary_id,
 		  concept_set_name,
@@ -165,7 +165,7 @@ FROM (
 		GROUP BY concept_id,
 		  concept_name,
 		  vocabulary_id,
-		  concept_set_name
+		  concept_set_name)
 
 	) concept_counts
 	GROUP BY concept_id,
