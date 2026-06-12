@@ -1,3 +1,13 @@
+Keeper 2.1.3
+============
+
+Bug fixes:
+
+1. Fix error on SQL Server.
+
+Added unit tests for all supported database platforms.
+
+
 Keeper 2.1.2
 ============
 

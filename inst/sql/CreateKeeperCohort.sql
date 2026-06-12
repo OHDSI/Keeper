@@ -9,7 +9,7 @@ FROM (
 	FROM @cohort_table
 	WHERE cohort_definition_id = @cohort_definition_id
 {@use_person_ids} ? {		AND subject_id IN (SELECT CAST(person_id AS BIGINT) FROM #person_ids) }
-)
+) tmp
 WHERE generated_id <= @sample_size;
 
 

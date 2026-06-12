@@ -22,6 +22,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Ostropolets Anna \email{ostropolets@ohdsi.org}
   \item Schuemie Martjn
 }
 

@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS #doi_cohort;
-DROP TABLE IF EXISTS #treatment_cohort;
-DROP TABLE IF EXISTS #symptom_plus_cohort;
+DROP TABLE IF EXISTS #combi_cohort;
 	
 -- #doi_cohort
 SELECT condition_occurrence.person_id AS subject_id,

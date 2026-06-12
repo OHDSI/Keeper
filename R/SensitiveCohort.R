@@ -170,9 +170,13 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     cohort_definition_id = cohortDefinitionId
   )
   sql <- "SELECT COUNT(*) FROM #doi_cohort;"
-  countDoi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
+  countDoi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, 
+                                                         sql = sql,
+                                                         tempEmulationSchema = tempEmulationSchema)
   sql <- "SELECT COUNT(*) FROM #combi_cohort;"
-  countCombi <- DatabaseConnector::renderTranslateQuerySql(connection = connection, sql = sql)
+  countCombi <- DatabaseConnector::renderTranslateQuerySql(connection = connection,
+                                                           sql = sql,
+                                                           tempEmulationSchema = tempEmulationSchema)
 
   message("Removing temp tables")
   toDelete <- c("#concept_sets", "#doi_cohort", "#combi_cohort")
