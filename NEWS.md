@@ -17,6 +17,8 @@ Changes:
 
 7. Switched from `condition_era` to `condition_occurrence`.
 
+8. `generateKeeperConceptSets()` now uses the Hecate Phoebe bulk endpoint to reduce request volume when adding related concepts.
+
 
 Bug fixes:
 
