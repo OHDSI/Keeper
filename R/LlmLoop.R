@@ -20,6 +20,8 @@
 #' @param settings    Prompt creating settings as created using the [createPromptSettings] function.
 #' @param phenotypeName The name of the disease to use in the prompt. If not provided, the name in the Keeper input will
 #'                      be used.
+#' @param phenotypeDefinition Optionally prove a text blob with the definition and any other information about the
+#'                            phenotype.
 #' @param client      An LLM client created using the `ellmer` package.
 #' @param cacheFolder A folder where the LLM responses are cached. If the process terminates for some
 #'                    reason, it can pick up where it left off using the cache.
@@ -44,6 +46,7 @@
 reviewCases <- function(keeper,
                         settings = createPromptSettings(),
                         phenotypeName = NULL,
+                        phenotypeDefinition = NULL,
                         client,
                         cacheFolder) {
   errorMessages <- checkmate::makeAssertCollection()
@@ -59,10 +62,18 @@ reviewCases <- function(keeper,
     "extraData"
   ), add = errorMessages)
   checkmate::assertClass(settings, "PromptSettings", add = errorMessages)
-  checkmate::assertCharacter(phenotypeName, null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(phenotypeName, len = 1, null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(phenotypeDefinition, null.ok = TRUE, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
   checkmate::assertCharacter(cacheFolder, add = errorMessages)
   checkmate::reportAssertions(collection = errorMessages)
+  
+  if (!is.null(phenotypeDefinition)) {
+    if (settings$legacy) {
+      warning("The phenotypeDefinition argument is ignored when using the legacy prompt settings.")
+    }
+    phenotypeDefinition <- paste(phenotypeDefinition, collapse = "\n")
+  }
   
   startTime <- Sys.time()
   
@@ -103,7 +114,9 @@ reviewCases <- function(keeper,
         parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       }
     } else {
-      systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = phenotype)
+      systemPrompt <- createSystemPrompt(settings = settings, 
+                                         phenotypeName = phenotype,
+                                         phenotypeDefinition = phenotypeDefinition)
       if (settings$legacy) {
         prompt <- createLegacyPrompt(
           settings = settings,

@@ -1,8 +1,8 @@
 Package: Keeper
 Type: Package
 Title: An R package to review patient profiles for phenotype validation
-Version: 2.1.2
-Date: 2026-05-18
+Version: 2.2.0
+Date: 2026-05-29
 Authors@R: c(
     person("Ostropolets", "Anna", email = "ostropolets@ohdsi.org", role = c("aut", "cre")),
     person("Schuemie", "Martjn", role = c("aut")),
@@ -37,10 +37,10 @@ Suggests:
   pool,
   R6
 License: Apache License
-RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 URL: https://ohdsi.github.io/Keeper/, https://github.com/OHDSI/Keeper
 BugReports: https://github.com/OHDSI/Keeper/issues
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Language: en-US
+Config/roxygen2/version: 8.0.0

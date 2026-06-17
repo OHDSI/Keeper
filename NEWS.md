@@ -1,3 +1,11 @@
+Keeper 2.2.0
+============
+
+Changes:
+
+1. Adding optional `phenotypeDefinition` argument to `reviewCases()`, allowing users to provide more detail on the phenotype.
+
+
 Keeper 2.1.2
 ============
 
