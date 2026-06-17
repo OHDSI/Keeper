@@ -62,7 +62,7 @@ test_that("reviewCases uses cache and avoids repeated LLM calls", {
   client <- Chat$new()
 
   local_mocked_bindings(
-    createSystemPrompt = function(settings, phenotypeName) "System prompt",
+    createSystemPrompt = function(settings, phenotypeName, phenotypeDefinition) "System prompt",
     createPrompt = function(settings, subset) "User prompt",
     parseLlmResponse = function(response, noMatchIsInsufficientInformation = FALSE) {
       dplyr::tibble(
