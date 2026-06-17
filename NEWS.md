@@ -6,6 +6,21 @@ Changes:
 1. Adding optional `phenotypeDefinition` argument to `reviewCases()`, allowing users to provide more detail on the phenotype.
 
 
+Keeper 2.1.3
+============
+
+Bug fixes:
+
+1. Fixed errors on SQL Server, IRIS, BigQuery.
+
+2. Fixed bug in Shiny app where index day was copied from one person to another.
+
+3. Fixed parsing errors for some local LLMs that don't support structured output.
+
+Added unit tests for all supported database platforms.
+>>>>>>> d27a4d54274cd5c8763f76b34ace5d2fdd1e975b
+
+
 Keeper 2.1.2
 ============
 

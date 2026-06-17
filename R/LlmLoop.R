@@ -160,6 +160,8 @@ reviewCases <- function(keeper,
                 )
               } else {
                 response <- client$chat(prompt, echo = "none")
+                # Needed for Gemma 4:
+                response <- gsub("^\\s*```json|```\\s*$", "", response)
                 response <- jsonlite::fromJSON(response)
               }
               jsonlite::write_json(response, responseFileName)
@@ -253,10 +255,10 @@ supportsStructuredOutput <- function(client) {
     res <- client$chat_structured("Respond using the schema.", 
                                   type = test_type, 
                                   echo = "none")
-    TRUE
+    return(TRUE)
   }, error = function(e) {
-    FALSE
     message("LLM does not appear to support structured output")
+    return(FALSE)
   })
   return(success)
 }

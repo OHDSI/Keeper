@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS #full_concept_sets;
 DROP TABLE IF EXISTS #demographics;
 DROP TABLE IF EXISTS #presentation;
-DROP TABLE IF EXISTS #visit;
+DROP TABLE IF EXISTS #visits;
 DROP TABLE IF EXISTS #symptoms;
 DROP TABLE IF EXISTS #prior_disease;
 DROP TABLE IF EXISTS #post_disease;

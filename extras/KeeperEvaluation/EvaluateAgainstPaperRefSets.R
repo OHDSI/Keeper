@@ -40,7 +40,25 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheGemma4"
 resultsFile <- "extras/KeeperEvaluation/MetricsGemma4.xlsx"
 
+# Gemma 4 26B A4B running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "google/gemma-4-26b-a4b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheGemma4_26BA4B"
+resultsFile <- "extras/KeeperEvaluation/MetricsGemma4_26BA4B.xlsx"
 
+# qwen/qwen3.6-27b running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3.6-27b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen36_27B"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen36_27B.xlsx"
 
 
 # Load development set -------------------------------------------------------------------------------------------------
