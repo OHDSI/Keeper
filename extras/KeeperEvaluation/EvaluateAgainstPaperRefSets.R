@@ -60,6 +60,26 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheQwen36_27B"
 resultsFile <- "extras/KeeperEvaluation/MetricsQwen36_27B.xlsx"
 
+# qwen/qwen3.6-35b 6-bit quant running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3.6-35b-a3b:2"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen36_35B_Q6"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen36_35B_Q6.xlsx"
+
+# qwen/qwen3.6-35b 8-bit quant running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3.6-35b-a3b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen36_35B_Q8"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen36_35B_Q8.xlsx"
+
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
