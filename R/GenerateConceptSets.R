@@ -227,6 +227,8 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
 #'
 #' @param phenotype              A text string denoting the condition of interest, e.g. 'Type I Diabetes Mellitus
 #'                               (T1DM)'. This string is used as input for the LLM.
+#' @param phenotypeDefinition Optionally prove a text blob with the definition and any other information about the
+#'                            phenotype.
 #' @param client                 An LLM client created using the `ellmer` package.
 #' @param vocabConnectionDetails Connection details for a database server hosting the OHDSI Vocabulary. Should be
 #'                               created using the \link[DatabaseConnector]{createConnectionDetails} function in the
@@ -245,12 +247,14 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
 #' @export
 generateKeeperConceptSets <- function(
   phenotype,
+  phenotypeDefinition = NULL,
   client,
   vocabConnectionDetails,
   vocabDatabaseSchema
 ) {
   errorMessages <- checkmate::makeAssertCollection()
-  checkmate::assertCharacter(phenotype, min.chars = 1, add = errorMessages)
+  checkmate::assertCharacter(phenotype, min.chars = 1, len = 1, add = errorMessages)
+  checkmate::assertCharacter(phenotypeDefinition, len = 1, null.ok = TRUE, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
   checkmate::assertClass(vocabConnectionDetails, "ConnectionDetails", add = errorMessages)
   checkmate::assertCharacter(vocabDatabaseSchema, min.chars = 1, add = errorMessages)
@@ -272,6 +276,7 @@ generateKeeperConceptSets <- function(
     message(sprintf("Generating concept set %s", promptSet$name))
     conceptSet <- generateConceptSet(
       phenotype = phenotype,
+      phenotypeDefinition = phenotypeDefinition,
       promptSet = promptSet,
       connection = connection,
       vocabDatabaseSchema = vocabDatabaseSchema,
@@ -294,6 +299,7 @@ generateKeeperConceptSets <- function(
 
       conceptSet <- generateConceptSet(
         phenotype = paste0("\n- ", paste(alternativeDiagnoses, collapse = "\n- ")),
+        phenotypeDefinition = NULL,
         promptSet = promptSet,
         connection = connection,
         vocabDatabaseSchema = vocabDatabaseSchema,
@@ -323,6 +329,7 @@ generateKeeperConceptSets <- function(
 
 
 generateConceptSet <- function(phenotype,
+                               phenotypeDefinition,
                                promptSet,
                                client,
                                connection,
@@ -332,6 +339,11 @@ generateConceptSet <- function(phenotype,
   cost <- 0
 
   conditionPrompt <- sprintf("Condition: %s", phenotype)
+  
+  if (!is.null(phenotypeDefinition)) {
+    conditionPrompt <- paste(conditionPrompt,
+                             sprintf("Definition: %s", phenotypeDefinition), sep = "\n\n")
+  }
 
   message("- Generating initial term list using LLM")
   client$set_system_prompt(promptSet$systemPromptTerms)

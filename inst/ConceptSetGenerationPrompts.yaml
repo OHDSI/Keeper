@@ -2,7 +2,7 @@
   parameterName: doi
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a free-text name of a medical condition. 
+    You are provided a medical condition. 
     Provide one or more medical terms that are commonly used to denote that condition.
     
     Output Format:
@@ -37,7 +37,7 @@
   parameterName: alternativeDiagnosis
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a free-text name of a medical condition. 
+    You are provided a medical condition. 
     Your goal is to generate a list of Differential Diagnoses.
     
     Criteria for Selection:
@@ -82,8 +82,8 @@
   parameterName: symptoms
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a list of Medical Conditions.
-    Provide a list of medical terms that describe **Symptoms** of one or more of the Medical Conditions. 
+    You are provided one or more Medical Conditions.
+    Return a list of medical terms that describe **Symptoms** of one or more of the provided Medical Conditions. 
 
     Output Format:
     Provide your response in a single JSON object.
@@ -100,8 +100,8 @@
     - Clinical Finding
   systemPromptRemoveNonRelevant: |
     You are a Clinical Coding Expert. 
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify Concepts that describe possible **Symptoms** of one or more or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify Concepts that describe possible **Symptoms** of one or more or more of the provided Medical Conditions.
    
     Rules for Selection: 
     Review each concept. 
@@ -120,8 +120,8 @@
   parameterName: drugs
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of (generic) drug names and drug classes that describe **Pharmaceutical Treatments** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of (generic) drug names and drug classes that describe **Pharmaceutical Treatments** for one or more of the provided Medical Conditions.
     **Pharmaceutical Treatments** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
     When listing a drug class, also include as many of the individual drug names in that class as separate terms.
 
@@ -142,8 +142,8 @@
     - Vaccine Group
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe **Pharmaceutical Treatments** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Pharmaceutical Treatments** for one or more of the provided Medical Conditions.
     **Pharmaceutical Treatments** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
     
     Rules for Selection: 
@@ -163,8 +163,8 @@
   parameterName: diagnosticProcedures
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical procedure names that describe **Diagnostic Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical procedure names that describe **Diagnostic Procedures** for one or more of the provided Medical Conditions.
     **Diagnostic Procedures** are examinations or medical tests carried out by a healthcare provider to determine the nature, cause, severity and/or management of a disease.  
 
     Output Format:
@@ -180,8 +180,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe **Diagnostic Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Diagnostic Procedures** for one or more of the provided Medical Conditions.
     **Diagnostic Procedures** are examinations or medical tests carried out by a healthcare provider to determine the nature, cause, severity and/or management of a disease.  
     
     Rules for Selection: 
@@ -201,8 +201,8 @@
   parameterName: measurements
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical laboratory test names that describe lab tests used to diagnose one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical laboratory test names that describe lab tests used to diagnose one or more of the provided Medical Conditions.
 
     Output Format:
     Provide your response in a single JSON object. 
@@ -217,8 +217,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe lab tests used to diagnose one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe lab tests used to diagnose one or more of the provided Medical Conditions.
     
     Rules for Selection: 
     Review each concept. 
@@ -237,8 +237,8 @@
   parameterName: treatmentProcedures
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical procedure names that describe **Treatment Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical procedure names that describe **Treatment Procedures** for one or more of the provided Medical Conditions.
     **Treatment Procedures** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
 
     Output Format:
@@ -254,8 +254,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe **Treatment Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Treatment Procedures** for one or more of the provided Medical Conditions.
     **Treatment Procedures** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
     
     Rules for Selection: 
@@ -275,8 +275,8 @@
   parameterName: complications
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical terms that describe **Complications** of one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical terms that describe **Complications** of one or more of the provided Medical Conditions.
     **Complications** are additional medical condition or problem that arises during the course of a Medical Condition. 
     **Complications** result from the original Medical Condition. 
     
@@ -293,8 +293,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify Concepts that describe possible **Complications** of one or more or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify Concepts that describe possible **Complications** of one or more or more of the provided Medical Conditions.
     **Complications** are additional medical condition or problem that arises during the course of a Medical Condition. 
     **Complications** result from the original Medical Condition. 
     
