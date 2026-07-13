@@ -3,7 +3,7 @@ Keeper 2.2.0
 
 Changes:
 
-1. Adding optional `phenotypeDefinition` argument to `reviewCases()` and `generateKeeperConceptSets()`, allowing users to provide more detail on the phenotype.
+1. Adding optional `clinicalDefinition` argument to `reviewCases()` and `generateKeeperConceptSets()`, allowing users to provide more detail on the phenotype.
 
 
 Keeper 2.1.3

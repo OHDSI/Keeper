@@ -35,7 +35,7 @@ createPromptSettings <- function(maxDays = 20,
   return(settings)
 }
 
-createSystemPrompt <- function(settings, phenotypeName, phenotypeDefinition) {
+createSystemPrompt <- function(settings, phenotypeName, clinicalDefinition) {
   if (settings$legacy) {
     promptFile <- system.file("KeeperLegacyPrompt.txt", package = "Keeper")
   } else {
@@ -44,10 +44,10 @@ createSystemPrompt <- function(settings, phenotypeName, phenotypeDefinition) {
   prompt <- readLines(promptFile)
   prompt <- paste(prompt, collapse = "\n")
   prompt <- gsub("<disease>", phenotypeName, prompt)
-  if (!is.null(phenotypeDefinition) && phenotypeDefinition != "") {
+  if (!is.null(clinicalDefinition) && clinicalDefinition != "") {
     text <- sprintf("When performing your task, use the following definition of %s:\n***Start of definition***\n%s\n***End of definition***",
                     phenotypeName,
-                    phenotypeDefinition)
+                    clinicalDefinition)
     prompt <- gsub("<definition>", text, prompt)
   } else {
     prompt <- gsub("<definition>[\r\n]*", "", prompt)

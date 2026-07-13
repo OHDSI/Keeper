@@ -26,7 +26,7 @@ test_that("generateKeeperConceptSets orchestrates DOI and alternative diagnosis 
 
   local_mocked_bindings(
     generateConceptSet = function(phenotype,
-                                  phenotypeDefinition,
+                                  clinicalDefinition,
                                   promptSet,
                                   client,
                                   connection,

@@ -8,7 +8,7 @@ reviewCases(
   keeper,
   settings = createPromptSettings(),
   phenotypeName = NULL,
-  phenotypeDefinition = NULL,
+  clinicalDefinition = NULL,
   client,
   cacheFolder
 )
@@ -21,7 +21,7 @@ reviewCases(
 \item{phenotypeName}{The name of the disease to use in the prompt. If not provided, the name in the Keeper input will
 be used.}
 
-\item{phenotypeDefinition}{Optionally prove a text blob with the definition and any other information about the
+\item{clinicalDefinition}{Optionally prove a text blob with the definition and any other information about the
 phenotype.}
 
 \item{client}{An LLM client created using the \code{ellmer} package.}

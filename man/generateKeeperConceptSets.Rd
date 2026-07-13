@@ -6,7 +6,7 @@
 \usage{
 generateKeeperConceptSets(
   phenotype,
-  phenotypeDefinition = NULL,
+  clinicalDefinition = NULL,
   client,
   vocabConnectionDetails,
   vocabDatabaseSchema
@@ -16,7 +16,7 @@ generateKeeperConceptSets(
 \item{phenotype}{A text string denoting the condition of interest, e.g. 'Type I Diabetes Mellitus
 (T1DM)'. This string is used as input for the LLM.}
 
-\item{phenotypeDefinition}{Optionally prove a text blob with the definition and any other information about the
+\item{clinicalDefinition}{Optionally prove a text blob with the definition and any other information about the
 phenotype.}
 
 \item{client}{An LLM client created using the \code{ellmer} package.}
