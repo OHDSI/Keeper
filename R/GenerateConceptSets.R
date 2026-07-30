@@ -63,45 +63,72 @@ vectorSearch <- function(term, domains, conceptClasses, limit = 10, maxRetries =
   stop(sprintf("All %s attempts failed for term '%s'.", maxRetries, term))
 }
 
-phoebeSearch <- function(conceptId, maxRetries = 3, waitTime = 2) {
-  url <- sprintf("https://hecate.pantheon-hds.com/api/concepts/%d/phoebe", conceptId)
-
-  for (attempt in 1:maxRetries) {
-    response <- tryCatch(
-      {
-        httr::GET(url)
-      },
-      error = function(e) {
-        message(paste("Attempt", attempt, "failed with connection error for concept", conceptId))
-        return(NULL)
-      }
-    )
-
-    if (!is.null(response) && httr::status_code(response) == 200) {
-      contextText <- httr::content(response, "text", encoding = "UTF-8")
-
-      if (contextText == "[]") {
-        return(NULL)
-      }
-      data <- jsonlite::fromJSON(contextText)
-      data <- data |>
-        SqlRender::snakeCaseToCamelCaseNames()
-
-      return(data)
-    }
-    if (attempt < maxRetries) {
-      statusMsg <- if (is.null(response)) "Connection Error" else httr::status_code(response)
-      message(sprintf(
-        "Phoebe search failed (Status: %s). Retrying in %s seconds...",
-        statusMsg, waitTime
-      ))
-      Sys.sleep(waitTime)
-    }
+phoebeBulkSearch <- function(conceptIds, maxRetries = 3, waitTime = 2, chunkSize = 100) {
+  conceptIds <- unique(as.integer(conceptIds[!is.na(conceptIds)]))
+  if (length(conceptIds) == 0) {
+    return(tibble())
   }
-  stop(sprintf(
-    "Error in phoebe search for concept %s after %s attempts.",
-    conceptId, maxRetries
-  ))
+  url <- "https://hecate.pantheon-hds.com/api/concepts/phoebe/bulk"
+  chunks <- split(conceptIds, ceiling(seq_along(conceptIds) / chunkSize))
+  results <- list()
+
+  for (chunk in chunks) {
+    chunkResults <- NULL
+    for (attempt in 1:maxRetries) {
+      response <- tryCatch(
+        {
+          httr::POST(url, body = list(ids = chunk), encode = "json")
+        },
+        error = function(e) {
+          message(paste("Attempt", attempt, "failed with connection error for Phoebe bulk search"))
+          return(NULL)
+        }
+      )
+
+      if (!is.null(response) && httr::status_code(response) == 200) {
+        contextText <- httr::content(response, "text", encoding = "UTF-8")
+
+        if (contextText == "[]") {
+          chunkResults <- tibble()
+          break
+        }
+        # The bulk endpoint returns one element per requested id, each holding a
+        # `concept_id` and a `results` table of related concepts. Stack those
+        # tables together, tagging each row with the source concept it came from.
+        data <- jsonlite::fromJSON(contextText, simplifyDataFrame = TRUE)
+        chunkConcepts <- Map(
+          function(sourceConceptId, relatedConcepts) {
+            if (NROW(relatedConcepts) == 0) {
+              return(NULL)
+            }
+            relatedConcepts$source_concept_id <- sourceConceptId
+            relatedConcepts
+          },
+          data$concept_id,
+          data$results
+        )
+        chunkResults <- bind_rows(chunkConcepts) |>
+          SqlRender::snakeCaseToCamelCaseNames()
+        break
+      }
+      if (attempt < maxRetries) {
+        statusMsg <- if (is.null(response)) "Connection Error" else httr::status_code(response)
+        message(sprintf(
+          "Phoebe bulk search failed (Status: %s). Retrying in %s seconds...",
+          statusMsg, waitTime
+        ))
+        Sys.sleep(waitTime)
+      }
+    }
+    if (is.null(chunkResults)) {
+      stop(sprintf(
+        "Error in Phoebe bulk search after %s attempts.",
+        maxRetries
+      ))
+    }
+    results[[length(results) + 1]] <- chunkResults
+  }
+  return(bind_rows(results))
 }
 
 removeChildren <- function(concepts, connection, vocabDatabaseSchema) {
@@ -398,8 +425,7 @@ generateConceptSet <- function(phenotype,
 
   message("- Adding related concepts using Phoebe")
   if (nrow(concepts) != 0) {
-    newConcepts <- lapply(concepts$conceptId, phoebeSearch)
-    newConcepts <- bind_rows(newConcepts)
+    newConcepts <- phoebeBulkSearch(concepts$conceptId)
     if (nrow(newConcepts) > 0) {
       newConcepts <- newConcepts |>
         filter(!duplicated(.data$conceptId)) |>

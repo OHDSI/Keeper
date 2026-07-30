@@ -12,6 +12,80 @@ test_that("generateKeeperConceptSets validates inputs", {
   )
 })
 
+test_that("phoebeBulkSearch posts concept IDs in chunks and flattens results", {
+  calls <- list()
+  response <- structure(list(status_code = 200), class = "fake_response")
+
+  local_mocked_bindings(
+    POST = function(url, body, encode) {
+      calls[[length(calls) + 1]] <<- list(url = url, body = body, encode = encode)
+      response
+    },
+    status_code = function(response) response$status_code,
+    content = function(response, as, encoding) {
+      sourceConceptId <- calls[[length(calls)]]$body$ids[[1]]
+      jsonlite::toJSON(list(
+        list(
+          concept_id = sourceConceptId,
+          results = list(
+            list(
+              relationship_id = "Lexical via standard",
+              concept_id = sourceConceptId + 1000L,
+              concept_name = "Related concept",
+              vocabulary_id = "SNOMED",
+              record_count = 30000L
+            )
+          )
+        )
+      ), auto_unbox = TRUE)
+    },
+    .package = "httr"
+  )
+
+  result <- Keeper:::phoebeBulkSearch(1:101, chunkSize = 100)
+
+  expect_length(calls, 2)
+  expect_equal(calls[[1]]$url, "https://hecate.pantheon-hds.com/api/concepts/phoebe/bulk")
+  expect_equal(calls[[1]]$body$ids, 1:100)
+  expect_equal(calls[[2]]$body$ids, 101L)
+  expect_equal(calls[[1]]$encode, "json")
+  expect_equal(nrow(result), 2)
+  expect_named(
+    result,
+    c("relationshipId", "conceptId", "conceptName", "vocabularyId", "recordCount", "sourceConceptId")
+  )
+  expect_equal(result$conceptId, c(1001L, 1101L))
+  expect_equal(result$sourceConceptId, c(1L, 101L))
+})
+
+test_that("phoebeBulkSearch handles ids with no related concepts", {
+  # The bulk endpoint echoes back every requested id, returning an empty
+  # `results` array for ids that have no related concepts (and `[]` overall
+  # when nothing matches), so both must flatten to an empty result.
+  local_mocked_bindings(
+    POST = function(url, body, encode) {
+      structure(list(status_code = 200, ids = body$ids), class = "fake_response")
+    },
+    status_code = function(response) response$status_code,
+    content = function(response, as, encoding) {
+      if (identical(response$ids, 0L)) {
+        return("[]")
+      }
+      jsonlite::toJSON(
+        lapply(response$ids, function(id) list(concept_id = id, results = list())),
+        auto_unbox = TRUE
+      )
+    },
+    .package = "httr"
+  )
+
+  emptyResults <- Keeper:::phoebeBulkSearch(c(10L, 20L))
+  expect_equal(nrow(emptyResults), 0)
+
+  emptyResponse <- Keeper:::phoebeBulkSearch(0L)
+  expect_equal(nrow(emptyResponse), 0)
+})
+
 test_that("generateKeeperConceptSets orchestrates DOI and alternative diagnosis flows", {
   callLog <- list()
   fakePrompts <- list(
