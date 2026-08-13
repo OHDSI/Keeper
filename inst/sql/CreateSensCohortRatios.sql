@@ -8,7 +8,7 @@ WITH doi_persons AS (
 	WHERE ancestor_concept_id IN (
 	  SELECT concept_id
 	  FROM #concept_sets
-	  WHERE concept_set_name = 'doi'
+	  WHERE concept_set_name = '@doi_set'
 	)
 )
 SELECT concept_id,

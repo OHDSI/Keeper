@@ -335,7 +335,7 @@ generateConceptSet <- function(phenotype,
                                connection,
                                vocabDatabaseSchema) {
   conceptBatchSize <- 20
-  minRecordCount <- 25000
+  minRecordCount <- 1000
   cost <- 0
 
   conditionPrompt <- sprintf("Condition: %s", phenotype)

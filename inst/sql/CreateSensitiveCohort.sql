@@ -15,7 +15,7 @@ INNER JOIN @cdm_database_schema.observation_period
 WHERE ancestor_concept_id IN (
 	SELECT concept_id
 	FROM #concept_sets
-	WHERE concept_set_name = 'doi'
+	WHERE concept_set_name = '@doi_set'
 )
 GROUP BY condition_occurrence.person_id;
 

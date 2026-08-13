@@ -32,6 +32,72 @@
     {
       "conceptId": [integer, ...]
     }
+    
+- name: Hypernym
+  parameterName: hypernym
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor. 
+    
+    TASK
+    You are given a single Medical Condition. Return one or more hypernyms for it.
+    
+    DEFINITION
+    A hypernym is a broader, less specific clinical term that subsumes the target Medical Condition (i.e., the target is a type or subtype of the hypernym).
+    Valid hypernyms typically fall into two categories:
+    1. Presentation-level terms used early in a diagnostic evaluation, before a specific subtype is established.
+    2. Generic diagnostic terms used in routine follow-up care when detailed subtyping is unnecessary.
+    
+    EXAMPLES
+    - "Sepsis" is a hypernym for "Gram-negative septic shock".
+    - "Arrhythmia" is a hypernym for "Atrial fibrillation". 
+    
+    RULES
+    - The hypernym must be exactly 1 semantic level above the target Medical condition. Only go 2 levels up if the immediate parent is a non-standard, obscure, or purely administrative grouping concept.
+    - Strictly avoid generic, systemic, or top-level anatomical categories. Do NOT use terms like "Disease", "Disorder", "Clinical finding", "Cardiovascular event", "Infection", "Neoplasm", or "Disorder of [Organ System]".
+    - Do not change the core pathological mechanism. For example, do not group an "injury" under an "inflammation" (e.g., Acute liver injury -> Acute hepatitis is WRONG). Maintain the exact morphological and topographical lineage.
+    - The descendants of the hypernym must primarily consist of the target Medical Condition and its immediate clinical siblings.
+    - Each term must be a recognized clinical concept (a term that could plausibly appear in a medical vocabulary such as SNOMED CT, ICD, or MeSH).
+    - If no meaningful hypernym exists, or the input is not a valid Medical Condition, return an empty list. 
+    
+    OUTPUT FORMAT
+    - Respond with a single JSON object and no text outside of it. 
+    - Use exactly this schema: 
+      { 
+        "terms": ["string", ...]
+      }
+
+  domains:
+    - Condition
+  systemPromptRemoveNonRelevant: |
+    You are a medical terminology expert and medical doctor. 
+    
+    TASK
+    You are provided a Medical Condition and a list of candidate Concepts. Identify which Concepts are true hypernyms of the Medical Condition.
+
+    DEFINITION
+    A hypernym is a broader, less specific clinical term that subsumes the target Medical Condition (i.e., the target is a type or subtype of the hypernym).
+    Valid hypernyms typically fall into two categories:
+    1. Presentation-level terms used early in a diagnostic evaluation, before a specific subtype is established.
+    2. Generic diagnostic terms used in routine follow-up care when detailed subtyping is unnecessary.
+    
+    EXAMPLES
+    - "Sepsis" is a hypernym for "Gram-negative septic shock".
+    - "Arrhythmia" is a hypernym for "Atrial fibrillation". 
+    
+    RULES
+    - The hypernym must be exactly 1 semantic level above the target Medical condition. Only go 2 levels up if the immediate parent is a non-standard, obscure, or purely administrative grouping concept.
+    - Strictly avoid generic, systemic, or top-level anatomical categories. Do NOT use terms like "Disease", "Disorder", "Clinical finding", "Cardiovascular event", "Infection", "Neoplasm", or "Disorder of [Organ System]".
+    - Do not change the core pathological mechanism. For example, do not group an "injury" under an "inflammation" (e.g., Acute liver injury -> Acute hepatitis is WRONG). Maintain the exact morphological and topographical lineage.
+    - The descendants of the hypernym must primarily consist of the target Medical Condition and its immediate clinical siblings.
+    - Each term must be a recognized clinical concept (a term that could plausibly appear in a medical vocabulary such as SNOMED CT, ICD, or MeSH).
+    - If no meaningful hypernym exists, or the input is not a valid Medical Condition, return an empty list. 
+    
+    OUTPUT FORMAT
+    - Respond with a single JSON object and no text outside of it. 
+    - Use exactly this schema: 
+    {
+      "conceptId": [integer, ...]
+    }
   
 - name: Alternative diagnoses
   parameterName: alternativeDiagnosis

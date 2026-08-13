@@ -2,7 +2,7 @@ Package: Keeper
 Type: Package
 Title: An R package to review patient profiles for phenotype validation
 Version: 2.2.0
-Date: 2026-06-17
+Date: 2026-08-13
 Authors@R: c(
     person("Ostropolets", "Anna", email = "ostropolets@ohdsi.org", role = c("aut", "cre")),
     person("Schuemie", "Martjn", role = c("aut")),
@@ -43,4 +43,4 @@ BugReports: https://github.com/OHDSI/Keeper/issues
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Language: en-US
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

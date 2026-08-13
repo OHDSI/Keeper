@@ -5,6 +5,10 @@ Changes:
 
 1. Adding optional `clinicalDefinition` argument to `reviewCases()` and `generateKeeperConceptSets()`, allowing users to provide more detail on the phenotype.
 
+2. Adding 'hypernym' category to the KEEPER concept sets, with concept(s) broader than the phenotype.
+    - `generateKeeperConceptSets()` now includes the hypernym category.
+    - In `createSensitiveCohort()`, when there are insufficient people with the disease of interest concepts, we now automatically switch to the hypernyms. The threshold is defined by the new `minDoiPersons` argument (defaults to 100).
+    - `generateKeeper()` Now includes the hypernym and its descendants in the prior and post disease windows.
 
 Keeper 2.1.3
 ============

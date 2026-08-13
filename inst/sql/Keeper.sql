@@ -245,7 +245,7 @@ INNER JOIN @cdm_database_schema.concept
 	ON condition_concept_id = concept.concept_id
 INNER JOIN #full_concept_sets full_concept_sets
 	ON condition_concept_id = full_concept_sets.concept_id
-WHERE concept_set_name IN ('doi', 'complications')
+WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
 GROUP BY generated_id,
 	DATEDIFF(DAY, cohort_start_date, condition_start_date),
 	condition_concept_id,
@@ -266,7 +266,7 @@ INNER JOIN @cdm_database_schema.concept
 	ON condition_concept_id = concept.concept_id
 INNER JOIN #full_concept_sets full_concept_sets
 	ON condition_concept_id = full_concept_sets.concept_id
-WHERE concept_set_name IN ('doi', 'complications')
+WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
 GROUP BY generated_id,
 	DATEDIFF(DAY, cohort_start_date, condition_start_date),
 	condition_concept_id,
