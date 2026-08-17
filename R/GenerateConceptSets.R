@@ -30,7 +30,7 @@ vectorSearch <- function(term, domains, conceptClasses, limit = 10, maxRetries =
     params$concept_class_id <- paste(conceptClasses, collapse = ",")
   }
   url <- "https://hecate.pantheon-hds.com/api/search_standard"
-
+  
   for (attempt in 1:maxRetries) {
     response <- tryCatch(
       {
@@ -41,11 +41,11 @@ vectorSearch <- function(term, domains, conceptClasses, limit = 10, maxRetries =
         return(NULL)
       }
     )
-
+    
     if (!is.null(response) && httr::status_code(response) == 200) {
       content_text <- httr::content(response, "text", encoding = "UTF-8")
       data <- jsonlite::fromJSON(content_text)
-
+      
       data <- dplyr::bind_rows(data$concepts) |>
         SqlRender::snakeCaseToCamelCaseNames()
       return(data)
@@ -65,7 +65,7 @@ vectorSearch <- function(term, domains, conceptClasses, limit = 10, maxRetries =
 
 phoebeSearch <- function(conceptId, maxRetries = 3, waitTime = 2) {
   url <- sprintf("https://hecate.pantheon-hds.com/api/concepts/%d/phoebe", conceptId)
-
+  
   for (attempt in 1:maxRetries) {
     response <- tryCatch(
       {
@@ -76,17 +76,17 @@ phoebeSearch <- function(conceptId, maxRetries = 3, waitTime = 2) {
         return(NULL)
       }
     )
-
+    
     if (!is.null(response) && httr::status_code(response) == 200) {
       contextText <- httr::content(response, "text", encoding = "UTF-8")
-
+      
       if (contextText == "[]") {
         return(NULL)
       }
       data <- jsonlite::fromJSON(contextText)
       data <- data |>
         SqlRender::snakeCaseToCamelCaseNames()
-
+      
       return(data)
     }
     if (attempt < maxRetries) {
@@ -192,7 +192,7 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
   cost <- 0
   for (start in seq(1, nrow(concepts), by = batchSize)) {
     batch <- concepts[start:min(start + batchSize - 1, nrow(concepts)), ]
-
+    
     prompt <- paste0(
       conditionPrompt,
       sprintf("\n\nConcepts:\n%s", jsonlite::toJSON(select(batch, "conceptId", "conceptName")))
@@ -202,10 +202,10 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
     # response <- client$chat(prompt, echo = "none")
     # conceptIds <- c(conceptIds, extractAndParseJson(response)$conceptId)
     response <- client$chat_structured(prompt,
-      echo = "none",
-      type = ellmer::type_object(
-        conceptId = ellmer::type_array(ellmer::type_number())
-      )
+                                       echo = "none",
+                                       type = ellmer::type_object(
+                                         conceptId = ellmer::type_array(ellmer::type_number())
+                                       )
     )
     conceptIds <- c(conceptIds, response$conceptId)
     cost <- cost + client$get_cost()
@@ -246,11 +246,11 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
 #'
 #' @export
 generateKeeperConceptSets <- function(
-  phenotype,
-  clinicalDefinition = NULL,
-  client,
-  vocabConnectionDetails,
-  vocabDatabaseSchema
+    phenotype,
+    clinicalDefinition = NULL,
+    client,
+    vocabConnectionDetails,
+    vocabDatabaseSchema
 ) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(phenotype, min.chars = 1, len = 1, add = errorMessages)
@@ -259,12 +259,12 @@ generateKeeperConceptSets <- function(
   checkmate::assertClass(vocabConnectionDetails, "ConnectionDetails", add = errorMessages)
   checkmate::assertCharacter(vocabDatabaseSchema, min.chars = 1, add = errorMessages)
   checkmate::reportAssertions(errorMessages)
-
+  
   startTime <- Sys.time()
-
+  
   connection <- DatabaseConnector::connect(vocabConnectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
-
+  
   # yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
   yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
   promptSets <- yaml::read_yaml(yamlFileName)
@@ -289,14 +289,14 @@ generateKeeperConceptSets <- function(
         target = "Disease of interest"
       )
     table[[length(table) + 1]] <- conceptSet
-
+    
     if (promptSet$parameterName == "alternativeDiagnosis") {
       alternativeDiagnoses <- attr(conceptSet, "initialTerms")
       conceptSet <- conceptSet |>
         mutate(target = "Alternative diagnoses")
     } else if (!is.null(alternativeDiagnoses)) {
       message(sprintf("Generating concept set %s for alternative diagnoses", promptSet$name))
-
+      
       conceptSet <- generateConceptSet(
         phenotype = paste0("\n- ", paste(alternativeDiagnoses, collapse = "\n- ")),
         clinicalDefinition = NULL,
@@ -337,14 +337,14 @@ generateConceptSet <- function(phenotype,
   conceptBatchSize <- 20
   minRecordCount <- 1000
   cost <- 0
-
+  
   conditionPrompt <- sprintf("Condition: %s", phenotype)
   
   if (!is.null(clinicalDefinition)) {
     conditionPrompt <- paste(conditionPrompt,
                              sprintf("Definition: %s", clinicalDefinition), sep = "\n\n")
   }
-
+  
   message("- Generating initial term list using LLM")
   client$set_system_prompt(promptSet$systemPromptTerms)
   client$set_turns(list())
@@ -352,27 +352,30 @@ generateConceptSet <- function(phenotype,
   # response <- client$chat(prompt, echo = "none")
   # terms <- extractAndParseJson(response)$terms
   response <- client$chat_structured(prompt,
-    echo = "none",
-    type = ellmer::type_object(
-      terms = ellmer::type_array(ellmer::type_string())
-    )
+                                     echo = "none",
+                                     type = ellmer::type_object(
+                                       terms = ellmer::type_array(ellmer::type_string())
+                                     )
   )
   terms <- response$terms
   cost <- cost + client$get_cost()
-
+  
   message(sprintf("  Generated %d terms", length(terms)))
-
+  
   message("- Searching standard concepts for terms using embedding vectors")
   if (length(terms) == 0) {
     concepts <- tibble()
   } else {
     concepts <- lapply(terms, vectorSearch, domains = promptSet$domains, conceptClasses = promptSet$conceptClasses)
     concepts <- bind_rows(concepts) |>
-      distinct() |>
-      filter(.data$recordCount >= minRecordCount)
+      distinct() 
+    if (nrow(concepts) != 0) {
+      concepts <- concepts |>
+        filter(.data$recordCount >= minRecordCount)
+    }
   }
   message(sprintf("  Found %d unique concepts", nrow(concepts)))
-
+  
   message("- Removing non-relevant concepts using LLM")
   if (nrow(concepts) != 0) {
     concepts <- removeNonRelevantConcepts(
@@ -385,7 +388,7 @@ generateConceptSet <- function(phenotype,
     cost <- cost + attr(concepts, "cost")
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
-
+  
   message("- Removing children of included concepts")
   if (nrow(concepts) != 0) {
     concepts <- removeChildren(
@@ -395,7 +398,7 @@ generateConceptSet <- function(phenotype,
     )
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
-
+  
   message("- Adding related concepts using Phoebe")
   if (nrow(concepts) != 0) {
     newConcepts <- lapply(concepts$conceptId, phoebeSearch)
@@ -424,7 +427,7 @@ generateConceptSet <- function(phenotype,
     }
   }
   message(sprintf("  Now have a total of %d unique concepts", nrow(concepts)))
-
+  
   message("- Removing non-relevant concepts using LLM")
   if (nrow(concepts) != 0) {
     concepts <- removeNonRelevantConcepts(
@@ -437,7 +440,7 @@ generateConceptSet <- function(phenotype,
     cost <- cost + attr(concepts, "cost")
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
-
+  
   message("- Removing children of included concepts")
   if (nrow(concepts) != 0) {
     concepts <- removeChildren(
@@ -447,9 +450,11 @@ generateConceptSet <- function(phenotype,
     )
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
-
-  concepts <- concepts |>
-    select("conceptId", "conceptName", "vocabularyId")
+  
+  if (nrow(concepts) != 0) {
+    concepts <- concepts |>
+      select("conceptId", "conceptName", "vocabularyId")
+  }
   attr(concepts, "initialTerms") <- terms
   attr(concepts, "cost") <- cost
   return(concepts)
