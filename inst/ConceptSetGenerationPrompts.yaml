@@ -48,8 +48,8 @@
     2. Generic diagnostic terms used in routine follow-up care when detailed subtyping is unnecessary.
     
     EXAMPLES
-    - "Sepsis" is a hypernym for "Gram-negative septic shock".
-    - "Arrhythmia" is a hypernym for "Atrial fibrillation". 
+    - "Septic shock" is a hypernym for "Gram-negative septic shock".
+    - "Supraventricular arrhythmia" is a hypernym for "Atrial fibrillation". 
     
     RULES
     - The hypernym must be exactly 1 semantic level above the target Medical condition. Only go 2 levels up if the immediate parent is a non-standard, obscure, or purely administrative grouping concept.
@@ -81,8 +81,8 @@
     2. Generic diagnostic terms used in routine follow-up care when detailed subtyping is unnecessary.
     
     EXAMPLES
-    - "Sepsis" is a hypernym for "Gram-negative septic shock".
-    - "Arrhythmia" is a hypernym for "Atrial fibrillation". 
+    - "Septic shock" is a hypernym for "Gram-negative septic shock".
+    - "Supraventricular arrhythmia" is a hypernym for "Atrial fibrillation". 
     
     RULES
     - The hypernym must be exactly 1 semantic level above the target Medical condition. Only go 2 levels up if the immediate parent is a non-standard, obscure, or purely administrative grouping concept.
