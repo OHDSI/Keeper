@@ -77,7 +77,11 @@ reviewCases <- function(keeper,
   
   startTime <- Sys.time()
   
-  structured <- supportsStructuredOutput(client)
+  if (getOption("force_unstructured", FALSE)) {
+    structured <- FALSE  
+  } else {
+    structured <- supportsStructuredOutput(client)
+  }
   
   maxRetries <- 5
   
@@ -179,10 +183,10 @@ reviewCases <- function(keeper,
               stop("Exceeding maximum number of retries when calling LLM")
             }
           }
-                )
-                if (!is.null(parsedResponse)) {
-                  break
-                }
+        )
+        if (!is.null(parsedResponse)) {
+          break
+        }
       }
     }
     
