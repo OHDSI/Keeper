@@ -9,6 +9,8 @@ output:
   html_document:
     number_sections: yes
     toc: yes
+resource_files:
+  - Shiny.png
 vignette: >
   %\VignetteIndexEntry{Generating Keeper profiles for review}
   %\VignetteEngine{knitr::rmarkdown}
@@ -358,6 +360,9 @@ launchReviewerApp(
 
 This will launch the Shiny application, which looks like this: 
 
-![The Keeper Shiny app](Shiny.png)
+```{r echo = FALSE, fig.cap = "The Keeper Shiny app"}
+shinyImage <- if (file.exists("Shiny.png")) "Shiny.png" else file.path("vignettes", "Shiny.png")
+knitr::include_graphics(normalizePath(shinyImage, mustWork = TRUE), rel_path = FALSE)
+```
 
 Any decisions you log within the app will be written to the specified decisions file (e.g., `decisions.csv`). If the decisions file does not yet exist, Keeper will create it for you.

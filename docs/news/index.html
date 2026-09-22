@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Keeper</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.2.0</span>
       </span>
     </div>
 
@@ -42,7 +42,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://ohdsi.github.io/Hades" class="external-link"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
+  <a href="https://ohdsi.github.io/Hades" class="external-link">hadesLogo</a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/Keeper/" class="external-link">
@@ -64,12 +64,25 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="2.2.0" id="keeper-220">Keeper 2.2.0<a class="anchor" aria-label="anchor" href="#keeper-220"></a></h2>
+<p>Changes:</p>
+<ol style="list-style-type: decimal"><li><p>Adding optional <code>clinicalDefinition</code> argument to <code><a href="../reference/reviewCases.html">reviewCases()</a></code> and <code><a href="../reference/generateKeeperConceptSets.html">generateKeeperConceptSets()</a></code>, allowing users to provide more detail on the phenotype.</p></li>
+<li>
+<p>Adding ‘hypernym’ category to the KEEPER concept sets, with concept(s) broader than the phenotype.</p>
+<ul><li>
+<code><a href="../reference/generateKeeperConceptSets.html">generateKeeperConceptSets()</a></code> now includes the hypernym category.</li>
+<li>In <code><a href="../reference/createSensitiveCohort.html">createSensitiveCohort()</a></code>, when there are insufficient people with the disease of interest concepts, we now automatically switch to the hypernyms. The threshold is defined by the new <code>minDoiPersons</code> argument (defaults to 100).</li>
+<li>
+<code><a href="../reference/generateKeeper.html">generateKeeper()</a></code> Now includes the hypernym and its descendants in the prior and post disease windows.</li>
+</ul></li>
+</ol></div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.3" id="keeper-213">Keeper 2.1.3<a class="anchor" aria-label="anchor" href="#keeper-213"></a></h2>
 <p>Bug fixes:</p>
 <ol style="list-style-type: decimal"><li><p>Fixed errors on SQL Server, IRIS, BigQuery.</p></li>
 <li><p>Fixed bug in Shiny app where index day was copied from one person to another.</p></li>
 <li><p>Fixed parsing errors for some local LLMs that don’t support structured output.</p></li>
-</ol><p>Added unit tests for all supported database platforms.</p>
+</ol><p>Added unit tests for all supported database platforms. &gt;&gt;&gt;&gt;&gt;&gt;&gt; d27a4d54274cd5c8763f76b34ace5d2fdd1e975b</p>
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.1.2" id="keeper-212">Keeper 2.1.2<a class="anchor" aria-label="anchor" href="#keeper-212"></a></h2>
@@ -151,7 +164,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>
