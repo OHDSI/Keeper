@@ -100,6 +100,16 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheQwen38_27B_Q8"
 resultsFile <- "extras/KeeperEvaluation/MetricsQwen38_27B_Q8.xlsx"
 
+# qwen/qwen3.8-27b splash running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen3.8-27b-splash"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen38_27B_splash"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen38_27B_splash.xlsx"
+options("force_unstructured" = TRUE)
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"

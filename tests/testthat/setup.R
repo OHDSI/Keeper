@@ -136,19 +136,20 @@ if (.Platform$OS.type != "windows" || Sys.getenv("CDM5_POSTGRESQL_SERVER") == ""
   }
   
   # Snowflake --------------------------------------------------------------------
-  if (Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING") != "") {
-    testServers[[length(testServers) + 1]] <- list(
-      connectionDetails = details <- createConnectionDetails(
-        dbms = "snowflake",
-        user = Sys.getenv("CDM_SNOWFLAKE_USER"),
-        password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
-        connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
-      ),
-      NULL,
-      cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
-      cohortDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
-    )
-  }
+  # Disabling Snowflake testing while login problem with new security criteria is being resolved
+  # if (Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING") != "") {
+  #   testServers[[length(testServers) + 1]] <- list(
+  #     connectionDetails = details <- createConnectionDetails(
+  #       dbms = "snowflake",
+  #       user = Sys.getenv("CDM_SNOWFLAKE_USER"),
+  #       password = URLdecode(Sys.getenv("CDM_SNOWFLAKE_PASSWORD")),
+  #       connectionString = Sys.getenv("CDM_SNOWFLAKE_CONNECTION_STRING")
+  #     ),
+  #     NULL,
+  #     cdmDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_CDM53_SCHEMA"),
+  #     cohortDatabaseSchema = Sys.getenv("CDM_SNOWFLAKE_OHDSI_SCHEMA")
+  #   )
+  # }
   
   # Databricks (Spark) --------------------------------------------------------------------------
   if (Sys.getenv("CDM5_SPARK_CONNECTION_STRING") != "") {
