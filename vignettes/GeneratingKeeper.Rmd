@@ -361,8 +361,10 @@ launchReviewerApp(
 This will launch the Shiny application, which looks like this: 
 
 ```{r echo = FALSE, fig.cap = "The Keeper Shiny app"}
+# With R 4.6.1, knitr 1.5.2, and rmarkdown 2.32 the original ![The Keeper Shiny app](Shiny.png) could no longer find
+# the image file. Only this exact code now works on all platforms:
 shinyImage <- if (file.exists("Shiny.png")) "Shiny.png" else file.path("vignettes", "Shiny.png")
-knitr::include_graphics(normalizePath(shinyImage, mustWork = TRUE), rel_path = FALSE)
+knitr::include_graphics(normalizePath(shinyImage, winslash = "/", mustWork = TRUE), rel_path = FALSE)
 ```
 
 Any decisions you log within the app will be written to the specified decisions file (e.g., `decisions.csv`). If the decisions file does not yet exist, Keeper will create it for you.
