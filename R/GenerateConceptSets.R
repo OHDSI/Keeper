@@ -459,3 +459,23 @@ generateConceptSet <- function(phenotype,
   attr(concepts, "cost") <- cost
   return(concepts)
 }
+
+# # conceptSets = bind_rows(table)
+# generateOtherCategory <- function(phenotype,
+#                                   clinicalDefinition,
+#                                   promptSet,
+#                                   conceptSets,
+#                                   client,
+#                                   connection,
+#                                   vocabDatabaseSchema) {
+#   seedConcepts <- conceptSets |>
+#     filter(.data$conceptSetName %in% c("doi", "hypernym"))
+#   newConcepts <- lapply(unique(conceptSets$conceptId), phoebeSearch)
+#   newConcepts <- bind_rows(newConcepts) |>
+#     filter(!duplicated(conceptId))
+#   
+#   newConcepts <- phoebeSearch(4055224)
+#   newConcepts <- phoebeSearch(4169242)
+#   
+#   
+# }

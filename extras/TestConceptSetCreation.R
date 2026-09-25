@@ -4,10 +4,9 @@ library(ellmer)
 library(DatabaseConnector)
 
 # Local services -------------------------------------------------
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "nvidia/nemotron-3-nano"
+client <- chat_lmstudio(
+  base_url = "http://localhost:1234",
+  model = "qwen3.8-27b-splash"
 )
 
 vocabConnectionDetails <- createConnectionDetails(
@@ -53,17 +52,20 @@ conceptSets <- generateKeeperConceptSets(
 )
 readr::write_csv(conceptSets, "e:/temp/conceptSets_T2DM.csv")
 
-# conceptSetsOld <- readr::read_csv("e:/temp/afConceptSetsOld.csv")
-# 
-# joined <- conceptSets |>
-#   mutate(new = TRUE) |>
-#   full_join(conceptSetsOld |>
-#               mutate(old = TRUE),
-#             by = join_by(conceptId, conceptName, vocabularyId, conceptSetName, target))|>
-#   mutate(new = if_else(is.na(new), FALSE, TRUE),
-#          old = if_else(is.na(old), FALSE, TRUE)) |>
-#   mutate(both = new & old)
-# readr::write_csv(joined, "e:/temp/afConceptSetsCompared.csv")
+# Generate concept sets for one phenotype --------------------------------------
+phenotype <- "Acute liver failure"
+clinicalDefinition <- "Acute liver failure is a rare but life-threatening syndrome characterized by the rapid deterioration of hepatocellular function, manifesting as significant coagulopathy and hepatic encephalopathy of any grade, developing within 28 days of the onset of jaundice or initial hepatic symptoms in an individual without evidence of pre-existing chronic liver disease or cirrhosis. The syndrome arises from a direct, primary insult to hepatocytes â€” including viral, toxic, drug-induced, autoimmune, metabolic, or indeterminate causes â€” and is conceptually distinct from liver dysfunction occurring as a secondary consequence of hemodynamic compromise (e.g., ischemic hepatitis, shock liver), systemic sepsis, or passive hepatic congestion from right-sided heart failure, all of which are explicitly excluded."
+
+conceptSets <- generateKeeperConceptSets(
+  phenotype = phenotype,
+  clinicalDefinition = clinicalDefinition,
+  client = client,
+  vocabConnectionDetails = vocabConnectionDetails,
+  vocabDatabaseSchema = vocabDatabaseSchema
+)
+
+conceptSets <- readr::read_csv("/Users/schuemie/git/largescalephentest/Keeper/Acute_liver_failure/KeeperConceptSets.csv")
+concepts <- tibble(conceptId = 4055224, conceptName = "Toxic liver disease")
 
 # Create many concept sets -----------------------------------------------------
 phenotypes <- c("Thrombocytopenia",
