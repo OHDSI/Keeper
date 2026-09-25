@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS #doi_cohort;
-DROP TABLE IF EXISTS #treatment_cohort;
-DROP TABLE IF EXISTS #symptom_plus_cohort;
+DROP TABLE IF EXISTS #combi_cohort;
 	
 -- #doi_cohort
 SELECT condition_occurrence.person_id AS subject_id,
@@ -16,7 +15,7 @@ INNER JOIN @cdm_database_schema.observation_period
 WHERE ancestor_concept_id IN (
 	SELECT concept_id
 	FROM #concept_sets
-	WHERE concept_set_name = 'doi'
+	WHERE concept_set_name = '@doi_set'
 )
 GROUP BY condition_occurrence.person_id;
 

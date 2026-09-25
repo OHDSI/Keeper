@@ -9,6 +9,8 @@ output:
   html_document:
     number_sections: yes
     toc: yes
+resource_files:
+  - Diagram.png
 vignette: >
   %\VignetteIndexEntry{Using Keeper with LLMs}
   %\VignetteEngine{knitr::rmarkdown}
@@ -101,7 +103,12 @@ Instead of analyzing an existing cohort just to find its PPV, we can build a **H
 
 By taking a large sample of this HSC and having an LLM review it, we create a gold-standard **Reference Cohort**. This reference cohort can then be used to rapidly evaluate the PPV *and* sensitivity of any other cohort definitions for the same phenotype.
 
-![Using a reference cohort (a sample of a highly-sensitive cohort) to evaluate cohorts for a phenotype.](Diagram.png){width=350px}
+```{r echo = FALSE, fig.cap = "Using a reference cohort (a sample of a highly-sensitive cohort) to evaluate cohorts for a phenotype.", out.width = "350px"}
+# With R 4.6.1, knitr 1.5.2, and rmarkdown 2.32 the original ![The Keeper Shiny app](Diagram.png) could no longer find
+# the image file. Only this exact code now works on all platforms:
+diagramImage <- if (file.exists("Diagram.png")) "Diagram.png" else file.path("vignettes", "Diagram.png")
+knitr::include_graphics(normalizePath(diagramImage, winslash = "/", mustWork = TRUE), rel_path = FALSE)
+```
 
 ## 1. Creating the Highly-Sensitive Cohort
 

@@ -40,8 +40,76 @@ promptSettings <- createPromptSettings()
 cacheFolder <- "cacheGemma4"
 resultsFile <- "extras/KeeperEvaluation/MetricsGemma4.xlsx"
 
+# Gemma 4 26B A4B running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "google/gemma-4-26b-a4b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheGemma4_26BA4B"
+resultsFile <- "extras/KeeperEvaluation/MetricsGemma4_26BA4B.xlsx"
 
+# qwen/qwen3.6-27b running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3.6-27b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen36_27B"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen36_27B.xlsx"
 
+# qwen/qwen3.6-35b 6-bit quant running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3.6-35b-a3b:2"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen36_35B_Q6"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen36_35B_Q6.xlsx"
+
+# qwen/qwen3.6-35b 8-bit quant running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3.6-35b-a3b"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen36_35B_Q8"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen36_35B_Q8.xlsx"
+
+# Gemma 4 26B A4B QAT (4 bit) running on local LM Studio with full prompt
+client <- chat_lmstudio(
+  model = "google/gemma-4-26b-a4b-qat",
+  system_prompt = NULL
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheGemma4_26BA4B_QAT"
+resultsFile <- "extras/KeeperEvaluation/MetricsGemma4_26BA4B_QAT.xlsx"
+options("force_unstructured" = TRUE)
+
+# qwen/qwen3.8-27b 8-bit quant running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen/qwen3.8-27bb"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen38_27B_Q8"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen38_27B_Q8.xlsx"
+
+# qwen/qwen3.8-27b splash running on local LM Studio with full prompt
+client <- chat_openai_compatible(
+  base_url = "http://localhost:1234/v1",
+  credentials = function() "lm-studio",
+  model = "qwen3.8-27b-splash"
+)
+promptSettings <- createPromptSettings()
+cacheFolder <- "cacheQwen38_27B_splash"
+resultsFile <- "extras/KeeperEvaluation/MetricsQwen38_27B_splash.xlsx"
+options("force_unstructured" = TRUE)
 
 # Load development set -------------------------------------------------------------------------------------------------
 keeperFile <- "../keeperllmeval/KEEPER_results_all_redux.xlsx"
@@ -64,7 +132,7 @@ groups <- keeper |>
   group_split()
 
 allResults <- list()
-# group = groups[[2]]
+# group = groups[[1]]
 # group = group[13, ]
 for (group in groups) {
   message("Evaluating ", group$cohortName[1])

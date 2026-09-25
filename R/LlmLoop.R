@@ -20,6 +20,8 @@
 #' @param settings    Prompt creating settings as created using the [createPromptSettings] function.
 #' @param phenotypeName The name of the disease to use in the prompt. If not provided, the name in the Keeper input will
 #'                      be used.
+#' @param clinicalDefinition Optionally prove a text blob with the definition and any other information about the
+#'                            phenotype.
 #' @param client      An LLM client created using the `ellmer` package.
 #' @param cacheFolder A folder where the LLM responses are cached. If the process terminates for some
 #'                    reason, it can pick up where it left off using the cache.
@@ -44,6 +46,7 @@
 reviewCases <- function(keeper,
                         settings = createPromptSettings(),
                         phenotypeName = NULL,
+                        clinicalDefinition = NULL,
                         client,
                         cacheFolder) {
   errorMessages <- checkmate::makeAssertCollection()
@@ -59,14 +62,26 @@ reviewCases <- function(keeper,
     "extraData"
   ), add = errorMessages)
   checkmate::assertClass(settings, "PromptSettings", add = errorMessages)
-  checkmate::assertCharacter(phenotypeName, null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(phenotypeName, len = 1, null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(clinicalDefinition, null.ok = TRUE, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
   checkmate::assertCharacter(cacheFolder, add = errorMessages)
   checkmate::reportAssertions(collection = errorMessages)
   
+  if (!is.null(clinicalDefinition)) {
+    if (settings$legacy) {
+      warning("The clinicalDefinition argument is ignored when using the legacy prompt settings.")
+    }
+    clinicalDefinition <- paste(clinicalDefinition, collapse = "\n")
+  }
+  
   startTime <- Sys.time()
   
-  structured <- supportsStructuredOutput(client)
+  if (getOption("force_unstructured", FALSE)) {
+    structured <- FALSE  
+  } else {
+    structured <- supportsStructuredOutput(client)
+  }
   
   maxRetries <- 5
   
@@ -103,7 +118,9 @@ reviewCases <- function(keeper,
         parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       }
     } else {
-      systemPrompt <- createSystemPrompt(settings = settings, phenotypeName = phenotype)
+      systemPrompt <- createSystemPrompt(settings = settings, 
+                                         phenotypeName = phenotype,
+                                         clinicalDefinition = clinicalDefinition)
       if (settings$legacy) {
         prompt <- createLegacyPrompt(
           settings = settings,
@@ -147,6 +164,8 @@ reviewCases <- function(keeper,
                 )
               } else {
                 response <- client$chat(prompt, echo = "none")
+                # Needed for Gemma 4:
+                response <- gsub("^\\s*```json|```\\s*$", "", response)
                 response <- jsonlite::fromJSON(response)
               }
               jsonlite::write_json(response, responseFileName)
@@ -164,10 +183,10 @@ reviewCases <- function(keeper,
               stop("Exceeding maximum number of retries when calling LLM")
             }
           }
-                )
-                if (!is.null(parsedResponse)) {
-                  break
-                }
+        )
+        if (!is.null(parsedResponse)) {
+          break
+        }
       }
     }
     
@@ -240,10 +259,10 @@ supportsStructuredOutput <- function(client) {
     res <- client$chat_structured("Respond using the schema.", 
                                   type = test_type, 
                                   echo = "none")
-    TRUE
+    return(TRUE)
   }, error = function(e) {
-    FALSE
     message("LLM does not appear to support structured output")
+    return(FALSE)
   })
   return(success)
 }

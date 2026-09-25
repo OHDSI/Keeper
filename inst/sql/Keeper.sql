@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS #full_concept_sets;
 DROP TABLE IF EXISTS #demographics;
 DROP TABLE IF EXISTS #presentation;
-DROP TABLE IF EXISTS #visit;
+DROP TABLE IF EXISTS #visits;
 DROP TABLE IF EXISTS #symptoms;
 DROP TABLE IF EXISTS #prior_disease;
 DROP TABLE IF EXISTS #post_disease;
@@ -245,7 +245,7 @@ INNER JOIN @cdm_database_schema.concept
 	ON condition_concept_id = concept.concept_id
 INNER JOIN #full_concept_sets full_concept_sets
 	ON condition_concept_id = full_concept_sets.concept_id
-WHERE concept_set_name IN ('doi', 'complications')
+WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
 GROUP BY generated_id,
 	DATEDIFF(DAY, cohort_start_date, condition_start_date),
 	condition_concept_id,
@@ -266,7 +266,7 @@ INNER JOIN @cdm_database_schema.concept
 	ON condition_concept_id = concept.concept_id
 INNER JOIN #full_concept_sets full_concept_sets
 	ON condition_concept_id = full_concept_sets.concept_id
-WHERE concept_set_name IN ('doi', 'complications')
+WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
 GROUP BY generated_id,
 	DATEDIFF(DAY, cohort_start_date, condition_start_date),
 	condition_concept_id,

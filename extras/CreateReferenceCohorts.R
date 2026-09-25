@@ -100,9 +100,11 @@ client <- chat_azure_openai(
   credentials = function() keyring::key_get("genai_api_gpt4_key")
 )
 promptSettings <- createPromptSettings()
+clinicalDefinition <- readLines("extras/ClinicalDef_Atrial_fibrillation.txt")
 llmResponses <- reviewCases(keeper = keeper,
                             settings = promptSettings,
                             phenotypeName = "Atrial Fibrillation",
+                            clinicalDefinition = clinicalDefinition,
                             client = client,
                             cacheFolder = file.path(folder, "cacheAfib"))
 llmResponses |>

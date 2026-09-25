@@ -360,7 +360,7 @@ generateKeeper <- function(connectionDetails = NULL,
   if (usePersonIds) {
     toDelete <- c(toDelete, "person_ids")
   }
-  sql <- paste(sprintf("TRUNCATE TABLE #%s; DROP TABLE #%s;", toDelete, toDelete), collapse = "\n")
+  sql <- paste(sprintf("DROP TABLE #%s;", toDelete), collapse = "\n")
   DatabaseConnector::renderTranslateExecuteSql(
     connection = connection,
     sql = sql,

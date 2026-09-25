@@ -2,7 +2,7 @@
   parameterName: doi
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a free-text name of a medical condition. 
+    You are provided a medical condition. 
     Provide one or more medical terms that are commonly used to denote that condition.
     
     Output Format:
@@ -32,12 +32,78 @@
     {
       "conceptId": [integer, ...]
     }
+    
+- name: Hypernym
+  parameterName: hypernym
+  systemPromptTerms: |
+    You are a medical terminology expert and medical doctor. 
+    
+    TASK
+    You are given a single Medical Condition. Return one or more hypernyms for it.
+    
+    DEFINITION
+    A hypernym is a broader, less specific clinical term that subsumes the target Medical Condition (i.e., the target is a type or subtype of the hypernym).
+    Valid hypernyms typically fall into two categories:
+    1. Presentation-level terms used early in a diagnostic evaluation, before a specific subtype is established.
+    2. Generic diagnostic terms used in routine follow-up care when detailed subtyping is unnecessary.
+    
+    EXAMPLES
+    - "Septic shock" is a hypernym for "Gram-negative septic shock".
+    - "Supraventricular arrhythmia" is a hypernym for "Atrial fibrillation". 
+    
+    RULES
+    - The hypernym must be exactly 1 semantic level above the target Medical condition. Only go 2 levels up if the immediate parent is a non-standard, obscure, or purely administrative grouping concept.
+    - Strictly avoid generic, systemic, or top-level anatomical categories. Do NOT use terms like "Disease", "Disorder", "Clinical finding", "Cardiovascular event", "Infection", "Neoplasm", or "Disorder of [Organ System]".
+    - Do not change the core pathological mechanism. For example, do not group an "injury" under an "inflammation" (e.g., Acute liver injury -> Acute hepatitis is WRONG). Maintain the exact morphological and topographical lineage.
+    - The descendants of the hypernym must primarily consist of the target Medical Condition and its immediate clinical siblings.
+    - Each term must be a recognized clinical concept (a term that could plausibly appear in a medical vocabulary such as SNOMED CT, ICD, or MeSH).
+    - If no meaningful hypernym exists, or the input is not a valid Medical Condition, return an empty list. 
+    
+    OUTPUT FORMAT
+    - Respond with a single JSON object and no text outside of it. 
+    - Use exactly this schema: 
+      { 
+        "terms": ["string", ...]
+      }
+
+  domains:
+    - Condition
+  systemPromptRemoveNonRelevant: |
+    You are a medical terminology expert and medical doctor. 
+    
+    TASK
+    You are provided a Medical Condition and a list of candidate Concepts. Identify which Concepts are true hypernyms of the Medical Condition.
+
+    DEFINITION
+    A hypernym is a broader, less specific clinical term that subsumes the target Medical Condition (i.e., the target is a type or subtype of the hypernym).
+    Valid hypernyms typically fall into two categories:
+    1. Presentation-level terms used early in a diagnostic evaluation, before a specific subtype is established.
+    2. Generic diagnostic terms used in routine follow-up care when detailed subtyping is unnecessary.
+    
+    EXAMPLES
+    - "Septic shock" is a hypernym for "Gram-negative septic shock".
+    - "Supraventricular arrhythmia" is a hypernym for "Atrial fibrillation". 
+    
+    RULES
+    - The hypernym must be exactly 1 semantic level above the target Medical condition. Only go 2 levels up if the immediate parent is a non-standard, obscure, or purely administrative grouping concept.
+    - Strictly avoid generic, systemic, or top-level anatomical categories. Do NOT use terms like "Disease", "Disorder", "Clinical finding", "Cardiovascular event", "Infection", "Neoplasm", or "Disorder of [Organ System]".
+    - Do not change the core pathological mechanism. For example, do not group an "injury" under an "inflammation" (e.g., Acute liver injury -> Acute hepatitis is WRONG). Maintain the exact morphological and topographical lineage.
+    - The descendants of the hypernym must primarily consist of the target Medical Condition and its immediate clinical siblings.
+    - Each term must be a recognized clinical concept (a term that could plausibly appear in a medical vocabulary such as SNOMED CT, ICD, or MeSH).
+    - If no meaningful hypernym exists, or the input is not a valid Medical Condition, return an empty list. 
+    
+    OUTPUT FORMAT
+    - Respond with a single JSON object and no text outside of it. 
+    - Use exactly this schema: 
+    {
+      "conceptId": [integer, ...]
+    }
   
 - name: Alternative diagnoses
   parameterName: alternativeDiagnosis
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a free-text name of a medical condition. 
+    You are provided a medical condition. 
     Your goal is to generate a list of Differential Diagnoses.
     
     Criteria for Selection:
@@ -82,8 +148,8 @@
   parameterName: symptoms
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a list of Medical Conditions.
-    Provide a list of medical terms that describe **Symptoms** of one or more of the Medical Conditions. 
+    You are provided one or more Medical Conditions.
+    Return a list of medical terms that describe **Symptoms** of one or more of the provided Medical Conditions. 
 
     Output Format:
     Provide your response in a single JSON object.
@@ -100,8 +166,8 @@
     - Clinical Finding
   systemPromptRemoveNonRelevant: |
     You are a Clinical Coding Expert. 
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify Concepts that describe possible **Symptoms** of one or more or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify Concepts that describe possible **Symptoms** of one or more or more of the provided Medical Conditions.
    
     Rules for Selection: 
     Review each concept. 
@@ -120,8 +186,8 @@
   parameterName: drugs
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of (generic) drug names and drug classes that describe **Pharmaceutical Treatments** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of (generic) drug names and drug classes that describe **Pharmaceutical Treatments** for one or more of the provided Medical Conditions.
     **Pharmaceutical Treatments** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
     When listing a drug class, also include as many of the individual drug names in that class as separate terms.
 
@@ -142,8 +208,8 @@
     - Vaccine Group
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe **Pharmaceutical Treatments** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Pharmaceutical Treatments** for one or more of the provided Medical Conditions.
     **Pharmaceutical Treatments** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
     
     Rules for Selection: 
@@ -163,8 +229,8 @@
   parameterName: diagnosticProcedures
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical procedure names that describe **Diagnostic Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical procedure names that describe **Diagnostic Procedures** for one or more of the provided Medical Conditions.
     **Diagnostic Procedures** are examinations or medical tests carried out by a healthcare provider to determine the nature, cause, severity and/or management of a disease.  
 
     Output Format:
@@ -180,8 +246,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe **Diagnostic Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Diagnostic Procedures** for one or more of the provided Medical Conditions.
     **Diagnostic Procedures** are examinations or medical tests carried out by a healthcare provider to determine the nature, cause, severity and/or management of a disease.  
     
     Rules for Selection: 
@@ -201,8 +267,8 @@
   parameterName: measurements
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical laboratory test names that describe lab tests used to diagnose one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical laboratory test names that describe lab tests used to diagnose one or more of the provided Medical Conditions.
 
     Output Format:
     Provide your response in a single JSON object. 
@@ -217,8 +283,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe lab tests used to diagnose one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe lab tests used to diagnose one or more of the provided Medical Conditions.
     
     Rules for Selection: 
     Review each concept. 
@@ -237,8 +303,8 @@
   parameterName: treatmentProcedures
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical procedure names that describe **Treatment Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical procedure names that describe **Treatment Procedures** for one or more of the provided Medical Conditions.
     **Treatment Procedures** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
 
     Output Format:
@@ -254,8 +320,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify OHDSI concepts that describe **Treatment Procedures** for one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify OHDSI concepts that describe **Treatment Procedures** for one or more of the provided Medical Conditions.
     **Treatment Procedures** aim to cure or manage the one or more of the Medical Conditions, or prevent a Medical Conditions or its complications for recurring (prophylaxis).
     
     Rules for Selection: 
@@ -275,8 +341,8 @@
   parameterName: complications
   systemPromptTerms: |
     You are a medical terminology expert and medical doctor.
-    You are provided a list of Medical Conditions.
-    Provide a list of medical terms that describe **Complications** of one or more of the Medical Conditions.
+    You are provided one or more Medical Conditions.
+    Return a list of medical terms that describe **Complications** of one or more of the provided Medical Conditions.
     **Complications** are additional medical condition or problem that arises during the course of a Medical Condition. 
     **Complications** result from the original Medical Condition. 
     
@@ -293,8 +359,8 @@
     
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor. 
-    You are provided a list of Medical Conditions and a list of candidate Concepts.
-    Your goal is to identify Concepts that describe possible **Complications** of one or more or more of the Medical Conditions.
+    You are provided one or more Medical Conditions and a list of candidate Concepts.
+    Your goal is to identify Concepts that describe possible **Complications** of one or more or more of the provided Medical Conditions.
     **Complications** are additional medical condition or problem that arises during the course of a Medical Condition. 
     **Complications** result from the original Medical Condition. 
     

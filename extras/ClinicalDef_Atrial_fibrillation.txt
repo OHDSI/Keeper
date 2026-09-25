@@ -1,0 +1,42 @@
+# Atrial Fibrillation
+
+## Clinical Case Definition
+* Atrial fibrillation is the most common cardiac arrhythmia, characterized by disorganized, chaotic electrical signals that override the sinus node.
+* **Classification:**
+  * **Paroxysmal:** Lasting < 7 days.
+  * **Persistent:** Lasting > 7 days.
+  * **Long-standing persistent:** Lasting > 1 year.
+  * **Permanent AF:** Accepted condition with no further rhythm control attempt.
+
+## Clinical Presentation and Symptoms
+* Symptoms include palpitations, chest pain, dizziness, fatigue, lightheadedness, reduced ability to exercise, shortness of breath, and weakness.
+* Can also present with hemodynamic changes.
+
+## Causes and Risk Factors
+* **Age:** The most important risk factor.
+* **Sex:** Risk is greater in males than females.
+* **Comorbidities:** Hypertension, cardiovascular and structural heart disease, diabetes mellitus (DM), obesity, sleep apnea.
+* **Lifestyle/other:** Alcohol, smoking, family history, hyperthyroidism, lung disease.
+
+## Diagnostic Evaluation
+* Physical examination.
+* Electrocardiogram (ECG or EKG).
+* Holter monitor.
+* Echocardiogram.
+* Stress tests.
+* Blood tests.
+
+## Treatment and Management
+* Treating underlying diseases and modifying lifestyle to reduce or eliminate risk factors.
+* **Pharmacological:**
+  * **Managing symptoms (rate control):** Beta blockers, calcium channel blockers, digoxin.
+  * **Managing symptoms (rhythm control):** Amiodarone, dofetilide, dronedarone, flecainide, propafenone, sotalol.
+  * **Stroke prevention (blood thinners/anticoagulants):** The CHA2DS2-VASc score (or similar clinical risk calculator) must be used to determine if a patient's stroke risk warrants the bleeding risks of anticoagulation therapy. Options include DOACs/FXa inhibitors (apixaban, dabigatran, rivaroxaban, edoxaban) or warfarin.
+* **MedTech:**
+  * **Acute rhythm restoration:** Electrical or pharmacologic cardioversion.
+  * **Durable rhythm control:** Catheter ablation.
+  * **Stroke prevention:** Left atrium appendage occlusion (LAAO).
+
+## Prognosis
+* Results in significant morbidity: increased risk of stroke (5-fold), heart failure, dementia and cognitive impairment, and chronic fatigue.
+* Associated with an increased risk of mortality.

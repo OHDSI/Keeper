@@ -1,3 +1,46 @@
+Keeper 2.2.0
+============
+
+Changes:
+
+1. Adding optional `clinicalDefinition` argument to `reviewCases()` and `generateKeeperConceptSets()`, allowing users to provide more detail on the phenotype.
+
+2. Adding 'hypernym' category to the KEEPER concept sets, with concept(s) broader than the phenotype.
+    - `generateKeeperConceptSets()` now includes the hypernym category.
+    - In `createSensitiveCohort()`, when there are insufficient people with the disease of interest concepts, we now automatically switch to the hypernyms. The threshold is defined by the new `minDoiPersons` argument (defaults to 100).
+    - `generateKeeper()` Now includes the hypernym and its descendants in the prior and post disease windows.
+
+Keeper 2.1.3
+============
+
+Bug fixes:
+
+1. Fixed errors on SQL Server, IRIS, BigQuery.
+
+2. Fixed bug in Shiny app where index day was copied from one person to another.
+
+3. Fixed parsing errors for some local LLMs that don't support structured output.
+
+Added unit tests for all supported database platforms.
+>>>>>>> d27a4d54274cd5c8763f76b34ace5d2fdd1e975b
+
+
+Keeper 2.1.2
+============
+
+Bug fixes:
+
+1. Adding NPV to the output of `computeCohortOperatingCharacteristics()`.
+
+
+Keeper 2.1.1
+============
+
+Bug fixes:
+
+1. Fixed bug in Shiny app where the index day input was carried over from one person to the next.
+
+
 Keeper 2.1.0
 ============
 
