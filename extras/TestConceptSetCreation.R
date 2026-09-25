@@ -4,10 +4,9 @@ library(ellmer)
 library(DatabaseConnector)
 
 # Local services -------------------------------------------------
-client <- chat_openai_compatible(
-  base_url = "http://localhost:1234/v1",
-  credentials = function() "lm-studio",
-  model = "nvidia/nemotron-3-nano"
+client <- chat_lmstudio(
+  base_url = "http://localhost:1234",
+  model = "qwen3.8-27b-splash"
 )
 
 vocabConnectionDetails <- createConnectionDetails(

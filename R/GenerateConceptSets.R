@@ -77,7 +77,7 @@ phoebeBulkSearch <- function(conceptIds, maxRetries = 3, waitTime = 2, chunkSize
     for (attempt in 1:maxRetries) {
       response <- tryCatch(
         {
-          httr::POST(url, body = list(ids = chunk), encode = "json")
+          httr::POST(url, body = list(ids = as.list(chunk)), encode = "json")
         },
         error = function(e) {
           message(paste("Attempt", attempt, "failed with connection error for Phoebe bulk search"))
