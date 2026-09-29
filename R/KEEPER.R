@@ -18,7 +18,7 @@
 "_PACKAGE"
 
 #' @import dplyr
-#' @importFrom stats runif binom.test
+#' @importFrom stats runif binom.test coef
 #' @importFrom utils write.csv install.packages packageVersion
 #' @import DatabaseConnector
 #' @import dplyr

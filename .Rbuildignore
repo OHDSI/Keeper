@@ -8,3 +8,5 @@ man-roxygen
 .github
 docs
 cache.*
+^\.posit/assistant$
+AGENTS.md

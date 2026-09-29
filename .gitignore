@@ -6,3 +6,4 @@ cache*
 inst/shiny/data
 inst/shiny/rsconnect
 extras/keeperSubset.rds
+.posit/assistant
