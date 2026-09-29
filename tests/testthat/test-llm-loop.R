@@ -87,8 +87,7 @@ test_that("reviewCases uses cache and avoids repeated LLM calls", {
   expect_equal(nrow(resultFirst), length(unique(shuffled$generatedId)))
   expect_true(all(resultFirst$isCase == "yes"))
   expect_equal(unique(resultFirst$model), "mock-model")
-  # Extra call to determine if LLM supports structured output:
-  expect_equal(calls, length(unique(shuffled$generatedId)) + 1) 
+  expect_equal(calls, length(unique(shuffled$generatedId))) 
 
   expect_equal(length(list.files(cacheFolder, pattern = "\\.txt$")), 2 * length(unique(shuffled$generatedId)))
   unlink(cacheFolder)

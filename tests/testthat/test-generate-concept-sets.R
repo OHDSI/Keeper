@@ -46,8 +46,8 @@ test_that("phoebeBulkSearch posts concept IDs in chunks and flattens results", {
 
   expect_length(calls, 2)
   expect_equal(calls[[1]]$url, "https://hecate.pantheon-hds.com/api/concepts/phoebe/bulk")
-  expect_equal(calls[[1]]$body$ids, 1:100)
-  expect_equal(calls[[2]]$body$ids, 101L)
+  expect_equal(calls[[1]]$body$ids, as.list(1:100))
+  expect_equal(calls[[2]]$body$ids, as.list(101L))
   expect_equal(calls[[1]]$encode, "json")
   expect_equal(nrow(result), 2)
   expect_named(
@@ -103,6 +103,7 @@ test_that("generateKeeperConceptSets orchestrates DOI and alternative diagnosis 
                                   clinicalDefinition,
                                   promptSet,
                                   client,
+                                  costTracker,
                                   connection,
                                   vocabDatabaseSchema) {
       callLog[[length(callLog) + 1]] <<- list(
