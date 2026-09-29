@@ -8,6 +8,7 @@ client <- chat_lmstudio(
   base_url = "http://localhost:1234",
   model = "qwen3.8-27b-splash"
 )
+options("force_unstructured" = TRUE)
 
 vocabConnectionDetails <- createConnectionDetails(
   dbms = "postgresql",

@@ -71,7 +71,7 @@ phoebeBulkSearch <- function(conceptIds, maxRetries = 3, waitTime = 2, chunkSize
   url <- "https://hecate.pantheon-hds.com/api/concepts/phoebe/bulk"
   chunks <- split(conceptIds, ceiling(seq_along(conceptIds) / chunkSize))
   results <- list()
-
+  
   for (chunk in chunks) {
     chunkResults <- NULL
     for (attempt in 1:maxRetries) {
@@ -84,10 +84,10 @@ phoebeBulkSearch <- function(conceptIds, maxRetries = 3, waitTime = 2, chunkSize
           return(NULL)
         }
       )
-
+      
       if (!is.null(response) && httr::status_code(response) == 200) {
         contextText <- httr::content(response, "text", encoding = "UTF-8")
-
+        
         if (contextText == "[]") {
           chunkResults <- tibble()
           break
@@ -214,9 +214,8 @@ WHERE concept_id IN (@concept_ids)
   return(standardConcepts)
 }
 
-removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemPrompt, batchSize = 25) {
+removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, costTracker, systemPrompt, batchSize = 25) {
   conceptIds <- c()
-  cost <- 0
   for (start in seq(1, nrow(concepts), by = batchSize)) {
     batch <- concepts[start:min(start + batchSize - 1, nrow(concepts)), ]
     
@@ -224,23 +223,18 @@ removeNonRelevantConcepts <- function(concepts, conditionPrompt, client, systemP
       conditionPrompt,
       sprintf("\n\nConcepts:\n%s", jsonlite::toJSON(select(batch, "conceptId", "conceptName")))
     )
-    client$set_system_prompt(systemPrompt)
-    client$set_turns(list())
-    # response <- client$chat(prompt, echo = "none")
-    # conceptIds <- c(conceptIds, extractAndParseJson(response)$conceptId)
-    response <- client$chat_structured(prompt,
-                                       echo = "none",
-                                       type = ellmer::type_object(
-                                         conceptId = ellmer::type_array(ellmer::type_number())
-                                       )
-    )
+    response <- queryLlm(prompt = prompt,
+                         systemPrompt = systemPrompt,
+                         llmClient = client,
+                         costTracker = costTracker,
+                         outputType = ellmer::type_object(
+                           conceptId = ellmer::type_array(ellmer::type_number())
+                         ))
     conceptIds <- c(conceptIds, response$conceptId)
-    cost <- cost + client$get_cost()
   }
   concepts <- concepts |>
     filter(.data$conceptId %in% conceptIds) |>
     filter(!duplicated(.data$conceptId))
-  attr(concepts, "cost") <- cost
   return(concepts)
 }
 
@@ -288,6 +282,8 @@ generateKeeperConceptSets <- function(
   checkmate::reportAssertions(errorMessages)
   
   startTime <- Sys.time()
+  costTracker <- new.env()
+  costTracker$amount <- 0
   
   connection <- DatabaseConnector::connect(vocabConnectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
@@ -295,7 +291,6 @@ generateKeeperConceptSets <- function(
   # yamlFileName <- "inst/ConceptSetGenerationPrompts.yaml"
   yamlFileName <- system.file("ConceptSetGenerationPrompts.yaml", package = "Keeper")
   promptSets <- yaml::read_yaml(yamlFileName)
-  cost <- 0
   table <- list()
   alternativeDiagnoses <- NULL
   for (i in seq_along(promptSets)) {
@@ -307,9 +302,9 @@ generateKeeperConceptSets <- function(
       promptSet = promptSet,
       connection = connection,
       vocabDatabaseSchema = vocabDatabaseSchema,
-      client = client
+      client = client,
+      costTracker = costTracker
     )
-    cost <- cost + attr(conceptSet, "cost")
     conceptSet <- conceptSet |>
       mutate(
         conceptSetName = promptSet$parameterName,
@@ -330,9 +325,9 @@ generateKeeperConceptSets <- function(
         promptSet = promptSet,
         connection = connection,
         vocabDatabaseSchema = vocabDatabaseSchema,
-        client = client
+        client = client,
+        costTracker = costTracker
       )
-      cost <- cost + attr(conceptSet, "cost")
       conceptSet <- conceptSet |>
         mutate(
           conceptSetName = promptSet$parameterName,
@@ -349,7 +344,7 @@ generateKeeperConceptSets <- function(
     " ",
     attr(delta, "units"),
     " and cost $",
-    round(cost, 2)
+    round(costTracker$amount, 2)
   ))
   return(table)
 }
@@ -359,34 +354,27 @@ generateConceptSet <- function(phenotype,
                                clinicalDefinition,
                                promptSet,
                                client,
+                               costTracker,
                                connection,
                                vocabDatabaseSchema) {
   conceptBatchSize <- 20
   minRecordCount <- 1000
-  cost <- 0
-  
+
   conditionPrompt <- sprintf("Condition: %s", phenotype)
-  
   if (!is.null(clinicalDefinition)) {
     conditionPrompt <- paste(conditionPrompt,
                              sprintf("Definition: %s", clinicalDefinition), sep = "\n\n")
   }
   
   message("- Generating initial term list using LLM")
-  client$set_system_prompt(promptSet$systemPromptTerms)
-  client$set_turns(list())
-  prompt <- conditionPrompt
-  # response <- client$chat(prompt, echo = "none")
-  # terms <- extractAndParseJson(response)$terms
-  response <- client$chat_structured(prompt,
-                                     echo = "none",
-                                     type = ellmer::type_object(
-                                       terms = ellmer::type_array(ellmer::type_string())
-                                     )
-  )
+  response <- queryLlm(prompt = conditionPrompt,
+                       systemPrompt = promptSet$systemPromptTerms,
+                       llmClient = client,
+                       costTracker = costTracker,
+                       outputType = ellmer::type_object(
+                         terms = ellmer::type_array(ellmer::type_string())
+                       ))
   terms <- response$terms
-  cost <- cost + client$get_cost()
-  
   message(sprintf("  Generated %d terms", length(terms)))
   
   message("- Searching standard concepts for terms using embedding vectors")
@@ -409,10 +397,10 @@ generateConceptSet <- function(phenotype,
       concepts = concepts,
       conditionPrompt = conditionPrompt,
       client = client,
+      costTracker = costTracker,
       systemPrompt = promptSet$systemPromptRemoveNonRelevant,
       batchSize = conceptBatchSize
     )
-    cost <- cost + attr(concepts, "cost")
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
@@ -460,10 +448,10 @@ generateConceptSet <- function(phenotype,
       concepts = concepts,
       conditionPrompt = conditionPrompt,
       client = client,
+      costTracker = costTracker,
       systemPrompt = promptSet$systemPromptRemoveNonRelevant,
       batchSize = conceptBatchSize
     )
-    cost <- cost + attr(concepts, "cost")
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
@@ -482,6 +470,5 @@ generateConceptSet <- function(phenotype,
       select("conceptId", "conceptName", "vocabularyId")
   }
   attr(concepts, "initialTerms") <- terms
-  attr(concepts, "cost") <- cost
   return(concepts)
 }

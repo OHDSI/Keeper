@@ -76,12 +76,8 @@ reviewCases <- function(keeper,
   }
   
   startTime <- Sys.time()
-  
-  if (getOption("force_unstructured", FALSE)) {
-    structured <- FALSE  
-  } else {
-    structured <- supportsStructuredOutput(client)
-  }
+  costTracker <- new.env()
+  costTracker$amount <- 0
   
   maxRetries <- 5
   
@@ -91,13 +87,12 @@ reviewCases <- function(keeper,
     dir.create(cacheFolder)
   }
   
-  cost <- 0
   nPersons <- length(keeperSplit)
   results <- list()
   for (i in seq_along(keeperSplit)) {
     message(sprintf("Reviewing person %d of %d", i, nPersons))
     if (i %% 100 == 0) {
-      message(sprintf("- Cost so far: $%0.2f", cost))
+      message(sprintf("- Cost so far: $%0.2f", costTracker$amount))
     }
     keeperSubset <- keeperSplit[[i]]
     if (is.null(phenotypeName)) {
@@ -139,54 +134,26 @@ reviewCases <- function(keeper,
       promptFileName <- generateCacheFileName(phenotype, keeperSubset$generatedId[1], cacheFolder, type = "prompt")
       writeLines(fullPrompt, promptFileName)
       
-      # Ellmer is supposed to retry automatically, but I haven't seen it work when using LM Studio, so using own retry loop:
-      for (j in seq_len(maxRetries)) {
-        parsedResponse <- tryCatch(
-          {
-            client$set_turns(list())
-            client$set_system_prompt(systemPrompt)
-            if (settings$legacy) {
-              response <- client$chat(prompt,
-                                      echo = "none"
-              )
-              writeLines(response, responseFileName)
-              parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
-            } else {
-              if (structured) {
-                response <- client$chat_structured(prompt,
-                                                   echo = "none",
-                                                   type = ellmer::type_object(
-                                                     justification = ellmer::type_string(),
-                                                     verdict = ellmer::type_string(),
-                                                     certainty = ellmer::type_string(),
-                                                     day_of_onset = ellmer::type_integer()
-                                                   )
-                )
-              } else {
-                response <- client$chat(prompt, echo = "none")
-                # Needed for Gemma 4:
-                response <- gsub("^\\s*```json|```\\s*$", "", response)
-                response <- jsonlite::fromJSON(response)
-              }
-              jsonlite::write_json(response, responseFileName)
-              parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
-            }
-            cost <- cost + client$get_cost()
-            parsedResponse
-          },
-          error = function(e) {
-            message(paste("Attempt", j, "failed:", e$message))
-            if (j < maxRetries) {
-              Sys.sleep(30)
-              return(NULL)
-            } else {
-              stop("Exceeding maximum number of retries when calling LLM")
-            }
-          }
-        )
-        if (!is.null(parsedResponse)) {
-          break
-        }
+      if (settings$legacy) {
+        response <- queryLlm(prompt = prompt,
+                             systemPrompt = systemPrompt,
+                             llmClient = client,
+                             costTracker = costTracker)
+        writeLines(response, responseFileName)
+        parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+      } else {
+        response <- queryLlm(prompt = prompt,
+                             systemPrompt = systemPrompt,
+                             llmClient = client,
+                             costTracker = costTracker,
+                             outputType = ellmer::type_object(
+                               justification = ellmer::type_string(),
+                               verdict = ellmer::type_string(),
+                               certainty = ellmer::type_string(),
+                               day_of_onset = ellmer::type_integer()
+                             ))
+        jsonlite::write_json(response, responseFileName)
+        parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       }
     }
     
@@ -231,7 +198,7 @@ reviewCases <- function(keeper,
     " ",
     attr(delta, "units"),
     " and cost $",
-    round(cost, 2)
+    round(costTracker$amount, 2)
   ))
   return(bind_rows(results))
 }
@@ -248,21 +215,4 @@ generateCacheFileName <- function(phenotypeName, generatedId, cacheFolder, type 
   fileName <- paste(fileName, "txt", sep = ".")
   
   return(file.path(cacheFolder, fileName))
-}
-
-
-supportsStructuredOutput <- function(client) {
-  test_type <- ellmer::type_object(
-    supported = ellmer::type_boolean("Always return true")
-  )
-  success <- tryCatch({
-    res <- client$chat_structured("Respond using the schema.", 
-                                  type = test_type, 
-                                  echo = "none")
-    return(TRUE)
-  }, error = function(e) {
-    message("LLM does not appear to support structured output")
-    return(FALSE)
-  })
-  return(success)
 }
