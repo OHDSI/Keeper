@@ -435,7 +435,7 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
   DatabaseConnector::executeSql(connection = connection, sql = sql)
   
   message("Extracting features and training labels")
-  covariateSettings <- FeatureExtraction::createDefaultCovariateSettings()
+  covariateSettings <- createPredictionCovariateSettings()
   trainingData <- FeatureExtraction::getDbCovariateData(
     connection = connection,
     cdmDatabaseSchema = cdmDatabaseSchema,
@@ -540,7 +540,7 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
   }
   
   message("Extracting predictive features for sensitive cohort")
-  covariateSettings <- FeatureExtraction::createDefaultCovariateSettings(includedCovariateIds = betas$covariateId)
+  covariateSettings <- createPredictionCovariateSettings(includedCovariateIds = betas$covariateId)
   FeatureExtraction::getDbCovariateData(
     connection = connection,
     cdmDatabaseSchema = cdmDatabaseSchema,
@@ -609,6 +609,49 @@ createProbabilityColumnIfNotExists <- function(connection, cohortDatabaseSchema,
       cohort_table = cohortTable
     )    
   }
+}
+
+createPredictionCovariateSettings <- function(includedCovariateIds = c()) {
+  covariateSettings <- FeatureExtraction::createCovariateSettings(
+    useDemographicsGender = TRUE,
+    useDemographicsAgeGroup = TRUE,
+    useDemographicsRace = TRUE,
+    useDemographicsEthnicity = TRUE,
+    useDemographicsIndexYear = TRUE,
+    useDemographicsIndexMonth = TRUE,
+    includedCovariateIds = includedCovariateIds
+  )
+  covariateSettings <- FeatureExtraction::convertPrespecSettingsToDetailedSettings(covariateSettings)
+  windowedCovariateSettings <- FeatureExtraction::createCovariateSettings(
+    useConditionGroupEraLongTerm = TRUE,
+    useDrugGroupEraLongTerm = TRUE,
+    useProcedureOccurrenceLongTerm = TRUE,
+    useDeviceExposureLongTerm = TRUE,
+    useMeasurementLongTerm = TRUE,
+    useMeasurementValueAsConceptLongTerm = TRUE,
+    useObservationLongTerm = TRUE,
+    useObservationValueAsConceptLongTerm = TRUE,
+    includedCovariateIds = includedCovariateIds
+  )
+  setWindowAndId <- function(i, analyses, startDay, endDay, idOffset) {
+    analysis <- analyses[[i]]
+    analysis$parameters$startDay <- startDay
+    analysis$parameters$endDay <- endDay
+    analysis$analysisId <- i + idOffset
+    analysis$parameters$analysisId <- i + idOffset
+    return(analysis)
+  }
+  analysesBefore <- FeatureExtraction::convertPrespecSettingsToDetailedSettings(windowedCovariateSettings)$analyses
+  analysesBefore <- lapply(seq_along(analysesBefore), setWindowAndId, analyses = analysesBefore, startDay = -365, endDay = -1, idOffset = 100)
+  analysesDuring <- FeatureExtraction::convertPrespecSettingsToDetailedSettings(windowedCovariateSettings)$analyses
+  analysesDuring <- lapply(seq_along(analysesBefore), setWindowAndId, analyses = analysesBefore, startDay = 0, endDay = 0, idOffset = 200)
+  analysesAfter <- FeatureExtraction::convertPrespecSettingsToDetailedSettings(windowedCovariateSettings)$analyses
+  analysesAfter <- lapply(seq_along(analysesBefore), setWindowAndId, analyses = analysesBefore, startDay = 1, endDay = 365, idOffset = 300)
+  covariateSettings$analyses <- c(covariateSettings$analyses,
+                                  analysesBefore,
+                                  analysesDuring,
+                                  analysesAfter)
+  return(covariateSettings)
 }
 
 
