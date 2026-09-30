@@ -32,12 +32,13 @@ keeperFileName <- "e:/KeeperSensitiveCohort/afKeeper10K.rds"
 # Create sensitive cohort  -----------------------------------------
 conceptSets <- readr::read_csv(conceptSetsFileName, show_col_types = FALSE)
 
-concepts <- createSensitiveCohort(
+concepts <- createSensitiveAndSpecificCohorts(
   connectionDetails = connectionDetails,
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortDatabaseSchema = cohortDatabaseSchema,
   cohortTable = cohortTable,
-  cohortDefinitionId = 1,
+  sensitiveCohortId = 1,
+  specificCohortId = 2,
   createCohortTable = TRUE,
   keeperConceptSets = conceptSets
 )

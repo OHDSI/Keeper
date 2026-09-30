@@ -167,7 +167,8 @@ createSensitiveAndSpecificCohorts <- function(connectionDetails = NULL,
         cohort_definition_id BIGINT,
         subject_id BIGINT,
         cohort_start_date DATE,
-        cohort_end_date DATE
+        cohort_end_date DATE,
+        probability FLOAT
       );
     "
     DatabaseConnector::renderTranslateExecuteSql(
@@ -193,14 +194,15 @@ createSensitiveAndSpecificCohorts <- function(connectionDetails = NULL,
   )
   # Count number of people with DoI concepts:
   sql <- "SELECT COUNT(DISTINCT person_id) AS count
-	FROM @cdm_database_schema.condition_occurrence
-	INNER JOIN @cdm_database_schema.concept_ancestor
-	  ON condition_concept_id = descendant_concept_id
-	WHERE ancestor_concept_id IN (
-	  SELECT concept_id
-	  FROM #concept_sets
-	  WHERE concept_set_name = 'doi'
-	)"
+  	FROM @cdm_database_schema.condition_occurrence
+  	INNER JOIN @cdm_database_schema.concept_ancestor
+  	  ON condition_concept_id = descendant_concept_id
+  	WHERE ancestor_concept_id IN (
+  	  SELECT concept_id
+  	  FROM #concept_sets
+  	  WHERE concept_set_name = 'doi'
+  	);
+  "
   count <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = sql,
@@ -275,9 +277,9 @@ createSensitiveAndSpecificCohorts <- function(connectionDetails = NULL,
                                                            tempEmulationSchema = tempEmulationSchema)
   
   if (!is.null(specificCohortId)) {
-    message("Constructing sensitive cohort")
+    message("Constructing specific cohort")
     sql <- SqlRender::loadRenderTranslateSql(
-      sqlFilename = "CreateSpecificCandidateCohorts.sql",
+      sqlFilename = "CreateSpecificCandidateCohort.sql",
       packageName = "Keeper",
       dbms = DatabaseConnector::dbms(connection),
       cdm_database_schema = cdmDatabaseSchema,
@@ -298,8 +300,8 @@ createSensitiveAndSpecificCohorts <- function(connectionDetails = NULL,
       arrange(desc(.data$categoryCount)) |>
       mutate(cumulatePersonCount = cumsum(.data$personCount)) |>
       filter(.data$cumulatePersonCount >= minSpecPersons) |>
-      slice_min(.data$personCount, 1) |>
-      pull(.data$categoryCount)
+      slice_min(.data$personCount, n = 1) 
+    message(sprintf("- Requiring specific concepts in at least %d categories", minCategoryCount$categoryCount))
     sql <- "
       DELETE FROM @cohort_database_schema.@cohort_table
       WHERE cohort_definition_id = @cohort_definition_id;
@@ -320,11 +322,13 @@ createSensitiveAndSpecificCohorts <- function(connectionDetails = NULL,
                                                  cohort_database_schema = cohortDatabaseSchema,
                                                  cohort_table = cohortTable,
                                                  cohort_definition_id = specificCohortId,
-                                                 min_category_count = minCategoryCount)
+                                                 min_category_count = minCategoryCount$categoryCount)
+    attr(conceptRatios, "specificCohortCount") <- minCategoryCount$cumulatePersonCount
+    attr(conceptRatios, "specificCohortMinCategories") <- minCategoryCount$categoryCount
   }
   
   message("Removing temp tables")
-  toDelete <- c("#concept_sets", "#doi_cohort", "#combi_cohort")
+  toDelete <- c("#concept_sets", "#concept_ratios",  "#doi_cohort", "#combi_cohort")
   sql <- paste(sprintf("DROP TABLE %s;", toDelete), collapse = "\n")
   DatabaseConnector::renderTranslateExecuteSql(
     connection = connection,
@@ -346,9 +350,9 @@ createSensitiveAndSpecificCohorts <- function(connectionDetails = NULL,
     format(countCombi[1, 1], scientific = FALSE, big.mark = ","),
     " with a combination of other markers."
   ))
-  attr(conceptRatios, "count") <- count[1, 1]
-  attr(conceptRatios, "countDoi") <- countDoi[1, 1]
-  attr(conceptRatios, "countCombi") <- countCombi[1, 1]
+  attr(conceptRatios, "sensitiveCohortCount") <- count[1, 1]
+  attr(conceptRatios, "sensitiveCohortCountDoi") <- countDoi[1, 1]
+  attr(conceptRatios, "sensitiveCohortCountCombi") <- countCombi[1, 1]
   invisible(conceptRatios)
 }
 
@@ -408,7 +412,9 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
   checkmate::assertIntegerish(maxCohortSizeForFitting, len = 1, lower = 1, add = errorMessages)
   checkmate::assertIntegerish(maxCores, len = 1, lower = 1, add = errorMessages)
   checkmate::reportAssertions(errorMessages)
-  
+  if (is.null(connectionDetails) && is.null(connection)) {
+    stop("Must provide either connectionDetails or a connection.")
+  }
   startTime <- Sys.time()
   
   if (is.null(connection)) {
@@ -465,23 +471,51 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
     count() |>
     pull()
   message(sprintf("- Training data has %d positives and %d negatives.", nSpecSample, nNegativeSample))
-  # TODO: filter highly predictive covariates
-  
+  # Andromeda::saveAndromeda(trainingData, "e:/temp/trainingData.zip")
+  # trainingData <- Andromeda::loadAndromeda("e:/temp/trainingData.zip")
   message("Fitting model")
   cyclopsData <- Cyclops::convertToCyclopsData(
     outcomes = trainingData$outcomes,
     covariates = trainingData$covariates,
     modelType = "lr",
   )
+  highCorrelation <- Cyclops::getUnivariableCorrelation(cyclopsData, threshold = 0.50)
+  highCorrelation <- highCorrelation[!is.na(highCorrelation)]
+  if (length(highCorrelation) != 0) {
+    message(sprintf("- Removing %d covariates with high (Rho > 0.5) univariable correlation", length(highCorrelation)))
+    highCorrelation <- tibble(
+      covariateId = as.numeric(names(highCorrelation)),
+      correlation = as.vector(highCorrelation)
+    )
+    # ref <- trainingData$covariateRef |>
+    #   filter(.data$covariateId %in% highCorrelation$covariateId) |>
+    #   collect()
+    # highCorrelation <- highCorrelation |>
+    #   inner_join(ref, by = join_by("covariateId"))
+    trainingData$covariates <- trainingData$covariates |>
+      filter(!.data$covariateId %in% highCorrelation$covariateId)
+    cyclopsData <- Cyclops::convertToCyclopsData(
+      outcomes = trainingData$outcomes,
+      covariates = trainingData$covariates,
+      modelType = "lr",
+    )
+  }
+  
+  # fit <- Cyclops::fitCyclopsModel(
+  #   cyclopsData = cyclopsData,
+  #   prior = Cyclops::createPrior("laplace", useCrossValidation = TRUE, exclude = 0),
+  #   control = Cyclops::createControl(threads = maxCores,
+  #                                    cvType = "auto",
+  #                                    tolerance = 2e-07,
+  #                                    cvRepetitions = 1,
+  #                                    fold = 10,
+  #                                    startingVariance = 0.01,
+  #                                    noiseLevel = "quiet")
+  # )
   fit <- Cyclops::fitCyclopsModel(
     cyclopsData = cyclopsData,
-    prior = Cyclops::createPrior("laplace", useCrossValidation = TRUE),
-    control = Cyclops::createControl(threads = maxCores,
-                                     cvRepetitions = 1,
-                                     fold = 10)
+    prior = Cyclops::createPrior("laplace", useCrossValidation = FALSE, exclude = 0, variance = 0.0001)
   )
-  betas <- coef(fit)
-
   # Adjust intercept for sampling
   sql <- "
     SELECT COUNT(*) AS subject_count,
@@ -491,7 +525,7 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
     GROUP BY cohort_definition_id;"
   nCohorts <- DatabaseConnector::renderTranslateQuerySql(connection = connection,
                                                          sql = sql,
-                                                           cohort_database_schema = cohortDatabaseSchema,
+                                                         cohort_database_schema = cohortDatabaseSchema,
                                                          cohort_table = cohortTable,
                                                          specific_cohort_id = sensitiveCohortId,
                                                          sensitive_cohort_id = specificCohortId,
@@ -514,13 +548,13 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
   s1 <- nSpecSample / nSpec
   s0 <- nNegativeSample / nNegative
   # TODO: check if we really need bit64
+  betas <- coef(fit)
   intercept <- tibble(
     beta = betas[1] - log(s1 / s0),
-    id = bit64::as.integer64(0),
+    covariateId = bit64::as.integer64(0),
     covariateName = "(Intercept)",
     row.names = NULL
   )
-  
   betas <- betas[betas != 0]
   if (length(betas) > 1) {
     betas <- betas[2:length(betas)]
@@ -532,7 +566,7 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
           mutate(covariateId = bit64::as.integer64(.data$covariateId)),
         by = "covariateId"
       ) |>
-      select(.data$beta, id = .data$covariateId, .data$covariateName) |>
+      select("beta", "covariateId", "covariateName") |>
       arrange(desc(abs(.data$beta)))
     betas <- bind_rows(intercept, betas)
   } else {
@@ -546,11 +580,15 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
     cdmDatabaseSchema = cdmDatabaseSchema,
     cohortDatabaseSchema = cohortDatabaseSchema,
     cohortTable = cohortTable,
-    cohortId = sensitiveCohortId,
+    cohortIds = sensitiveCohortId,
     tempEmulationSchema = tempEmulationSchema,
     covariateSettings = covariateSettings,
     exportToTable = TRUE,
-    targetCovariateTable = "#covariates"
+    targetCovariateTable = "#covariates",
+    targetCovariateContinuousTable = "#continuous_covariates",
+    targetCovariateRefTable = "#covariate_ref",
+    targetAnalysisRefTable = "#analysis_ref",
+    targetTimeRefTable = "#time_ref"
   )
   
   message("Predicting person-level probabilities in sensitive cohort")
@@ -564,7 +602,12 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
     tempEmulationSchema = tempEmulationSchema,
     camelCaseToSnakeCase = TRUE
   )
-  createProbabilityColumnIfNotExists(connection = connection, cohortDatabaseSchema = cohortDatabaseSchema, cohortTable = cohortTable)
+  sql <- SqlRender::readSql("inst/sql/ComputeProbabilities.sql")
+  sql <- SqlRender::render(sql,
+                           cohort_database_schema = cohortDatabaseSchema,
+                           cohort_table = cohortTable,
+                           sensitive_cohort_id = sensitiveCohortId)
+  sql <- SqlRender::translate(sql, targetDialect = DatabaseConnector::dbms(connection), tempEmulationSchema = tempEmulationSchema)
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "ComputeProbabilities.sql",
     packageName = "Keeper",
@@ -576,8 +619,17 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
   )
   DatabaseConnector::executeSql(connection = connection, sql = sql)
   
+  
+  
+  
   message("Removing temp tables")
-  toDelete <- c("#sampled_training_data", "#covariates", "#betas")
+  toDelete <- c("#sampled_training_data",
+                "#covariates",
+                "#continuous_covariates",
+                "#covariate_ref",
+                "#analysis_ref", 
+                "#time_ref",
+                "#betas")
   sql <- paste(sprintf("DROP TABLE %s;", toDelete), collapse = "\n")
   DatabaseConnector::renderTranslateExecuteSql(
     connection = connection,
@@ -587,29 +639,7 @@ predictPersonProbabilities <- function(connectionDetails = NULL,
   invisible(NULL)
 }
 
-createProbabilityColumnIfNotExists <- function(connection, cohortDatabaseSchema, cohortTable) {
-  sql <- "
-    SELECT TOP 1 *
-    FROM @cohort_database_schema.@cohort_table;
-  "
-  row <- DatabaseConnector::renderTranslateQuerySql(
-    connection = connection,
-    cohort_database_schema = cohortDatabaseSchema,
-    cohort_table = cohortTable,
-    snakeCaseToCamelCase = TRUE
-  )
-  if (!"probability" %in% colnames(row)) {
-    sql <- "
-    ALTER TABLE @cohort_database_schema.@cohort_table
-      ADD probability FLOAT;
-    "
-    DatabaseConnector::renderTranslateExecuteSql(
-      connection = connection,
-      cohort_database_schema = cohortDatabaseSchema,
-      cohort_table = cohortTable
-    )    
-  }
-}
+
 
 createPredictionCovariateSettings <- function(includedCovariateIds = c()) {
   covariateSettings <- FeatureExtraction::createCovariateSettings(
