@@ -12,6 +12,7 @@ cohortDatabaseSchema <- "scratch.scratch_mschuemi"
 cohortTable <- "test_keeper_sens_cohort"
 
 options(sqlRenderTempEmulationSchema = "scratch.scratch_mschuemi")
+options(andromedaTempFolder = "e:/andromedaTemp")
 
 conceptSetsFileName <- "e:/temp/mmConceptSets.csv"
 specConceptsFileName <- "e:/temp/mmSpecConcepts.csv"
@@ -32,7 +33,7 @@ keeperFileName <- "e:/KeeperSensitiveCohort/afKeeper10K.rds"
 # Create sensitive cohort  -----------------------------------------
 conceptSets <- readr::read_csv(conceptSetsFileName, show_col_types = FALSE)
 
-concepts <- createSensitiveAndSpecificCohorts(
+specificConcepts <- createSensitiveAndSpecificCohorts(
   connectionDetails = connectionDetails,
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortDatabaseSchema = cohortDatabaseSchema,
@@ -42,7 +43,7 @@ concepts <- createSensitiveAndSpecificCohorts(
   createCohortTable = TRUE,
   keeperConceptSets = conceptSets
 )
-readr::write_csv(concepts, specConceptsFileName)
+readr::write_csv(specificConcepts, specConceptsFileName)
 
 # Run Keeper on sensitive cohort ----------------------------------------
 personIds <- NULL
