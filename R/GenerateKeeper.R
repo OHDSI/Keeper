@@ -274,6 +274,46 @@ generateKeeper <- function(connectionDetails = NULL,
   }
   keeper <- bind_rows(keeper)
   
+  if (hasStratificationInfo(connection, cohortDatabaseSchema, cohortTable)) {
+    message("Downloading stratification information")
+    sql <- "
+      SELECT generated_id,
+        doi_bin,
+        category_bin
+      FROM #cohort keeper_cohort
+      INNER JOIN @cohort_table full_cohort
+        ON keeper_cohort.subject_id = full_cohort.subject_id
+          AND keeper_cohort.cohort_start_date = full_cohort.cohort_start_date;
+    "
+    stratificationInfo <- DatabaseConnector::renderTranslateQuerySql(
+      connection = connection,
+      sql = sql,
+      cohort_table = if (cohortTableIsTemp) cohortTable else paste(cohortDatabaseSchema, cohortTable, sep = "."),
+      snakeCaseToCamelCase = TRUE
+    )
+    keeper <- bind_rows(
+        keeper, 
+        stratificationInfo |>
+          transmute(.data$generatedId, 
+                    startDay = 0,
+                    endDay = 0,
+                    conceptId = NA_real_,
+                    conceptName = as.character(.data$doiBin),
+                    category = "doiBin",
+                    target = "Disease of interest",
+                    extraData = NA), 
+        stratificationInfo |>
+          transmute(.data$generatedId, 
+                    startDay = 0,
+                    endDay = 0,
+                    conceptId = NA_real_,
+                    conceptName = as.character(.data$categoryBin),
+                    category = "categoryBin",
+                    target = "Disease of interest",
+                    extraData = NA)
+      )
+  }
+  
   message("Downloading meta-data")
   sql <- "SELECT cdm_source_name, cdm_source_abbreviation, cdm_release_date FROM @cdm_database_schema.cdm_source;"
   metaData <- DatabaseConnector::renderTranslateQuerySql(

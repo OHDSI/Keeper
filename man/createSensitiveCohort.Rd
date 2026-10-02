@@ -14,7 +14,8 @@ createSensitiveCohort(
   createCohortTable = FALSE,
   cohortDefinitionId,
   keeperConceptSets,
-  minDoiPersons = 100
+  minDoiPersons = 100,
+  addStratificationInfo = TRUE
 )
 }
 \arguments{
@@ -51,11 +52,26 @@ deleted.}
 \item{minDoiPersons}{Minimum number of persons with DoI concepts. If the count is lower and the
 \code{keeperConceptSets} has a 'hypernym' category that is used instead. Else, an error
 is thrown.}
+
+\item{addStratificationInfo}{Add columns to the cohort table that can be used for stratified sampling?}
 }
 \value{
 This function is primarily executed for instantiating the cohort in the cohort table. It does return a data frame
 listing the concepts that were used to create the cohort.
 }
 \description{
-This function is DEPRECATED. Use \code{createSensitiveAndSpecificCohorts()} instead.
+Creates a cohort that is highly sensitive. Nobody outside the cohort is expected to have the disease. As a
+consequence, specificity inside the cohort is likely low.
+
+This cohort can be used to determine the sensitivity of a cohort definition.
+
+The cohort is constructed by combining two sets:
+\enumerate{
+\item Anybody who has one of the condition concepts of the disease of interest, indexed on the first occurrence.
+\item Anybody who has 'highly specific concepts' from at least two Keeper categories (symptoms, drugs, etc.), indexed
+on the first occurrence.
+}
+
+Highly specific concepts are concepts where at least 10\% of those who have that concept also have a condition concept
+for the disease of interest.
 }
