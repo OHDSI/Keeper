@@ -10,7 +10,8 @@ reviewCases(
   phenotypeName = NULL,
   clinicalDefinition = NULL,
   client,
-  cacheFolder
+  cacheFolder,
+  skipOnContentFilter = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ phenotype.}
 
 \item{cacheFolder}{A folder where the LLM responses are cached. If the process terminates for some
 reason, it can pick up where it left off using the cache.}
+
+\item{skipOnContentFilter}{Skip a profile if it causes a content filter error? IF FALSE, will throw an error instead.}
 }
 \value{
 A tibble with these columns:

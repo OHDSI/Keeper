@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+CONTENT_FILTER <- "CONTENT_FILTER"
+
 #' Review Keeper profiles using an LLM
 #'
 #' @param keeper      Output from the [generateKeeper()] function.
@@ -25,6 +27,7 @@
 #' @param client      An LLM client created using the `ellmer` package.
 #' @param cacheFolder A folder where the LLM responses are cached. If the process terminates for some
 #'                    reason, it can pick up where it left off using the cache.
+#' @param skipOnContentFilter Skip a profile if it causes a content filter error? IF FALSE, will throw an error instead.
 #'
 #' @returns
 #' A tibble with these columns:
@@ -48,7 +51,8 @@ reviewCases <- function(keeper,
                         phenotypeName = NULL,
                         clinicalDefinition = NULL,
                         client,
-                        cacheFolder) {
+                        cacheFolder,
+                        skipOnContentFilter = TRUE) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(keeper, add = errorMessages)
   checkmate::assertNames(colnames(keeper), must.include = c(
@@ -66,6 +70,7 @@ reviewCases <- function(keeper,
   checkmate::assertCharacter(clinicalDefinition, null.ok = TRUE, add = errorMessages)
   checkmate::assertR6(client, "Chat", add = errorMessages)
   checkmate::assertCharacter(cacheFolder, add = errorMessages)
+  checkmate::assertLogical(skipOnContentFilter, len = 1, add = errorMessages)
   checkmate::reportAssertions(collection = errorMessages)
   
   if (!is.null(clinicalDefinition)) {
@@ -107,10 +112,8 @@ reviewCases <- function(keeper,
     if (file.exists(responseFileName)) {
       if (settings$legacy) {
         response <- paste(readLines(responseFileName), collapse = "\n")
-        parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       } else {
         response <- jsonlite::read_json(responseFileName)
-        parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       }
     } else {
       systemPrompt <- createSystemPrompt(settings = settings, 
@@ -135,14 +138,23 @@ reviewCases <- function(keeper,
       writeLines(fullPrompt, promptFileName)
       
       if (settings$legacy) {
-        response <- queryLlm(prompt = prompt,
-                             systemPrompt = systemPrompt,
-                             llmClient = client,
-                             costTracker = costTracker)
+        response <- tryCatch({
+          queryLlm(prompt = prompt,
+                   systemPrompt = systemPrompt,
+                   llmClient = client,
+                   costTracker = costTracker)
+        },
+        ContentFilterError = function(e) {
+          if (skipOnContentFilter) {
+            CONTENT_FILTER
+          } else {
+            stop(e)
+          }
+        })
         writeLines(response, responseFileName)
-        parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       } else {
-        response <- queryLlm(prompt = prompt,
+        response <- tryCatch({
+          queryLlm(prompt = prompt,
                              systemPrompt = systemPrompt,
                              llmClient = client,
                              costTracker = costTracker,
@@ -152,9 +164,26 @@ reviewCases <- function(keeper,
                                certainty = ellmer::type_string(),
                                day_of_onset = ellmer::type_integer()
                              ))
+        },
+        ContentFilterError = function(e) {
+          if (skipOnContentFilter) {
+            CONTENT_FILTER
+          } else {
+            stop(e)
+          }
+        })
         jsonlite::write_json(response, responseFileName)
-        parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
       }
+    }
+    if (unlist(response)[[1]] == CONTENT_FILTER) {
+      warning("Encountered content filter. Skipping profile")
+      results[[i]] <- NULL
+      next
+    }
+    if (settings$legacy) {
+      parsedResponse <- parseLegacyLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
+    } else {
+      parsedResponse <- parseLlmResponse(response, noMatchIsInsufficientInformation = FALSE)
     }
     
     cohortPrevalence <-  keeperSubset |>
