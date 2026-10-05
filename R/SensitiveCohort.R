@@ -424,8 +424,10 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
     ) |>
     mutate(
       isCase = if_else(.data$isCase == "yes", 1, 0),
-      indexDay = if_else(is.na(.data$indexDay), 0, .data$indexDay)
+      indexDay = if_else(is.na(.data$indexDay), 0, .data$indexDay),
+      justification = gsub("'", "", gsub("[^\x01-\x7F]", "", .data$justification))
     )
+  
   DatabaseConnector::insertTable(
     connection = connection,
     data = table,

@@ -70,15 +70,19 @@ reviewCasesUsingStratifiedSampling <- function(keeper,
   if (!"doiBin" %in% keeper$category) {
     stop("Keeper does not contain stratification information. Run `createSensitiveCohort()` with `addStratificationInfo = TRUE")
   }
+  # For testing: if we've already reviewed the full 10k, we just pull the annotations from those:
+  cheatReviews <- getOption("cheatReviews", NULL)
   
   # Create strata based on stratification information
   stratificationInfo <- inner_join(
     keeper |>
       filter(.data$category == "doiBin") |>
-      transmute(.data$generatedId, doiBin = as.numeric(.data$conceptName)),
+      transmute(.data$generatedId, doiBin = as.numeric(.data$conceptName)) |>
+      distinct(),
     keeper |>
       filter(.data$category == "categoryBin") |>
-      transmute(.data$generatedId, categoryBin = as.numeric(.data$conceptName)),
+      transmute(.data$generatedId, categoryBin = as.numeric(.data$conceptName)) |>
+      distinct(),
     by = join_by("generatedId")
   )
   minStratumSize <- max(200, 0.05 * nrow(stratificationInfo))
@@ -102,15 +106,17 @@ reviewCasesUsingStratifiedSampling <- function(keeper,
     sampledGeneratedIdsPhase1 <- unlist(lapply(strata, function(x) uniformSelect(x$generatedId, phase1SampleSize)))
     keeperSample <- keeper |>
       filter(.data$generatedId %in% sampledGeneratedIdsPhase1)
-    llmReviewsPhase1 <- reviewCases(keeper = keeperSample,
-                                    settings = settings,
-                                    phenotypeName = phenotypeName,
-                                    clinicalDefinition = clinicalDefinition,
-                                    client = client,
-                                    cacheFolder = cacheFolder)
-    # llmReviewsPhase1 <- llmReviews |>
-    #   filter(.data$generatedId %in% sampledGeneratedIdsPhase1)
-    
+    if (is.null(cheatReviews)) {
+      llmReviewsPhase1 <- reviewCases(keeper = keeperSample,
+                                      settings = settings,
+                                      phenotypeName = phenotypeName,
+                                      clinicalDefinition = clinicalDefinition,
+                                      client = client,
+                                      cacheFolder = cacheFolder)
+    } else {
+      llmReviewsPhase1 <- cheatReviews |>
+        filter(.data$generatedId %in% sampledGeneratedIdsPhase1)
+    }
     prevalencePerStratum <- llmReviewsPhase1 |>
       inner_join(stratification, by = join_by("generatedId")) |>
       group_by(.data$stratumId) |>
@@ -150,15 +156,17 @@ reviewCasesUsingStratifiedSampling <- function(keeper,
     sampledGeneratedIdsPhase2 <- unlist(lapply(strata, samplePhase2))
     keeperSample <- keeper |>
       filter(.data$generatedId %in% sampledGeneratedIdsPhase2)
-    llmReviewsPhase2 <- reviewCases(keeper = keeperSample,
-                                    settings = settings,
-                                    phenotypeName = phenotypeName,
-                                    clinicalDefinition = clinicalDefinition,
-                                    client = client,
-                                    cacheFolder = cacheFolder)
-    # llmReviewsPhase2 <- llmReviews |>
-    #   filter(.data$generatedId %in% sampledGeneratedIdsPhase2)
-    
+    if (is.null(cheatReviews)) {
+      llmReviewsPhase2 <- reviewCases(keeper = keeperSample,
+                                      settings = settings,
+                                      phenotypeName = phenotypeName,
+                                      clinicalDefinition = clinicalDefinition,
+                                      client = client,
+                                      cacheFolder = cacheFolder)
+    } else {
+      llmReviewsPhase2 <- cheatReviews |>
+        filter(.data$generatedId %in% sampledGeneratedIdsPhase2)
+    }
     stratification <- stratification |>
       distinct(.data$doiBin, .data$categoryBin, .data$stratumId)
     result <- list(
@@ -310,7 +318,7 @@ uploadReferenceCohortUsingStratifiedSample <- function(connectionDetails = NULL,
     camelCaseToSnakeCase = TRUE
   )
   
-  message("Genrating stratified sensitive table")
+  message("Generating stratified sensitive table")
   sql <- "
     DELETE FROM @reference_cohort_database_schema.@reference_sensitive_cohort_table
     WHERE cohort_definition_id = @reference_cohort_definition_id;
@@ -481,7 +489,7 @@ evaluateCohortUsingStratifiedSample <- function(
   
   # Parametric Bootstrap for non-normal Confidence Intervals
   nBootstrap <- 10000
-
+  
   bootstrapResults <- replicate(nBootstrap, {
     # Draw simulated observed cases based on the empirical rates and actual sample sizes
     simTp <- rbinom(nrow(mergedData), mergedData$sampledInCohort, mergedData$rhoIn)

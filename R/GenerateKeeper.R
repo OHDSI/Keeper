@@ -283,12 +283,14 @@ generateKeeper <- function(connectionDetails = NULL,
       FROM #cohort keeper_cohort
       INNER JOIN @cohort_table full_cohort
         ON keeper_cohort.subject_id = full_cohort.subject_id
-          AND keeper_cohort.cohort_start_date = full_cohort.cohort_start_date;
+          AND keeper_cohort.cohort_start_date = full_cohort.cohort_start_date
+      WHERE cohort_definition_id = @cohort_definition_id;
     "
     stratificationInfo <- DatabaseConnector::renderTranslateQuerySql(
       connection = connection,
       sql = sql,
       cohort_table = if (cohortTableIsTemp) cohortTable else paste(cohortDatabaseSchema, cohortTable, sep = "."),
+      cohort_definition_id = cohortDefinitionId,
       snakeCaseToCamelCase = TRUE
     )
     keeper <- bind_rows(
