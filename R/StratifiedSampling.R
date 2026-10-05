@@ -94,7 +94,7 @@ reviewCasesUsingStratifiedSampling <- function(keeper,
     # TODO: don't use stratification
   } else {
     phase1SampleSize <- 100
-    message(sprintf("Phase 1: Review %d per stratum to estimate prevalence", probeSampleSize))
+    message(sprintf("Phase 1: Review %d per stratum to estimate prevalence", phase1SampleSize))
     
     strata <- stratification |>
       group_by(.data$stratumId) |>
@@ -103,11 +103,11 @@ reviewCasesUsingStratifiedSampling <- function(keeper,
     keeperSample <- keeper |>
       filter(.data$generatedId %in% sampledGeneratedIdsPhase1)
     llmReviewsPhase1 <- reviewCases(keeper = keeperSample,
-                                   settings = settings,
-                                   phenotypeName = phenotypeName,
-                                   clinicalDefinition = clinicalDefinition,
-                                   client = client,
-                                   cacheFolder = cacheFolder)
+                                    settings = settings,
+                                    phenotypeName = phenotypeName,
+                                    clinicalDefinition = clinicalDefinition,
+                                    client = client,
+                                    cacheFolder = cacheFolder)
     # llmReviewsPhase1 <- llmReviews |>
     #   filter(.data$generatedId %in% sampledGeneratedIdsPhase1)
     
@@ -124,11 +124,11 @@ reviewCasesUsingStratifiedSampling <- function(keeper,
                     100 * min(prevalencePerStratum$p),
                     100 * max(prevalencePerStratum$p)))
     
-    sUnstratified <- sqrt(overallPrevalence * (1-overallPrevalence))
+    sUnstratified <- sqrt(overallPrevalence * (1 - overallPrevalence))
     sStratified <- prevalencePerStratum |>
-      summarise(s = sum(personCount * sqrt(p * (1-p))) / sum(personCount)) |>
+      summarise(s = sum(personCount * sqrt(p * (1 - p))) / sum(personCount)) |>
       pull()
-    requiredSampleSize <- round(sum(strataSizes$personCount) * sStratified / sUnstratified)
+    requiredSampleSize <- round(sum(strataSizes$personCount) * (sStratified / sUnstratified)^2)
     message(sprintf("Stratified sampling can achieve roughly the same power using %d instead of %d samples",
                     requiredSampleSize,
                     sum(strataSizes$personCount)))
@@ -150,35 +150,388 @@ reviewCasesUsingStratifiedSampling <- function(keeper,
     sampledGeneratedIdsPhase2 <- unlist(lapply(strata, samplePhase2))
     keeperSample <- keeper |>
       filter(.data$generatedId %in% sampledGeneratedIdsPhase2)
-    llmReviewsPhase1 <- reviewCases(keeper = keeperSample,
-                                   settings = settings,
-                                   phenotypeName = phenotypeName,
-                                   clinicalDefinition = clinicalDefinition,
-                                   client = client,
-                                   cacheFolder = cacheFolder)
+    llmReviewsPhase2 <- reviewCases(keeper = keeperSample,
+                                    settings = settings,
+                                    phenotypeName = phenotypeName,
+                                    clinicalDefinition = clinicalDefinition,
+                                    client = client,
+                                    cacheFolder = cacheFolder)
     # llmReviewsPhase2 <- llmReviews |>
     #   filter(.data$generatedId %in% sampledGeneratedIdsPhase2)
     
-    llmReviews <- bind_rows(
-      llmReviewsPhase1,
-      llmReviewsPhase2
-    ) |>
-      inner_join(stratification |>
-                   select("generatedId", "stratumId"),
-                 by = join_by("generatedId"))
-    
+    stratification <- stratification |>
+      distinct(.data$doiBin, .data$categoryBin, .data$stratumId)
+    result <- list(
+      llmReviews = bind_rows(
+        llmReviewsPhase1,
+        llmReviewsPhase2
+      ) ,
+      stratification = stratification
+    )
   }
-  return(llmReviews)
+  return(result)
+}
+
+#' Create reference cohort table names
+#' 
+#' @description
+#' Derives a metadata table name from the reference cohort table name in a systematic way.
+#'
+#' @param referenceCohortTable The name of the cohort table itself. The metadata table name will be derived from this
+#'                             by appending '_metadata'.
+#'
+#' @returns
+#' A list with `referenceCohortTable` and `referenceCohortMetadataTable`.
+#'
+#' @export
+createReferenceCohortTableNamesUsingStratifiedSample <- function(referenceCohortTable) {
+  tableNames <- list(
+    referenceCohortTable = referenceCohortTable,
+    referenceCohortMetadataTable = paste0(referenceCohortTable, "_metadata"),
+    referenceSensitiveCohortTable = paste0(referenceCohortTable, "_sensitive")
+  )
+  return(tableNames)
+}
+
+#' Upload a reference cohort
+#'
+#' @description
+#' A reference cohort is typically a large sample (e.g. 10,000 persons) of a highly-sensitive cohort (as created using 
+#' [createSensitiveCohort()]), reviewed by an LLM (using [reviewCases()]).
+#' 
+#' The reference cohort can be used to compute operating characteristics of a cohort definition for the same phenotype
+#' using [computeCohortOperatingCharacteristics()].
+#'
+#' @template Connection
+#'
+#' @template TempEmulationSchema
+#'
+#' @param referenceCohortDatabaseSchema  The name of the database schema where the reference
+#'                                       cohort will be stored.
+#' @param referenceCohortTableNames      The table names where the reference cohort and metadata will be stored. Should
+#'                                       be created using [createReferenceCohortTableNamesUsingStratifiedSample()].
+#' @param referenceCohortDefinitionId    The cohort definition ID that will be used for the
+#'                                       reference cohort.
+#' @param createReferenceCohortTables    Create the reference cohort and metadata tables? If `TRUE` and the tables
+#'                                       already exists they will first be deleted.
+#' @param stratifiedReviews              An object as generated by [reviewCasesUsingStratifiedSampling()].
+#'
+#' @returns
+#' This function does not return a value. It is called for the side effect of uploading
+#' the reference cohort to the database.
+#'
+#' @export
+uploadReferenceCohortUsingStratifiedSample <- function(connectionDetails = NULL,
+                                                       connection = NULL,
+                                                       tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                                                       sensitiveCohortDatabaseSchema,
+                                                       sensitiveCohortTable,
+                                                       sensitiveCohortDefinitionId,
+                                                       referenceCohortDatabaseSchema,
+                                                       referenceCohortTableNames,
+                                                       referenceCohortDefinitionId,
+                                                       createReferenceCohortTables = FALSE,
+                                                       stratifiedReviews) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
+  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(sensitiveCohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertCharacter(sensitiveCohortTable, len = 1, add = errorMessages)
+  checkmate::assertIntegerish(sensitiveCohortDefinitionId, len = 1, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertList(referenceCohortTableNames, len = 3, add = errorMessages)
+  checkmate::assertNames(names(referenceCohortTableNames), must.include = c(
+    "referenceCohortTable",
+    "referenceSensitiveCohortTable",
+    "referenceCohortMetadataTable"
+  ), add = errorMessages)
+  checkmate::assertIntegerish(referenceCohortDefinitionId, len = 1, add = errorMessages)
+  checkmate::assertLogical(createReferenceCohortTables, len = 1, add = errorMessages)
+  checkmate::assertList(stratifiedReviews, len = 2, add = errorMessages)
+  checkmate::assertNames(names(stratifiedReviews), must.include = c(
+    "llmReviews",
+    "stratification"
+  ), add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  if (is.null(connectionDetails) && is.null(connection)) {
+    stop("Must provide either connectionDetails or a connection.")
+  }
+  
+  if (is.null(connection)) {
+    connection <- DatabaseConnector::connect(connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
+  }
+  DatabaseConnector::assertTempEmulationSchemaSet(
+    dbms = DatabaseConnector::dbms(connection),
+    tempEmulationSchema = tempEmulationSchema
+  )
+  tableNamesMinusSensitive <- referenceCohortTableNames
+  tableNamesMinusSensitive$referenceSensitiveCohortTable <- NULL
+  uploadReferenceCohort(
+    connection = connection,
+    tempEmulationSchema = tempEmulationSchema,
+    referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
+    referenceCohortTableNames = tableNamesMinusSensitive,
+    referenceCohortDefinitionId = referenceCohortDefinitionId,
+    createReferenceCohortTables = createReferenceCohortTables,
+    reviews = stratifiedReviews$llmReviews
+  )
+  
+  if (createReferenceCohortTables) {
+    message("Creating reference sensitive cohort table")
+    sql <- "
+      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_sensitive_cohort_table;
+
+      CREATE TABLE @reference_cohort_database_schema.@reference_sensitive_cohort_table (
+        cohort_definition_id INT,
+        subject_id BIGINT,
+        cohort_start_date DATE,
+        stratum_id INT
+      );
+    "
+    DatabaseConnector::renderTranslateExecuteSql(
+      connection = connection,
+      sql = sql,
+      reference_cohort_database_schema = referenceCohortDatabaseSchema,
+      reference_sensitive_cohort_table = referenceCohortTableNames$referenceSensitiveCohortTable
+    )
+  }
+  
+  message("Uploading stratification mapping")
+  DatabaseConnector::insertTable(
+    connection = connection,
+    data = stratifiedReviews$stratification,
+    tableName = "#stratification",
+    dropTableIfExists = TRUE,
+    createTable = TRUE,
+    tempTable = TRUE,
+    tempEmulationSchema = tempEmulationSchema,
+    progressBar = FALSE,
+    camelCaseToSnakeCase = TRUE
+  )
+  
+  message("Genrating stratified sensitive table")
+  sql <- "
+    DELETE FROM @reference_cohort_database_schema.@reference_sensitive_cohort_table
+    WHERE cohort_definition_id = @reference_cohort_definition_id;
+    
+    INSERT INTO @reference_cohort_database_schema.@reference_sensitive_cohort_table (
+        cohort_definition_id,
+        subject_id,
+        cohort_start_date,
+        stratum_id
+    ) 
+    SELECT @reference_cohort_definition_id AS cohort_definition_id,
+      subject_id,
+      cohort_start_date,
+      stratum_id
+    FROM @sensitive_cohort_database_schema.@sensitive_cohort_table cohort
+    INNER JOIN #stratification stratification
+      ON cohort.doi_bin = stratification.doi_bin
+        AND cohort.category_bin = stratification.category_bin
+    WHERE cohort_definition_id = @sensitive__cohort_definition_id;
+    
+    TRUNCATE TABLE #stratification;
+    DROP TABLE #stratification;
+  "
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    sql = sql,
+    sensitive_cohort_database_schema = sensitiveCohortDatabaseSchema,
+    sensitive_cohort_table = sensitiveCohortTable,
+    sensitive__cohort_definition_id = sensitiveCohortDefinitionId,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_sensitive_cohort_table = referenceCohortTableNames$referenceSensitiveCohortTable,
+    reference_cohort_definition_id = referenceCohortDefinitionId,
+    reportOverallTime = TRUE,
+    progressBar = TRUE
+  )
+}
+
+
+#' Evaluate a cohort when using stratified sampling
+#'
+#' @description
+#' Computes operating characteristics (sensitivity and positive predictive value) of a cohort definition by comparing it
+#' against a reference cohort created from LLM review of KEEPER profiles. Assumes stratified sampling was used, and uses
+#' the Begg and Greenes framework for optimal power.
+#'
+#' @template Connection
+#'
+#' @param cohortDatabaseSchema           The name of the database schema containing the cohort
+#'                                       to evaluate.
+#' @param cohortTable                    The table name containing the cohort to evaluate.
+#' @param cohortDefinitionId             The cohort definition ID of the cohort to evaluate.
+#' @param referenceCohortDatabaseSchema  The name of the database schema containing the reference
+#'                                       cohort (as uploaded by [uploadReferenceCohortUsingStratifiedSample()]).
+#' @param referenceCohortTableNames      The table names where the reference cohort and metadata are stored. Should
+#'                                       be created using [createReferenceCohortTableNamesUsingStratifiedSample())].
+#' @param referenceCohortDefinitionId    The cohort definition ID of the reference cohort.
+#'
+#' @returns
+#' A tibble with one row, with columns for PPV, sensitivity, and their confidence intervals.
+#'
+#' @export
+evaluateCohortUsingStratifiedSample <- function(
+    connectionDetails = NULL,
+    connection = NULL,
+    cohortDatabaseSchema,
+    cohortTable,
+    cohortDefinitionId,
+    referenceCohortDatabaseSchema,
+    referenceCohortTableNames,
+    referenceCohortDefinitionId
+) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
+  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(cohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertCharacter(cohortTable, len = 1, add = errorMessages)
+  checkmate::assertIntegerish(cohortDefinitionId, len = 1, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertList(referenceCohortTableNames, len = 3, add = errorMessages)
+  checkmate::assertNames(names(referenceCohortTableNames), must.include = c(
+    "referenceCohortTable",
+    "referenceSensitiveCohortTable",
+    "referenceCohortMetadataTable"
+  ), add = errorMessages)
+  checkmate::assertIntegerish(referenceCohortDefinitionId, len = 1, add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  if (is.null(connectionDetails) && is.null(connection)) {
+    stop("Must provide either connectionDetails or a connection.")
+  }
+  if (is.null(connection)) {
+    connection <- DatabaseConnector::connect(connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
+  }
+  message("Computing confusion with annotated sample")
+  sql <- SqlRender::loadRenderTranslateSql(
+    sqlFilename = "ComputeCohortConfusion.sql",
+    packageName = "Keeper",
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_cohort_table = referenceCohortTableNames$referenceCohortTable,
+    reference_cohort_definition_id = referenceCohortDefinitionId,
+    cohort_database_schema = cohortDatabaseSchema,
+    cohort_table = cohortTable,
+    cohort_definition_id = cohortDefinitionId,
+    type = "incident",
+    washout_period = 0,
+    stratified = TRUE,
+    reference_sensitive_cohort_table = referenceCohortTableNames$referenceSensitiveCohortTable
+  )
+  confusionCounts <- DatabaseConnector::querySql(
+    connection = connection,
+    sql = sql,
+    snakeCaseToCamelCase = TRUE
+  )
+  confusionCounts <- confusionCounts |>
+    group_by(.data$stratumId) |>
+    summarise(truePositives = sum(.data$truePositives),
+              trueNegatives = sum(.data$trueNegatives),
+              falsePositives = sum(.data$falsePositives),
+              falseNegatives = sum(.data$falseNegatives))
+  sql <- "
+    SELECT stratum_id,
+      SUM(in_cohort) AS n_in_cohort,
+      COUNT(*) - SUM(in_cohort) AS n_not_in_cohort
+    FROM (
+      SELECT stratum_id,
+        CASE WHEN cohort.subject_id IS NULL THEN 0 ELSE 1 END AS in_cohort
+      FROM @reference_cohort_database_schema.@reference_sensitive_cohort_table sensitive_cohort
+      LEFT JOIN @cohort_database_schema.@cohort_table cohort
+        ON sensitive_cohort.subject_id = cohort.subject_id
+            AND DATEDIFF(DAY, sensitive_cohort.cohort_start_date, cohort.cohort_start_date) <= 30
+            AND DATEDIFF(DAY, sensitive_cohort.cohort_start_date, cohort.cohort_start_date) >= -30
+            AND cohort.cohort_definition_id = @cohort_definition_id
+      WHERE sensitive_cohort.cohort_definition_id = @reference_cohort_definition_id
+    ) per_person
+    GROUP BY stratum_id;
+  "
+  strataCounts <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = sql,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_sensitive_cohort_table = referenceCohortTableNames$referenceSensitiveCohortTable,
+    reference_cohort_definition_id = referenceCohortDefinitionId,
+    cohort_database_schema = cohortDatabaseSchema,
+    cohort_table = cohortTable,
+    cohort_definition_id = cohortDefinitionId,    
+    snakeCaseToCamelCase = TRUE
+  )  
+  
+  mergedData <- strataCounts |>
+    inner_join(confusionCounts, by = join_by("stratumId")) |>
+    mutate(
+      sampledInCohort = .data$truePositives + .data$falsePositives,
+      sampledNotInCohort = .data$falseNegatives + .data$trueNegatives,
+      
+      # Compute empirical probabilities (rho). 
+      rhoIn = if_else(.data$sampledInCohort > 0, .data$truePositives / .data$sampledInCohort, 0),
+      rhoOut = if_else(.data$sampledNotInCohort > 0, .data$falseNegatives / .data$sampledNotInCohort, 0),
+      
+      # Extrapolate to the full HSC population
+      estTpStratum = .data$nInCohort * .data$rhoIn,
+      estFnStratum = .data$nNotInCohort * .data$rhoOut
+    )
+  totalPopulationInCohort <- sum(mergedData$nInCohort)
+  estTpTotal <- sum(mergedData$estTpStratum)
+  estFnTotal <- sum(mergedData$estFnStratum)
+  pointPpv <- estTpTotal / totalPopulationInCohort
+  pointSens <- estTpTotal / (estTpTotal + estFnTotal)
+  
+  # Parametric Bootstrap for non-normal Confidence Intervals
+  nBootstrap <- 10000
+
+  bootstrapResults <- replicate(nBootstrap, {
+    # Draw simulated observed cases based on the empirical rates and actual sample sizes
+    simTp <- rbinom(nrow(mergedData), mergedData$sampledInCohort, mergedData$rhoIn)
+    simFn <- rbinom(nrow(mergedData), mergedData$sampledNotInCohort, mergedData$rhoOut)
+    
+    # Calculate simulated rates
+    simRhoIn <- if_else(mergedData$sampledInCohort > 0, simTp / mergedData$sampledInCohort, 0)
+    simRhoOut <- if_else(mergedData$sampledNotInCohort > 0, simFn / mergedData$sampledNotInCohort, 0)
+    
+    # Calculate simulated population totals
+    simEstTpTotal <- sum(mergedData$nInCohort * simRhoIn)
+    simEstFnTotal <- sum(mergedData$nNotInCohort * simRhoOut)
+    
+    # Calculate simulated metrics
+    simPpv <- simEstTpTotal / totalPopulationInCohort
+    simSens <- simEstTpTotal / (simEstTpTotal + simEstFnTotal)
+    
+    c(simPpv, simSens)
+  })
+  
+  ciPpv <- quantile(bootstrapResults[1, ], probs = c(0.025, 0.975), na.rm = TRUE)
+  ciSens <- quantile(bootstrapResults[2, ], probs = c(0.025, 0.975), na.rm = TRUE)
+  
+  metricsSummary <- tibble(
+    ppv = pointPpv,
+    ppvLb = ciPpv[1],
+    ppvUb = ciPpv[2],
+    sensitivity = pointSens,
+    sensitivityLb = ciSens[1],
+    sensitivityUb = ciSens[2]
+  )
+  return(metricsSummary)
 }
 
 uniformSelect <- function(items, size) {
   totalSize <- length(items)
-  if (size == 1) {
-    idx <- floor((totalSize + 1) / 2)
-  } else {
-    idx <- floor(1 + (0:(size - 1)) * (totalSize - 1) / (size - 1))
+  
+  if (size >= totalSize) {
+    return(items)
   }
-  return(items[idx])
+  
+  idx <- unique(round(seq(1, totalSize, length.out = size)))
+  
+  # Fill any missing indices caused by rounding
+  while (length(idx) < size) {
+    candidates <- setdiff(seq_len(totalSize), idx)
+    idx <- sort(c(idx, candidates[1]))
+  }
+  
+  items[idx]
 }
 
 mergeStrata <- function(stratificationInfo, minStratumSize) {
@@ -264,7 +617,12 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
   # Ensure nOpt is an integer
   nOpt <- round(nOpt)
   stratumCount <- nrow(stratumData)
-  targetPhase2Total <- nOpt - (stratumCount * phase1Count)
+  
+  # Assuming phase1Count can be a vector (if varying per stratum) or a scalar.
+  # If it's a scalar, rep it to match stratumCount for safer vector math.
+  if(length(phase1Count) == 1) phase1Count <- rep(phase1Count, stratumCount)
+  
+  targetPhase2Total <- nOpt - sum(phase1Count)
   
   if (targetPhase2Total <= 0) {
     message("Total optimal size is less than or equal to Phase 1 samples. No Phase 2 needed.")
@@ -273,8 +631,13 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
     return(stratumData)
   }
   
+  # Ensure we don't ask for more total samples than exist in the entire cohort
+  if (nOpt > sum(stratumData$personCount)) {
+    warning("nOpt exceeds total cohort size. Capping nOpt to total cohort.")
+    nOpt <- sum(stratumData$personCount)
+  }
+  
   # 1. Variance Safeguarding: 
-  # Prevent p=0 or p=1 from creating absolute 0 variance, which forces weights to 0.
   pSafe <- pmax(0.0001, pmin(0.9999, stratumData$p))
   stratumSd <- sqrt(pSafe * (1 - pSafe))
   
@@ -282,8 +645,7 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
   baseWeights <- (stratumData$personCount * stratumSd)
   baseWeights <- baseWeights / sum(baseWeights)
   
-  # 3. Iterative Constrained Allocation
-  # Ensures no stratum is allocated fewer samples than it already received in Phase 1
+  # 3. Iterative Constrained Allocation (Floor AND Ceiling)
   eligibleStrata <- rep(TRUE, stratumCount)
   finalTotalAllocation <- rep(0, stratumCount)
   remainingBudget <- nOpt
@@ -293,26 +655,36 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
     
     # Pro-rata distribute the budget only among eligible strata
     tempAllocation <- rep(0, stratumCount)
-    tempAllocation[eligibleStrata] <- remainingBudget * (baseWeights[eligibleStrata] / currentWeightSum)
+    if (currentWeightSum > 0) {
+      tempAllocation[eligibleStrata] <- remainingBudget * (baseWeights[eligibleStrata] / currentWeightSum)
+    }
     
-    # Identify strata that mathematically "should" get less than phase1Count
-    violators <- eligibleStrata & (tempAllocation <= phase1Count)
+    # Identify strata that hit the floor (<= phase1) or the ceiling (>= total persons)
+    # 1e-9 handles floating-point math rounding issues
+    floorViolators <- eligibleStrata & (tempAllocation <= phase1Count + 1e-9)
+    ceilingViolators <- eligibleStrata & (tempAllocation >= stratumData$personCount - 1e-9)
     
-    if (any(violators)) {
-      # Cap these strata exactly at phase1Count and remove them from eligibility
-      finalTotalAllocation[violators] <- phase1Count
-      eligibleStrata[violators] <- FALSE
+    if (any(floorViolators) || any(ceilingViolators)) {
+      # Apply constraints and remove from eligibility
+      if (any(floorViolators)) {
+        finalTotalAllocation[floorViolators] <- phase1Count[floorViolators]
+        eligibleStrata[floorViolators] <- FALSE
+      }
+      if (any(ceilingViolators)) {
+        finalTotalAllocation[ceilingViolators] <- stratumData$personCount[ceilingViolators]
+        eligibleStrata[ceilingViolators] <- FALSE
+      }
+      
       # Update the remaining budget to redistribute in the next loop
       remainingBudget <- nOpt - sum(finalTotalAllocation[!eligibleStrata])
     } else {
-      # All remaining eligible strata are above phase1Count
+      # All remaining eligible strata fit safely within the bounds
       finalTotalAllocation[eligibleStrata] <- tempAllocation[eligibleStrata]
       break
     }
   }
   
   # 4. Integer Rounding (Largest Remainder Method)
-  # Extracts the continuous Phase 2 allocation and forces strict integer sums
   phase2Continuous <- finalTotalAllocation - phase1Count
   phase2Count <- floor(phase2Continuous)
   
@@ -343,8 +715,8 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
 computeMetricsBayesian <- function(sampleData, stratumData, priorWeight = 0.5, nDraws = 10000, ciLevel = 0.95) {
   
   # 1. Aggregate empirical counts per stratum
-  counts <- sampleData %>%
-    group_by(stratumId) %>%
+  counts <- sampleData |>
+    group_by(stratumId) |>
     summarise(
       tpCount = sum(isCase & inCohort),
       fnCount = sum(isCase & !inCohort),
@@ -417,5 +789,3 @@ computeMetricsBayesian <- function(sampleData, stratumData, priorWeight = 0.5, n
   
   return(results)
 }
-
-

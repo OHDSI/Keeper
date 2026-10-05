@@ -53,7 +53,8 @@ deleted.}
 \code{keeperConceptSets} has a 'hypernym' category that is used instead. Else, an error
 is thrown.}
 
-\item{addStratificationInfo}{Add columns to the cohort table that can be used for stratified sampling?}
+\item{addStratificationInfo}{Add columns to the cohort table that can be used for stratified sampling?
+Generating the stratification information will take more time.}
 }
 \value{
 This function is primarily executed for instantiating the cohort in the cohort table. It does return a data frame
