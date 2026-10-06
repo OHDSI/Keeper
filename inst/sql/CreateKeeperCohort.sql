@@ -1,9 +1,9 @@
-DROP TABLE IF EXISTS #cohort;
+DROP TABLE IF EXISTS #keeper_cohort;
 
 SELECT subject_id,
 	generated_id,
 	cohort_start_date
-INTO #cohort
+INTO #keeper_cohort
 FROM (
 	SELECT subject_id,
 		ROW_NUMBER() OVER (ORDER BY NEWID()) AS generated_id,

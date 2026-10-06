@@ -59,7 +59,7 @@ generateKeeper <- function(connectionDetails = NULL,
                            connection = NULL,
                            cdmDatabaseSchema,
                            tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-                           cohortDatabaseSchema,
+                           cohortDatabaseSchema = NULL,
                            cohortTable,
                            cohortDefinitionId,
                            sampleSize = 20,
@@ -73,7 +73,7 @@ generateKeeper <- function(connectionDetails = NULL,
   checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
   checkmate::assertCharacter(cdmDatabaseSchema, len = 1, add = errorMessages)
   checkmate::assertCharacter(tempEmulationSchema, len = 1, null.ok = TRUE, add = errorMessages)
-  checkmate::assertCharacter(cohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertCharacter(cohortDatabaseSchema, len = 1, null.ok = TRUE, add = errorMessages)
   checkmate::assertCharacter(cohortTable, len = 1, add = errorMessages)
   checkmate::assertIntegerish(cohortDefinitionId, len = 1, add = errorMessages)
   checkmate::assertIntegerish(sampleSize, len = 1, lower = 1, add = errorMessages)
@@ -106,6 +106,9 @@ generateKeeper <- function(connectionDetails = NULL,
       fixed = TRUE
     )) {
       cohortTableIsTemp <- TRUE
+      if (cohortTable == "#keeper_cohort") {
+        stop("Cannot call cohort table #keeper_cohort. Please choose a different name.")
+      }
     } else {
       stop("cohortDatabaseSchema is NULL, but cohortTable is not temporary.")
     }
@@ -280,7 +283,7 @@ generateKeeper <- function(connectionDetails = NULL,
       SELECT generated_id,
         doi_bin,
         category_bin
-      FROM #cohort keeper_cohort
+      FROM #keeper_cohort keeper_cohort
       INNER JOIN @cohort_table full_cohort
         ON keeper_cohort.subject_id = full_cohort.subject_id
           AND keeper_cohort.cohort_start_date = full_cohort.cohort_start_date
@@ -396,7 +399,7 @@ generateKeeper <- function(connectionDetails = NULL,
   toDelete <- c(
     "concept_sets",
     "full_concept_sets",
-    "cohort",
+    "keeper_cohort",
     keeperTables
   )
   if (usePersonIds) {

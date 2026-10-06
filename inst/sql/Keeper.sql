@@ -74,7 +74,7 @@ SELECT CAST(subject_id AS VARCHAR) AS person_id,
 	CASE WHEN ethnicity_concept.concept_name IS NULL THEN '' ELSE ethnicity_concept.concept_name END AS ethnicity_concept_name,
 	1 AS target
 INTO #demographics
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.person
 	ON person.person_id = cohort.subject_id
 INNER JOIN @cdm_database_schema.observation_period
@@ -109,7 +109,7 @@ FROM (
 			ELSE ''
 		END AS extra_data,
 		target
-	FROM #cohort cohort
+	FROM #keeper_cohort cohort
 	INNER JOIN @cdm_database_schema.condition_occurrence
 		ON condition_occurrence.person_id = cohort.subject_id
 			AND condition_start_date = cohort_start_date
@@ -141,7 +141,7 @@ FROM (
 			ELSE ''
 		END AS extra_data,
 		target
-	FROM #cohort cohort
+	FROM #keeper_cohort cohort
 	INNER JOIN @cdm_database_schema.observation
 		ON cohort.subject_id = observation.person_id
 			AND observation_date = cohort_start_date
@@ -169,7 +169,7 @@ SELECT generated_id,
 	CASE WHEN specialty.concept_name IS NULL OR specialty.concept_id = 0 THEN '' ELSE specialty.concept_name END AS extra_data,
 	1 AS target
 INTO #visits
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.visit_occurrence
 	ON visit_occurrence.person_id = cohort.subject_id
 		AND DATEDIFF(DAY, cohort_start_date, visit_end_date) >= -30
@@ -194,7 +194,7 @@ FROM (
 		condition_concept_id AS concept_id,
 		concept_name,
 		target		
-	FROM #cohort cohort
+	FROM #keeper_cohort cohort
 	INNER JOIN @cdm_database_schema.condition_occurrence
 		ON cohort.subject_id = condition_occurrence.person_id
 			AND condition_start_date < cohort_start_date
@@ -213,7 +213,7 @@ FROM (
 		observation_concept_id AS concept_id,
 		concept_name,
 		target		
-	FROM #cohort cohort
+	FROM #keeper_cohort cohort
 	INNER JOIN @cdm_database_schema.observation
 		ON cohort.subject_id = observation.person_id
 			AND observation_date < cohort_start_date
@@ -237,7 +237,7 @@ SELECT generated_id,
 	concept_name,
 	MAX(target) AS target
 INTO #prior_disease
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.condition_occurrence
 	ON cohort.subject_id = condition_occurrence.person_id
 		AND condition_start_date < cohort_start_date
@@ -258,7 +258,7 @@ SELECT generated_id,
 	concept_name,
 	MAX(target) AS target
 INTO #post_disease
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.condition_occurrence
 	ON cohort.subject_id = condition_occurrence.person_id
 		AND condition_start_date > cohort_start_date
@@ -280,7 +280,7 @@ SELECT generated_id,
 	concept_name,
 	MAX(target) AS target
 INTO #prior_drugs
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.drug_era
 	ON cohort.subject_id = drug_era.person_id
 		AND drug_era_start_date < cohort_start_date
@@ -303,7 +303,7 @@ SELECT generated_id,
 	concept_name,
 	MAX(target) AS target
 INTO #post_drugs
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.drug_era
 	ON cohort.subject_id = drug_era.person_id
 		AND drug_era_start_date >= cohort_start_date
@@ -325,7 +325,7 @@ SELECT generated_id,
 	concept_name,
 	MAX(target) AS target
 INTO #prior_treatment_procedures
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.procedure_occurrence
 	ON cohort.subject_id = procedure_occurrence.person_id
 		AND procedure_date < cohort_start_date
@@ -346,7 +346,7 @@ SELECT generated_id,
 	concept_name,
 	MAX(target) AS target
 INTO #post_treatment_procedures
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.procedure_occurrence
 	ON cohort.subject_id = procedure_occurrence.person_id
 		AND procedure_date >= cohort_start_date
@@ -367,7 +367,7 @@ SELECT generated_id,
 	concept_name,
 	0 AS target
 INTO #alternative_diagnoses
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.condition_occurrence
 	ON cohort.subject_id = condition_occurrence.person_id
 		AND DATEDIFF(DAY, cohort_start_date, condition_start_date) >= -90
@@ -389,7 +389,7 @@ SELECT generated_id,
 	concept_name,
 	MAX(target) AS target
 INTO #diagnostic_procedures
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.procedure_occurrence
 	ON cohort.subject_id = procedure_occurrence.person_id
 		AND DATEDIFF(DAY, cohort_start_date, procedure_date) >= -30
@@ -436,7 +436,7 @@ FROM (
 			ELSE ''
 		END AS extra_data,
 		target
-	FROM #cohort cohort
+	FROM #keeper_cohort cohort
 	INNER JOIN @cdm_database_schema.measurement
 		ON cohort.subject_id = measurement.person_id
 			AND DATEDIFF(DAY, cohort_start_date, measurement_date) >= -30
@@ -466,7 +466,7 @@ SELECT generated_id,
 	CASE WHEN concept_name IS NULL THEN 'Death' ELSE CONCAT('Death due to ', concept_name) END AS concept_name,
 	1 AS target
 INTO #death
-FROM #cohort cohort
+FROM #keeper_cohort cohort
 INNER JOIN @cdm_database_schema.death
 	ON cohort.subject_id = death.person_id
 		AND death_date > cohort_start_date

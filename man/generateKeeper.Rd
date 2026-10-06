@@ -9,7 +9,7 @@ generateKeeper(
   connection = NULL,
   cdmDatabaseSchema,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-  cohortDatabaseSchema,
+  cohortDatabaseSchema = NULL,
   cohortTable,
   cohortDefinitionId,
   sampleSize = 20,
