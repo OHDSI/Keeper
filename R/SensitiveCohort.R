@@ -14,12 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-hasStratificationInfo <- function(connection, cohortDatabaseSchema, cohortTable) {
+hasStratificationInfo <- function(connection, cohortDatabaseSchema, cohortTable, tempEmulationSchema) {
   sql <- "SELECT TOP 1 * FROM @cohort_table;"
   row <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = sql,
-    cohort_table = if (is.null(cohortDatabaseSchema)) cohortTable else paste(cohortDatabaseSchema, cohortTable, sep = ".")
+    cohort_table = if (is.null(cohortDatabaseSchema)) cohortTable else paste(cohortDatabaseSchema, cohortTable, sep = "."),
+    tempEmulationSchema = tempEmulationSchema
   )
   return("doi_bin" %in% colnames(row))
 }
@@ -136,7 +137,7 @@ createSensitiveCohort <- function(connectionDetails = NULL,
       cohort_table = cohortTable,
       add_stratification_info = addStratificationInfo
     )
-  } else if (addStratificationInfo && !hasStratificationInfo(connection, cohortDatabaseSchema, cohortTable)) {
+  } else if (addStratificationInfo && !hasStratificationInfo(connection, cohortDatabaseSchema, cohortTable, tempEmulationSchema)) {
     stop("User specified `addStratificationInfo = TRUE` but the existing table does not contain the additonal columns.")
   }
   

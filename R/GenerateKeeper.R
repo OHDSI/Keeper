@@ -277,7 +277,7 @@ generateKeeper <- function(connectionDetails = NULL,
   }
   keeper <- bind_rows(keeper)
   
-  if (hasStratificationInfo(connection, cohortDatabaseSchema, cohortTable)) {
+  if (hasStratificationInfo(connection, cohortDatabaseSchema, cohortTable, tempEmulationSchema)) {
     message("Downloading stratification information")
     sql <- "
       SELECT generated_id,
@@ -294,6 +294,7 @@ generateKeeper <- function(connectionDetails = NULL,
       sql = sql,
       cohort_table = if (cohortTableIsTemp) cohortTable else paste(cohortDatabaseSchema, cohortTable, sep = "."),
       cohort_definition_id = cohortDefinitionId,
+      tempEmulationSchema = tempEmulationSchema,
       snakeCaseToCamelCase = TRUE
     )
     keeper <- bind_rows(
