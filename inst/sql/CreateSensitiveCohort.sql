@@ -167,7 +167,7 @@ FROM (
 
 -- Gather all DOI event weeks within +-365 days of the index date
 SELECT condition_occurrence.person_id AS subject_id,
-	DATEDIFF(WEEK, condition_start_date, cohort_start_date) AS doi_week
+	FLOOR(DATEDIFF(DAY, condition_start_date, cohort_start_date) / 7) AS doi_week
 INTO #doi_events
 FROM @cdm_database_schema.condition_occurrence
 INNER JOIN @cdm_database_schema.concept_ancestor

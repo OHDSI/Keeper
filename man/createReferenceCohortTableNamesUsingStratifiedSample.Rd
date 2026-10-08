@@ -2,17 +2,17 @@
 % Please edit documentation in R/StratifiedSampling.R
 \name{createReferenceCohortTableNamesUsingStratifiedSample}
 \alias{createReferenceCohortTableNamesUsingStratifiedSample}
-\title{Create reference cohort table names}
+\title{Create reference cohort table names when using stratified sampling}
 \usage{
 createReferenceCohortTableNamesUsingStratifiedSample(referenceCohortTable)
 }
 \arguments{
-\item{referenceCohortTable}{The name of the cohort table itself. The metadata table name will be derived from this
-by appending '_metadata'.}
+\item{referenceCohortTable}{The name of the cohort table itself.}
 }
 \value{
-A list with \code{referenceCohortTable} and \code{referenceCohortMetadataTable}.
+A list with \code{referenceCohortTable},  \code{referenceCohortMetadataTable}, and \code{referenceSensitiveCohortTable}.
 }
 \description{
-Derives a metadata table name from the reference cohort table name in a systematic way.
+Derives a metadata table name and sensitive cohort table name  from the reference cohort table name in a systematic
+way.
 }

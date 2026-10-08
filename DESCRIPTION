@@ -21,10 +21,7 @@ Imports:
   stringr,
   jsonlite,
   httr,
-  yaml,
-  FeatureExtraction,
-  Cyclops,
-  bit64
+  yaml
 Suggests:
   rmarkdown,
   testthat,

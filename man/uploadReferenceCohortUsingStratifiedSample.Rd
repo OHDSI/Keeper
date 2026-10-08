@@ -2,7 +2,7 @@
 % Please edit documentation in R/StratifiedSampling.R
 \name{uploadReferenceCohortUsingStratifiedSample}
 \alias{uploadReferenceCohortUsingStratifiedSample}
-\title{Upload a reference cohort}
+\title{Upload a reference cohort when using stratified sampling}
 \usage{
 uploadReferenceCohortUsingStratifiedSample(
   connectionDetails = NULL,
@@ -31,11 +31,18 @@ is provided.}
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
 
+\item{sensitiveCohortDatabaseSchema}{Name of the database schema where the sensitive cohort is stored.}
+
+\item{sensitiveCohortTable}{Name of the table where the sensitive cohort is stored.}
+
+\item{sensitiveCohortDefinitionId}{Cohort definition ID of the sensitive cohort.}
+
 \item{referenceCohortDatabaseSchema}{The name of the database schema where the reference
 cohort will be stored.}
 
-\item{referenceCohortTableNames}{The table names where the reference cohort and metadata will be stored. Should
-be created using \code{\link[=createReferenceCohortTableNamesUsingStratifiedSample]{createReferenceCohortTableNamesUsingStratifiedSample()}}.}
+\item{referenceCohortTableNames}{The table names where the reference cohort, metadata, and stratified sensitve
+cohort will be stored. Should be created using
+\code{\link[=createReferenceCohortTableNamesUsingStratifiedSample]{createReferenceCohortTableNamesUsingStratifiedSample()}}.}
 
 \item{referenceCohortDefinitionId}{The cohort definition ID that will be used for the
 reference cohort.}
@@ -50,9 +57,9 @@ This function does not return a value. It is called for the side effect of uploa
 the reference cohort to the database.
 }
 \description{
-A reference cohort is typically a large sample (e.g. 10,000 persons) of a highly-sensitive cohort (as created using
-\code{\link[=createSensitiveCohort]{createSensitiveCohort()}}), reviewed by an LLM (using \code{\link[=reviewCases]{reviewCases()}}).
+A reference cohort is a large sample of a highly-sensitive cohort reviewed by an LLM. Here we assume stratified
+sampling was performed using \code{\link[=reviewCasesUsingStratifiedSampling]{reviewCasesUsingStratifiedSampling()}}.
 
 The reference cohort can be used to compute operating characteristics of a cohort definition for the same phenotype
-using \code{\link[=computeCohortOperatingCharacteristics]{computeCohortOperatingCharacteristics()}}.
+using \code{\link[=evaluateCohortUsingStratifiedSample]{evaluateCohortUsingStratifiedSample()}}.
 }

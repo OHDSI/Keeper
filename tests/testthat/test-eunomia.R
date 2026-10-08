@@ -56,7 +56,8 @@ test_that("Create sensitive cohort in existing cohort table on Eunomia", {
     cohortTable = "cohort",
     cohortDefinitionId = 999,
     createCohortTable = FALSE,
-    keeperConceptSets = gibConceptSets
+    keeperConceptSets = gibConceptSets,
+    addStratificationInfo = FALSE
   )
 
   expect_s3_class(specConcepts, "data.frame")

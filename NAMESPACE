@@ -19,6 +19,10 @@ import(dplyr)
 importFrom(stats,
   binom.test,
   coef,
+  median,
+  quantile,
+  rbinom,
+  rgamma,
   runif
 )
 importFrom(utils,
