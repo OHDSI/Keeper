@@ -200,6 +200,7 @@ reviewCases <- function(keeper,
     " and cost $",
     round(costTracker$amount, 2)
   ))
+  attr(results, "cost") <- costTracker$amount
   return(bind_rows(results))
 }
 

@@ -103,6 +103,10 @@ reviewCasesUsingStratifiedSampling <- function(connectionDetails = NULL,
   # For testing: if we've already reviewed the full 10k, we just pull the annotations from those:
   cheatReviews <- getOption("cheatReviews", NULL)
   
+  if (!dir.exists(cacheFolder)) {
+    dir.create(cacheFolder)
+  }
+  
   # Get stratification information from sensitive cohort
   if (is.null(connection)) {
     connection <- DatabaseConnector::connect(connectionDetails)
@@ -113,11 +117,13 @@ reviewCasesUsingStratifiedSampling <- function(connectionDetails = NULL,
     tempEmulationSchema = tempEmulationSchema
   )
   sql <- "
-    SELECT CAST(subject_id AS VARCHAR) AS person_id,
+    SELECT COUNT(*) AS person_count,
       doi_bin,
       category_bin
     FROM @cohort_database_schema.@cohort_table
-    WHERE cohort_definition_id = @cohort_id;
+    WHERE cohort_definition_id = @cohort_id
+    GROUP BY doi_bin,
+      category_bin;
   "
   stratificationInfo <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -129,138 +135,255 @@ reviewCasesUsingStratifiedSampling <- function(connectionDetails = NULL,
   )
   
   # Create strata based on stratification information
-  minStratumSize <- max(0.05 * nrow(stratificationInfo))
+  minStratumSize <- max(0.05 * sum(stratificationInfo$personCount), phase1SampleSize)
   stratification <- mergeStrata(stratificationInfo, minStratumSize)
   stratificationInfo <- NULL
   strataSizes <- stratification |>
     group_by(.data$stratumId) |>
-    summarise(personCount = n())
+    summarise(personCount = sum(.data$personCount))
   message(sprintf("Defined %s strata with sizes: %s ",
                   nrow(strataSizes), 
                   paste(sort(strataSizes$personCount), collapse = ", ")))
-  if (!is.null(cheatReviews)) {
-    stratification <- stratification |>
-      filter(.data$personId %in% cheatReviews$personId)
-  } 
   
-  if (length(strataSizes) == 1) {
-    # TODO: don't use stratification
+  message(sprintf("Phase 1: Review %d per stratum to estimate prevalence", phase1SampleSize))
+  sampledPersonsPhase1 <- withCache({
+    samplePersons(sampleSizePerStratum = phase1SampleSize,
+                  stratification = stratification,
+                  connection = connection, 
+                  sensitiveCohortDatabaseSchema = sensitiveCohortDatabaseSchema,
+                  sensitiveCohortTable = sensitiveCohortTable,
+                  sensitiveCohortDefinitionId = sensitiveCohortDefinitionId,
+                  tempEmulationSchema = tempEmulationSchema,
+                  cheatReviews = cheatReviews) 
+  },
+  cacheFolder = cacheFolder,
+  fileName = "sampledPersonIdsPhase1.rds"
+  )
+  
+  
+  if (is.null(cheatReviews)) {
+    keeperSamplePhase1 <- withCache({
+      generateKeeper(connection = connection,
+                     cdmDatabaseSchema = cdmDatabaseSchema,
+                     tempEmulationSchema = tempEmulationSchema,
+                     cohortDatabaseSchema = sensitiveCohortDatabaseSchema,
+                     cohortTable = sensitiveCohortTable,
+                     cohortDefinitionId = sensitiveCohortDefinitionId,
+                     sampleSize = nrow(sampledPersonsPhase1),
+                     personIds = sampledPersonsPhase1$personId,
+                     keeperConceptSets = keeperConceptSets,
+                     phenotypeName = phenotypeName,
+                     useDescendants = useDescendants,
+                     removePii = FALSE)
+    },
+    cacheFolder = cacheFolder,
+    fileName = "keeperSamplePhase1.rds"
+    )
+    llmReviewsPhase1 <- reviewCases(keeper = keeperSamplePhase1,
+                                    settings = settings,
+                                    phenotypeName = phenotypeName,
+                                    clinicalDefinition = clinicalDefinition,
+                                    client = client,
+                                    cacheFolder = file.path(cacheFolder, "phase_1"))
   } else {
-    message(sprintf("Phase 1: Review %d per stratum to estimate prevalence", phase1SampleSize))
+    llmReviewsPhase1 <- cheatReviews |>
+      filter(.data$personId %in% sampledPersonsPhase1$personId)
+  }
+  prevalencePerStratum <- llmReviewsPhase1 |>
+    inner_join(sampledPersonsPhase1, by = join_by("personId")) |>
+    group_by(.data$stratumId) |>
+    summarise(p = mean(.data$isCase == "yes")) |>
+    inner_join(strataSizes, join_by("stratumId"))
+  overallPrevalence <- prevalencePerStratum  |>
+    summarise(overallP = sum(.data$personCount * .data$p) / sum(.data$personCount)) |>
+    pull()
+  message(sprintf("Overal prevalence in sensitive cohort estimated to be %0.1f%%, with per-stratum prevalences ranging from %0.1f%% to %0.1f%%",
+                  100 * overallPrevalence,
+                  100 * min(prevalencePerStratum$p),
+                  100 * max(prevalencePerStratum$p)))
+  
+  requiredSampleSize <- computeRequiredSampleSize(
+    targetRelativeError = targetRelativeError,
+    targetTrueCases = targetTrueCases,
+    prevalencePerStratum = prevalencePerStratum
+  )
+  message(sprintf("Required sample size is %d", requiredSampleSize))
+  
+  if (requiredSampleSize <= nrow(llmReviewsPhase1)) {
+    message("Required sample size smaller than phase 1 sample, no need for phase 2")
+    llmReviewsPhase2 <- NULL
+  } else {
+    message(sprintf("Phase 2: Review %d additional profiles using Neyman allocation",
+                    requiredSampleSize - nrow(sampledPersonsPhase1)))
+    phase2Allocations <- calculatePhase2Allocation(stratumData = prevalencePerStratum,
+                                                   nOpt = requiredSampleSize,
+                                                   phase1Count = phase1SampleSize) |>
+      mutate(sampleSize = .data$phase2Count)
     
-    strata <- stratification |>
-      group_by(.data$stratumId) |>
-      group_split()
-    sampledPersonIdsPhase1 <- unlist(lapply(strata, function(x) uniformSelect(x$personId, phase1SampleSize)))
-    
+    sampledPersonsPhase2 <- withCache({
+      samplePersons(sampleSizePerStratum = phase2Allocations,
+                    stratification = stratification,
+                    connection = connection, 
+                    sensitiveCohortDatabaseSchema = sensitiveCohortDatabaseSchema,
+                    sensitiveCohortTable = sensitiveCohortTable,
+                    sensitiveCohortDefinitionId = sensitiveCohortDefinitionId,
+                    tempEmulationSchema = tempEmulationSchema,
+                    excludePersonIds = sampledPersonsPhase1$personId,
+                    cheatReviews = cheatReviews) 
+    },
+    cacheFolder = cacheFolder,
+    fileName = "sampledPersonIdsPhase2.rds"
+    )
     if (is.null(cheatReviews)) {
-      keeperSamplePhase1 <- generateKeeper(
-        connection = connection,
-        cdmDatabaseSchema = cdmDatabaseSchema,
-        cohortDatabaseSchema = sensitiveCohortDatabaseSchema,
-        cohortTable = sensitiveCohortTable,
-        cohortDefinitionId = sensitiveCohortDefinitionId,
-        sampleSize = length(sampledPersonIdsPhase1),
-        personIds = sampledPersonIdsPhase1,
-        keeperConceptSets = keeperConceptSets,
-        phenotypeName = phenotypeName,
-        useDescendants = useDescendants,
-        removePii = FALSE
+      keeperSamplePhase2 <- withCache({
+        generateKeeper(connection = connection,
+                       cdmDatabaseSchema = cdmDatabaseSchema,
+                       tempEmulationSchema = tempEmulationSchema,
+                       cohortDatabaseSchema = sensitiveCohortDatabaseSchema,
+                       cohortTable = sensitiveCohortTable,
+                       cohortDefinitionId = sensitiveCohortDefinitionId,
+                       sampleSize = nrow(sampledPersonsPhase2),
+                       personIds = sampledPersonsPhase2$personId,
+                       keeperConceptSets = keeperConceptSets,
+                       phenotypeName = phenotypeName,
+                       useDescendants = useDescendants,
+                       removePii = FALSE)
+      }, 
+      cacheFolder = cacheFolder,
+      fileName = "keeperSamplePhase2.rds"
       )
-      llmReviewsPhase1 <- reviewCases(keeper = keeperSamplePhase1,
+      llmReviewsPhase2 <- reviewCases(keeper = keeperSamplePhase2,
                                       settings = settings,
                                       phenotypeName = phenotypeName,
                                       clinicalDefinition = clinicalDefinition,
                                       client = client,
-                                      cacheFolder = cacheFolder)
+                                      cacheFolder = file.path(cacheFolder, "phase_2"))
     } else {
-      llmReviewsPhase1 <- cheatReviews |>
-        filter(.data$personId %in% sampledPersonIdsPhase1)
+      llmReviewsPhase2 <- cheatReviews |>
+        filter(.data$personId %in% sampledPersonsPhase2$personId)
     }
-    prevalencePerStratum <- llmReviewsPhase1 |>
-      inner_join(stratification, by = join_by("personId")) |>
-      group_by(.data$stratumId) |>
-      summarise(p = mean(.data$isCase == "yes")) |>
-      inner_join(strataSizes, join_by("stratumId"))
-    overallPrevalence <- prevalencePerStratum  |>
-      summarise(overallP = sum(.data$personCount * .data$p) / sum(.data$personCount)) |>
-      pull()
-    message(sprintf("Overal prevalence in sensitive cohort estimated to be %0.1f%%, with per-stratum prevalences ranging from %0.1f%% to %0.1f%%",
-                    100 * overallPrevalence,
-                    100 * min(prevalencePerStratum$p),
-                    100 * max(prevalencePerStratum$p)))
-    
-    requiredSampleSize <- computeRequiredSampleSize(
-      targetRelativeError = targetRelativeError,
-      targetTrueCases = targetTrueCases,
-      prevalencePerStratum = prevalencePerStratum
-    )
-    message(sprintf("Required sample size is %d", requiredSampleSize))
-    
-    if (requiredSampleSize <= nrow(llmReviewsPhase1)) {
-      message("Required sample size smaller than phase 1 sample, no need for phase 2")
-      llmReviewsPhase2 <- NULL
-    } else {
-      message(sprintf("Phase 2: Review %d additional profiles using Neyman allocation",
-                      requiredSampleSize - length(sampledPersonIdsPhase1)))
-      phase2Allocations <- calculatePhase2Allocation(stratumData = prevalencePerStratum,
-                                                     nOpt = requiredSampleSize,
-                                                     phase1Count = phase1SampleSize)
-      samplePhase2 <- function(stratum) {
-        remainingPersonIds <- stratum |>
-          filter(!.data$personId %in% sampledPersonIdsPhase1) |>
-          pull(.data$personId)
-        phase2SampleSize <- phase2Allocations |>
-          filter(.data$stratumId == stratum$stratumId[1]) |>
-          pull(.data$phase2Count)
-        if (phase2SampleSize > length(remainingPersonIds)) {
-          # Should only happen when using cheatReviews:
-          warning(sprintf("Not enough persons in stratum %d. Need %d but only %d available", 
-                          stratum$stratumId[1],
-                          phase2SampleSize,
-                          length(remainingPersonIds)))
-        }
-        return(uniformSelect(remainingPersonIds, phase2SampleSize))
-      }
-      sampledPersonIdsPhase2 <- unlist(lapply(strata, samplePhase2))
-      
-      if (is.null(cheatReviews)) {
-        keeperSamplePhase2 <- generateKeeper(
-          connection = connection,
-          cdmDatabaseSchema = cdmDatabaseSchema,
-          cohortDatabaseSchema = sensitiveCohortDatabaseSchema,
-          cohortTable = sensitiveCohortTable,
-          cohortDefinitionId = sensitiveCohortDefinitionId,
-          sampleSize = length(sampledPersonIdsPhase2),
-          personIds = sampledPersonIdsPhase2,
-          keeperConceptSets = keeperConceptSets,
-          phenotypeName = phenotypeName,
-          useDescendants = useDescendants,
-          removePii = FALSE
-        )
-        llmReviewsPhase2 <- reviewCases(keeper = keeperSamplePhase2,
-                                        settings = settings,
-                                        phenotypeName = phenotypeName,
-                                        clinicalDefinition = clinicalDefinition,
-                                        client = client,
-                                        cacheFolder = cacheFolder)
-      } else {
-        llmReviewsPhase2 <- cheatReviews |>
-          filter(.data$personId %in% sampledPersonIdsPhase2)
-      }
-    }
-    stratification <- stratification |>
-      distinct(.data$doiBin, .data$categoryBin, .data$stratumId)
-    result <- list(
-      llmReviews = bind_rows(
-        llmReviewsPhase1,
-        llmReviewsPhase2
-      ) ,
-      stratification = stratification
-    )
   }
+  cost <- attr(llmReviewsPhase1, "cost") + attr(llmReviewsPhase2, "cost")
+  result <- list(
+    llmReviews = bind_rows(
+      llmReviewsPhase1,
+      llmReviewsPhase2
+    ) ,
+    stratification = stratification,
+    cost = cost
+  )
+  message(sprintf("Total LLM cost across phase 1 and 2: $%0.2f", cost))
   return(result)
 }
+
+samplePersons <- function(sampleSizePerStratum,
+                          stratification,
+                          connection, 
+                          sensitiveCohortDatabaseSchema,
+                          sensitiveCohortTable,
+                          sensitiveCohortDefinitionId,
+                          tempEmulationSchema,
+                          excludePersonIds = NULL,
+                          cheatReviews) {
+  message("Sampling person IDs")
+  tablesToDrop <- c()
+  if (!is.null(excludePersonIds)) {
+    DatabaseConnector::insertTable(
+      connection = connection,
+      tableName = "#excluded_persons",
+      data = tibble(personId = excludePersonIds),
+      dropTableIfExists = TRUE,
+      createTable = TRUE,
+      tempTable = TRUE,
+      tempEmulationSchema = tempEmulationSchema,
+      camelCaseToSnakeCase = TRUE
+    )
+    tablesToDrop <- "#excluded_persons"
+  }
+  if (!is.null(cheatReviews)) {
+    DatabaseConnector::insertTable(
+      connection = connection,
+      tableName = "#cheat_reviews",
+      data = select(cheatReviews, "personId"),
+      dropTableIfExists = TRUE,
+      createTable = TRUE,
+      tempTable = TRUE,
+      tempEmulationSchema = tempEmulationSchema,
+      camelCaseToSnakeCase = TRUE
+    )
+    tablesToDrop <- "#cheat_reviews"
+  }
+  DatabaseConnector::insertTable(
+    connection = connection,
+    tableName = "#stratification",
+    data = stratification,
+    dropTableIfExists = TRUE,
+    createTable = TRUE,
+    tempTable = TRUE,
+    tempEmulationSchema = tempEmulationSchema,
+    camelCaseToSnakeCase = TRUE
+  )
+  tablesToDrop <- c(tablesToDrop, "#stratification")
+  if (!is.numeric(sampleSizePerStratum)) {
+    DatabaseConnector::insertTable(
+      connection = connection,
+      tableName = "#sample_size_per_stratum",
+      data = select(sampleSizePerStratum, "stratumId", "sampleSize"),
+      dropTableIfExists = TRUE,
+      createTable = TRUE,
+      tempTable = TRUE,
+      tempEmulationSchema = tempEmulationSchema,
+      camelCaseToSnakeCase = TRUE
+    )
+    tablesToDrop <- c(tablesToDrop, "#sample_size_per_stratum")
+  }
+  sql <- "
+      SELECT CAST(subject_id AS VARCHAR) AS person_id,
+        random_order.stratum_id
+      FROM (
+        SELECT subject_id,
+          stratum_id,
+          ROW_NUMBER() OVER (PARTITION BY stratum_id ORDER BY NEWID()) AS rn
+        FROM @cohort_database_schema.@cohort_table cohort
+        INNER JOIN #stratification stratification
+          ON cohort.doi_bin = stratification.doi_bin
+            AND cohort.category_bin = stratification.category_bin
+        WHERE cohort_definition_id = @cohort_id
+      {@has_cheat_reviews} ? {    AND subject_id IN (SELECT CAST(person_id AS BIGINT) FROM #cheat_reviews)} 
+      {@exclude_persons} ? {    AND subject_id NOT IN (SELECT CAST(person_id AS BIGINT) FROM #excluded_persons)}  
+      ) random_order
+      {@one_sample_size} ? {
+      WHERE rn <= @sample_size;
+      } : {
+      INNER JOIN #sample_size_per_stratum sample_size_per_stratum
+        ON random_order.stratum_id = sample_size_per_stratum.stratum_id
+      WHERE rn <= sample_size;  
+      }
+      "
+  sampledPersons <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = sql,
+    cohort_database_schema = sensitiveCohortDatabaseSchema,
+    cohort_table = sensitiveCohortTable,
+    cohort_id = sensitiveCohortDefinitionId,
+    exclude_persons = !is.null(excludePersonIds),
+    has_cheat_reviews = !is.null(cheatReviews),
+    one_sample_size = is.numeric(sampleSizePerStratum),
+    sample_size = sampleSizePerStratum,
+    tempEmulationSchema = tempEmulationSchema,
+    snakeCaseToCamelCase = TRUE
+  )
+  sql <- paste(sprintf("DROP TABLE %s;", tablesToDrop), collapse = "\n")
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    sql = sql,
+    tempEmulationSchema = tempEmulationSchema,
+    progressBar = FALSE,
+    reportOverallTime = FALSE
+  )
+  return(sampledPersons)
+}
+
 
 computeRequiredSampleSize <- function(targetRelativeError,
                                       targetTrueCases,
@@ -636,35 +759,13 @@ evaluateCohortUsingStratifiedSample <- function(
   return(metricsSummary)
 }
 
-uniformSelect <- function(items, size) {
-  totalSize <- length(items)
-  
-  if (size >= totalSize) {
-    return(items)
-  }
-  
-  idx <- unique(round(seq(1, totalSize, length.out = size)))
-  
-  # Fill any missing indices caused by rounding
-  while (length(idx) < size) {
-    candidates <- setdiff(seq_len(totalSize), idx)
-    idx <- sort(c(idx, candidates[1]))
-  }
-  
-  items[idx]
-}
-
 mergeStrata <- function(stratificationInfo, minStratumSize) {
-  # Step 1: Initialize Grid
-  stratificationWork <- stratificationInfo |>
-    group_by(.data$doiBin, .data$categoryBin) |>
-    summarise(personCount = n(), .groups = "drop") |>
+  if (nrow(stratificationInfo) <= 1) return(stratificationInfo)
+  stratificationInfo <- stratificationInfo |>
     mutate(stratumId = row_number())
-  if (nrow(stratificationWork) <= 1) return(stratificationInfo)
   
-  # Step 2: Main Loop
   while(TRUE) {
-    strataCounts <- stratificationWork |>
+    strataCounts <- stratificationInfo |>
       group_by(.data$stratumId) |>
       summarise(totalCount = sum(.data$personCount), .groups = "drop")
     
@@ -677,8 +778,8 @@ mergeStrata <- function(stratificationInfo, minStratumSize) {
     targetId <- strataCounts |> arrange(.data$totalCount) |> slice(1) |> pull(.data$stratumId)
     
     # Separate points of the target stratum from all other strata
-    targetPoints <- stratificationWork |> filter(.data$stratumId == targetId) |> select(t1 = "doiBin", t2 = "categoryBin")
-    otherPoints <- stratificationWork |> filter(.data$stratumId != targetId) |> select(o1 = "doiBin", o2 = "categoryBin", otherId = "stratumId")
+    targetPoints <- stratificationInfo |> filter(.data$stratumId == targetId) |> select(t1 = "doiBin", t2 = "categoryBin")
+    otherPoints <- stratificationInfo |> filter(.data$stratumId != targetId) |> select(o1 = "doiBin", o2 = "categoryBin", otherId = "stratumId")
     
     # Step 3: Calculate coordinate distances (cross join)
     distances <- merge(targetPoints, otherPoints, by = NULL) |>
@@ -723,14 +824,10 @@ mergeStrata <- function(stratificationInfo, minStratumSize) {
     }
     
     # Step 5: Merge target into candidate
-    stratificationWork <- stratificationWork |>
+    stratificationInfo <- stratificationInfo |>
       mutate(stratumId = ifelse(.data$stratumId == targetId, candidateId, .data$stratumId))
   }
-  stratification <- stratificationInfo |>
-    inner_join(stratificationWork |>
-                 select("doiBin", "categoryBin", "stratumId"),
-               by = join_by("doiBin", "categoryBin"))
-  return(stratification)
+  return(stratificationInfo)
 }
 
 calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {

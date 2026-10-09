@@ -38,7 +38,7 @@ for (i in 1:length(phenotypes)) {
   message("Processing ", phenotype)
   phenotypeFolder <- file.path(keeperFolder, gsub("[^[:alnum:]]", "_", phenotype))
   keeperConceptSets <- readr::read_csv(file.path(phenotypeFolder, "KeeperConceptSets.csv"), show_col_types = FALSE)
-  llmReviews <- readRDS(file.path(phenotypeFolder, "llmReviewsHsc.rds"))
+  llmReviews <- readRDS(file.path(phenotypeFolder, "llmReviews_OptumClinformatics.rds"))
   
   sensitiveCohortDefinitionId <- sensCohortRef |>
     filter(phenotype == !!phenotype) |>
@@ -56,7 +56,7 @@ for (i in 1:length(phenotypes)) {
                                                           phenotypeName = phenotype,
                                                           clinicalDefinition = "",
                                                           client = client,
-                                                          cacheFolder = file.path(phenotypeFolder, "cache"))
+                                                          cacheFolder = file.path(phenotypeFolder, "cache_OptumClinformatics"))
   saveRDS(stratifiedReviews, file.path(phenotypeFolder, "llmReviewsStratifiedSample.rds"))
   sampleSizes[[i]] <- tibble(
     phenotype = phenotype,
