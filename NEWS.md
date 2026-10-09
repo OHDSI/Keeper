@@ -1,3 +1,11 @@
+Keeper 2.2.1
+============
+
+Bugfixes:
+
+1. Allowing skipping patient profiles that trigger AI content filters.
+
+
 Keeper 2.2.0
 ============
 

@@ -26,10 +26,9 @@ queryLlm <- function(prompt,
   maxRetries <- 3
   attempt <- 0
   while (attempt <= maxRetries) {
+    attempt <- attempt + 1
+    llmClient$set_turns(list())
     tryCatch({
-      attempt <- attempt + 1
-      llmClient$set_turns(list())
-      
       if (is.null(outputType)) {
         response <- llmClient$chat(prompt, echo = "none")
       } else {
@@ -57,7 +56,16 @@ queryLlm <- function(prompt,
       }
       if (attempt >= maxRetries) {
         message("Reached attempt limit.")
-        stop(e)
+        if (("body" %in% names(e) && grepl("content", e$body) && grepl("filter", e$body)) ||
+            (grepl("content", e$message) && grepl("filter", e$message))) {
+          error <- errorCondition(
+            message = e$message,
+            class = "ContentFilterError"
+          )
+          stop(error)
+        } else {
+          stop(e)
+        }
       }
     })
   }
