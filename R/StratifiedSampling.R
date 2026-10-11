@@ -747,15 +747,19 @@ evaluateCohortUsingStratifiedSample <- function(
   
   ciPpv <- quantile(bootstrapResults[1, ], probs = c(0.025, 0.975), na.rm = TRUE)
   ciSens <- quantile(bootstrapResults[2, ], probs = c(0.025, 0.975), na.rm = TRUE)
-  
-  metricsSummary <- tibble(
-    ppv = pointPpv,
-    ppvLb = ciPpv[1],
-    ppvUb = ciPpv[2],
-    sensitivity = pointSens,
-    sensitivityLb = ciSens[1],
-    sensitivityUb = ciSens[2]
-  )
+  metricsSummary <- confusionCounts  |>
+    summarise(tp = sum(.data$truePositives),
+              tn = sum(.data$trueNegatives),
+              fp = sum(.data$falsePositives),
+              fn = sum(.data$falseNegatives)) |>
+    mutate(
+      ppv = pointPpv,
+      ppvLb = ciPpv[1],
+      ppvUb = ciPpv[2],
+      sensitivity = pointSens,
+      sensitivityLb = ciSens[1],
+      sensitivityUb = ciSens[2]
+    )
   return(metricsSummary)
 }
 
