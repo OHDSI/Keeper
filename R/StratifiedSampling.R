@@ -490,7 +490,7 @@ uploadReferenceCohortUsingStratifiedSample <- function(connectionDetails = NULL,
   ), add = errorMessages)
   checkmate::assertIntegerish(referenceCohortDefinitionId, len = 1, add = errorMessages)
   checkmate::assertLogical(createReferenceCohortTables, len = 1, add = errorMessages)
-  checkmate::assertList(stratifiedReviews, len = 2, add = errorMessages)
+  checkmate::assertList(stratifiedReviews, min.len = 2, add = errorMessages)
   checkmate::assertNames(names(stratifiedReviews), must.include = c(
     "llmReviews",
     "stratification"
