@@ -68,7 +68,8 @@ for (testServer in testServers) {
       cohortDefinitionId = 999,
       createCohortTable = FALSE,
       tempEmulationSchema = testServer$cohortDatabaseSchema,
-      keeperConceptSets = gibConceptSets
+      keeperConceptSets = gibConceptSets,
+      addStratificationInfo = FALSE
     )
     sql <- "
       SELECT COUNT(*) 
