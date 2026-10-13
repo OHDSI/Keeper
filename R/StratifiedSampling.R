@@ -856,6 +856,10 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
   if (nOpt > sum(stratumData$personCount)) {
     warning("nOpt exceeds total cohort size. Capping nOpt to total cohort.")
     nOpt <- sum(stratumData$personCount)
+    stratumData <- stratumData |>
+      mutate(phase2Count = .data$personCount - phase1Count) |>
+      mutate(totalCount = .data$personCount)
+    return(stratumData)
   }
   
   # 1. Variance Safeguarding: 
