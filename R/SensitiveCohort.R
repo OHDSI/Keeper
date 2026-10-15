@@ -161,7 +161,8 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     sqlFilename = "CountDoiPersons.sql",
     packageName = "Keeper",
     dbms = DatabaseConnector::dbms(connection),
-    cdm_database_schema = cdmDatabaseSchema
+    cdm_database_schema = cdmDatabaseSchema,
+    tempEmulationSchema = tempEmulationSchema
   )
   count <- DatabaseConnector::querySql(
     connection = connection,
