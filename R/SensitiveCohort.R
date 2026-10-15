@@ -42,6 +42,8 @@ hasStratificationInfo <- function(connection, cohortDatabaseSchema, cohortTable,
 #' 
 #' Highly specific concepts are concepts where at least 10% of those who have that concept also have a condition concept 
 #' for the disease of interest. 
+#' 
+#' Throws an error of class `NoPersonsWithDoiError` when there are no persons having the disease of interest in the data.
 #'
 #' @template Connection
 #'
@@ -155,33 +157,32 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     tempEmulationSchema = tempEmulationSchema
   )
   # Count number of people with DoI concepts:
-  sql <- "SELECT COUNT(DISTINCT person_id) AS count
-	FROM @cdm_database_schema.condition_occurrence
-	INNER JOIN @cdm_database_schema.concept_ancestor
-	  ON condition_concept_id = descendant_concept_id
-	WHERE ancestor_concept_id IN (
-	  SELECT concept_id
-	  FROM #concept_sets
-	  WHERE concept_set_name = 'doi'
-	)"
-  count <- DatabaseConnector::renderTranslateQuerySql(
+  sql <- SqlRender::loadRenderTranslateSql(
+    sqlFilename = "CountDoiPersons.sql",
+    packageName = "Keeper",
+    dbms = DatabaseConnector::dbms(connection),
+    cdm_database_schema = cdmDatabaseSchema
+  )
+  count <- DatabaseConnector::querySql(
     connection = connection,
     sql = sql,
-    cdm_database_schema = cdmDatabaseSchema,
-    tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   )
   doiSet <- "doi"
-  if (count$count < minDoiPersons) {
+  if (count$personCount < minDoiPersons) {
     if ("hypernym" %in% conceptSets$conceptSetName) {
       warning(sprintf("Found %d persons with the disease of interest concept(s) (<%s). Using hypernym concept(s) instead.",
-                      count$count,
+                      count$personCount,
                       minDoiPersons))
       doiSet <- "hypernym"
     } else {
-      stop(sprintf("Found %d persons with the disease of interest concept(s) (<%s). Try adding hypernym concept(s) to your concept sets",
-                   count$count,
-                   minDoiPersons))
+      error <- errorCondition(
+        message = sprintf("Found %d persons with the disease of interest concept(s) (<%s). Try adding hypernym concept(s) to your concept sets",
+                          count$personCount,
+                          minDoiPersons),
+        class = "NoPersonsWithDoiError"
+      )
+      stop(error)
     }
   }
   

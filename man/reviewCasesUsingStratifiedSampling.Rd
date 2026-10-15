@@ -91,4 +91,6 @@ Uses an LLM to adjudicate cases, while relying on stratified sampling. This proc
 the specified target relative error and number of true cases. Adjudicate using the LLM.
 The output combined the adjudications from phase 1 and 2.
 }
+
+Throws an error of class \code{NoCasesInSampleError} when no-one in the the phase 1 sample was considered to be a case.
 }

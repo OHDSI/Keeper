@@ -10,6 +10,18 @@ WITH doi_persons AS (
 	  FROM #concept_sets
 	  WHERE concept_set_name = '@doi_set'
 	)
+	
+	UNION ALL
+	
+	SELECT DISTINCT person_id
+	FROM @cdm_database_schema.observation
+	INNER JOIN @cdm_database_schema.concept_ancestor
+	  ON observation_concept_id = descendant_concept_id
+	WHERE ancestor_concept_id IN (
+	  SELECT concept_id
+	  FROM #concept_sets
+	  WHERE concept_set_name = '@doi_set'
+	)
 )
 SELECT concept_id,
 	concept_name,

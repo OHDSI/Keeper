@@ -48,6 +48,8 @@
 #' 3. Phase 2: Based on the phase 1 adjudications, estimate prevalence per stratum, and use Neyman allocation to achieve
 #'    the specified target relative error and number of true cases. Adjudicate using the LLM.
 #' The output combined the adjudications from phase 1 and 2.
+#' 
+#' Throws an error of class `NoCasesInSampleError` when no-one in the the phase 1 sample was considered to be a case.
 #'
 #' @returns
 #' An object (list) with two components:
@@ -160,7 +162,6 @@ reviewCasesUsingStratifiedSampling <- function(connectionDetails = NULL,
   fileName = "sampledPersonIdsPhase1.rds"
   )
   
-  
   if (is.null(cheatReviews)) {
     keeperSamplePhase1 <- withCache({
       generateKeeper(connection = connection,
@@ -201,6 +202,13 @@ reviewCasesUsingStratifiedSampling <- function(connectionDetails = NULL,
                   100 * overallPrevalence,
                   100 * min(prevalencePerStratum$p),
                   100 * max(prevalencePerStratum$p)))
+  if (overallPrevalence == 0) {
+    error <- errorCondition(
+      message = "None of the persons in the phase 1 stratified sample were classified as cases. Possibly the phenotype (as defined) is too narrow given the granularity of the data.",
+      class = "NoCasesInSampleError"
+    )
+    stop(error)
+  }
   
   requiredSampleSize <- computeRequiredSampleSize(
     targetRelativeError = targetRelativeError,

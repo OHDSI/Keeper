@@ -75,4 +75,6 @@ on the first occurrence.
 
 Highly specific concepts are concepts where at least 10\% of those who have that concept also have a condition concept
 for the disease of interest.
+
+Throws an error of class \code{NoPersonsWithDoiError} when there are no persons having the disease of interest in the data.
 }
