@@ -232,44 +232,92 @@ GROUP BY generated_id,
 
 -- Prior disease history
 SELECT generated_id,
-	DATEDIFF(DAY, cohort_start_date, condition_start_date) AS start_day,
-	condition_concept_id AS concept_id,
+	start_day,
+	concept_id,
 	concept_name,
 	MAX(target) AS target
 INTO #prior_disease
-FROM #keeper_cohort cohort
-INNER JOIN @cdm_database_schema.condition_occurrence
-	ON cohort.subject_id = condition_occurrence.person_id
-		AND condition_start_date < cohort_start_date
-INNER JOIN @cdm_database_schema.concept 
-	ON condition_concept_id = concept.concept_id
-INNER JOIN #full_concept_sets full_concept_sets
-	ON condition_concept_id = full_concept_sets.concept_id
-WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
+FROM (
+	SELECT generated_id,
+		DATEDIFF(DAY, cohort_start_date, condition_start_date) AS start_day,
+		condition_concept_id AS concept_id,
+		concept_name,
+		target
+	FROM #keeper_cohort cohort
+	INNER JOIN @cdm_database_schema.condition_occurrence
+		ON cohort.subject_id = condition_occurrence.person_id
+			AND condition_start_date < cohort_start_date
+	INNER JOIN @cdm_database_schema.concept 
+		ON condition_concept_id = concept.concept_id
+	INNER JOIN #full_concept_sets full_concept_sets
+		ON condition_concept_id = full_concept_sets.concept_id
+	WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
+	
+	UNION ALL
+	
+	SELECT generated_id,
+		DATEDIFF(DAY, cohort_start_date, observation_date) AS start_day,
+		observation_concept_id AS concept_id,
+		concept_name,
+		target
+	FROM #keeper_cohort cohort
+	INNER JOIN @cdm_database_schema.observation
+		ON cohort.subject_id = observation.person_id
+			AND observation_date < cohort_start_date
+	INNER JOIN @cdm_database_schema.concept 
+		ON observation_concept_id = concept.concept_id
+	INNER JOIN #full_concept_sets full_concept_sets
+		ON observation_concept_id = full_concept_sets.concept_id
+	WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
+) tmp
 GROUP BY generated_id,
-	DATEDIFF(DAY, cohort_start_date, condition_start_date),
-	condition_concept_id,
+	start_day,
+	concept_id,
 	concept_name;
 	
 -- Post disease history
 SELECT generated_id,
-	DATEDIFF(DAY, cohort_start_date, condition_start_date) AS start_day,
-	condition_concept_id AS concept_id,
+	start_day,
+	concept_id,
 	concept_name,
 	MAX(target) AS target
 INTO #post_disease
-FROM #keeper_cohort cohort
-INNER JOIN @cdm_database_schema.condition_occurrence
-	ON cohort.subject_id = condition_occurrence.person_id
-		AND condition_start_date > cohort_start_date
-INNER JOIN @cdm_database_schema.concept 
-	ON condition_concept_id = concept.concept_id
-INNER JOIN #full_concept_sets full_concept_sets
-	ON condition_concept_id = full_concept_sets.concept_id
-WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
+FROM (
+	SELECT generated_id,
+		DATEDIFF(DAY, cohort_start_date, condition_start_date) AS start_day,
+		condition_concept_id AS concept_id,
+		concept_name,
+		target
+	FROM #keeper_cohort cohort
+	INNER JOIN @cdm_database_schema.condition_occurrence
+		ON cohort.subject_id = condition_occurrence.person_id
+			AND condition_start_date > cohort_start_date
+	INNER JOIN @cdm_database_schema.concept 
+		ON condition_concept_id = concept.concept_id
+	INNER JOIN #full_concept_sets full_concept_sets
+		ON condition_concept_id = full_concept_sets.concept_id
+	WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
+	
+	UNION ALL
+	
+	SELECT generated_id,
+		DATEDIFF(DAY, cohort_start_date, observation_date) AS start_day,
+		observation_concept_id AS concept_id,
+		concept_name,
+		target
+	FROM #keeper_cohort cohort
+	INNER JOIN @cdm_database_schema.observation
+		ON cohort.subject_id = observation.person_id
+			AND observation_date > cohort_start_date
+	INNER JOIN @cdm_database_schema.concept 
+		ON observation_concept_id = concept.concept_id
+	INNER JOIN #full_concept_sets full_concept_sets
+		ON observation_concept_id = full_concept_sets.concept_id
+	WHERE concept_set_name IN ('doi', 'hypernym', 'complications')
+) tmp
 GROUP BY generated_id,
-	DATEDIFF(DAY, cohort_start_date, condition_start_date),
-	condition_concept_id,
+	start_day,
+	concept_id,
 	concept_name;
 
 -- Drugs prior 
@@ -362,24 +410,47 @@ GROUP BY generated_id,
 	
 -- alternative diagnosis within +-90 days
 SELECT generated_id,
-	DATEDIFF(DAY, cohort_start_date, condition_start_date) AS start_day,
-	condition_concept_id AS concept_id,
+	start_day,
+	concept_id,
 	concept_name,
 	0 AS target
 INTO #alternative_diagnoses
-FROM #keeper_cohort cohort
-INNER JOIN @cdm_database_schema.condition_occurrence
-	ON cohort.subject_id = condition_occurrence.person_id
-		AND DATEDIFF(DAY, cohort_start_date, condition_start_date) >= -90
-		AND DATEDIFF(DAY, cohort_start_date, condition_start_date) <= 90
-INNER JOIN @cdm_database_schema.concept 
-	ON condition_concept_id = concept.concept_id
-INNER JOIN #full_concept_sets full_concept_sets
-	ON condition_concept_id = full_concept_sets.concept_id
-WHERE concept_set_name = 'alternativeDiagnosis'
+FROM (
+	SELECT generated_id,
+		DATEDIFF(DAY, cohort_start_date, condition_start_date) AS start_day,
+		condition_concept_id AS concept_id,
+		concept_name
+	FROM #keeper_cohort cohort
+	INNER JOIN @cdm_database_schema.condition_occurrence
+		ON cohort.subject_id = condition_occurrence.person_id
+			AND DATEDIFF(DAY, cohort_start_date, condition_start_date) >= -90
+			AND DATEDIFF(DAY, cohort_start_date, condition_start_date) <= 90
+	INNER JOIN @cdm_database_schema.concept 
+		ON condition_concept_id = concept.concept_id
+	INNER JOIN #full_concept_sets full_concept_sets
+		ON condition_concept_id = full_concept_sets.concept_id
+	WHERE concept_set_name = 'alternativeDiagnosis'
+	
+	UNION ALL
+	
+	SELECT generated_id,
+		DATEDIFF(DAY, cohort_start_date, observation_date) AS start_day,
+		observation_concept_id AS concept_id,
+		concept_name
+	FROM #keeper_cohort cohort
+	INNER JOIN @cdm_database_schema.observation
+		ON cohort.subject_id = observation.person_id
+			AND DATEDIFF(DAY, cohort_start_date, observation_date) >= -90
+			AND DATEDIFF(DAY, cohort_start_date, observation_date) <= 90
+	INNER JOIN @cdm_database_schema.concept 
+		ON observation_concept_id = concept.concept_id
+	INNER JOIN #full_concept_sets full_concept_sets
+		ON observation_concept_id = full_concept_sets.concept_id
+	WHERE concept_set_name = 'alternativeDiagnosis'
+) tmp
 GROUP BY generated_id,
-	DATEDIFF(DAY, cohort_start_date, condition_start_date),
-	condition_concept_id,
+	start_day,
+	concept_id,
 	concept_name;
 	
 -- Diagnostic procedures within +-30 days 

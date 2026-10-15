@@ -135,6 +135,9 @@ reviewCasesUsingStratifiedSampling <- function(connectionDetails = NULL,
     cohort_id = sensitiveCohortDefinitionId,
     snakeCaseToCamelCase = TRUE
   )
+  if (nrow(stratificationInfo) == 0) {
+    stop("Sensitive cohort appears to be empty")
+  }
   
   # Create strata based on stratification information
   minStratumSize <- max(0.05 * sum(stratificationInfo$personCount), phase1SampleSize)

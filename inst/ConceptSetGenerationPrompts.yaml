@@ -15,6 +15,7 @@
 
   domains:
     - Condition
+    - Observation
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor. 
     You are provided a Medical Condition and a list of candidate Concepts.
@@ -68,6 +69,7 @@
 
   domains:
     - Condition
+    - Observation
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor. 
     
@@ -123,6 +125,7 @@
     }
   domains:
     - Condition
+    - Observation
   systemPromptRemoveNonRelevant: |
     You are a medical terminology expert and medical doctor.
     You are provided a Medical Condition and a list of candidate Concepts.
