@@ -606,9 +606,12 @@ uploadReferenceCohortUsingStratifiedSample <- function(connectionDetails = NULL,
 #' Evaluate a cohort when using stratified sampling
 #'
 #' @description
-#' Computes operating characteristics (sensitivity and positive predictive value) of a cohort definition by comparing it
-#' against a reference cohort created from LLM review of KEEPER profiles. Assumes stratified sampling was used, and uses
-#' the Begg and Greenes framework for optimal power.
+#' Computes operating characteristics (sensitivity, specificity, positive predictive value, and negative predictive
+#' value, each with confidence intervals) of a cohort definition by comparing it against a reference cohort created from
+#' LLM review of KEEPER profiles. Assumes stratified sampling was used, and uses the Begg and Greenes framework for
+#' optimal power. Specificity and negative predictive value are computed both within the highly-sensitive reference
+#' cohort population, and (as the `*Overall` columns) extrapolated to the entire population using the prevalence of the
+#' highly-sensitive cohort.
 #'
 #' @template Connection
 #'
@@ -623,7 +626,8 @@ uploadReferenceCohortUsingStratifiedSample <- function(connectionDetails = NULL,
 #' @param referenceCohortDefinitionId    The cohort definition ID of the reference cohort.
 #'
 #' @returns
-#' A tibble with one row, with columns for PPV, sensitivity, and their confidence intervals.
+#' A tibble with one row, with columns for PPV, sensitivity, specificity, NPV, overall specificity, overall NPV, and
+#' their confidence intervals.
 #'
 #' @export
 evaluateCohortUsingStratifiedSample <- function(
@@ -713,6 +717,21 @@ evaluateCohortUsingStratifiedSample <- function(
     snakeCaseToCamelCase = TRUE
   )  
   
+  sql <- "
+    SELECT cohort_prevalence
+    FROM @reference_cohort_database_schema.@reference_cohort_metadata_table
+    WHERE cohort_definition_id = @reference_cohort_definition_id;
+  "
+  metadata <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = sql,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_cohort_metadata_table = referenceCohortTableNames$referenceCohortMetadataTable,
+    reference_cohort_definition_id = referenceCohortDefinitionId,
+    snakeCaseToCamelCase = TRUE
+  )
+  cohortPrevalence <- metadata$cohortPrevalence[1]
+  
   mergedData <- strataCounts |>
     inner_join(confusionCounts, by = join_by("stratumId")) |>
     mutate(
@@ -723,15 +742,31 @@ evaluateCohortUsingStratifiedSample <- function(
       rhoIn = if_else(.data$sampledInCohort > 0, .data$truePositives / .data$sampledInCohort, 0),
       rhoOut = if_else(.data$sampledNotInCohort > 0, .data$falseNegatives / .data$sampledNotInCohort, 0),
       
-      # Extrapolate to the full HSC population
+      # Extrapolate to the full HSC population. The complement of the case
+      # probability yields the non-cases: false positives (in cohort) and
+      # true negatives (not in cohort).
       estTpStratum = .data$nInCohort * .data$rhoIn,
-      estFnStratum = .data$nNotInCohort * .data$rhoOut
+      estFnStratum = .data$nNotInCohort * .data$rhoOut,
+      estFpStratum = .data$nInCohort * (1 - .data$rhoIn),
+      estTnStratum = .data$nNotInCohort * (1 - .data$rhoOut)
     )
   totalPopulationInCohort <- sum(mergedData$nInCohort)
+  totalPopulationNotInCohort <- sum(mergedData$nNotInCohort)
   estTpTotal <- sum(mergedData$estTpStratum)
   estFnTotal <- sum(mergedData$estFnStratum)
+  estFpTotal <- sum(mergedData$estFpStratum)
+  estTnTotal <- sum(mergedData$estTnStratum)
   pointPpv <- estTpTotal / totalPopulationInCohort
   pointSens <- estTpTotal / (estTpTotal + estFnTotal)
+  pointSpec <- estTnTotal / (estTnTotal + estFpTotal)
+  pointNpv <- estTnTotal / (estTnTotal + estFnTotal)
+  
+  # 'Overall' variants scale the true negatives up to the entire population
+  # (everyone outside the highly-sensitive cohort is assumed to be a true
+  # negative), using the prevalence of the highly-sensitive cohort.
+  estTnOverallTotal <- estTnTotal / cohortPrevalence
+  pointSpecOverall <- estTnOverallTotal / (estTnOverallTotal + estFpTotal)
+  pointNpvOverall <- estTnOverallTotal / (estTnOverallTotal + estFnTotal)
   
   # Parametric Bootstrap for non-normal Confidence Intervals
   nBootstrap <- 10000
@@ -748,16 +783,27 @@ evaluateCohortUsingStratifiedSample <- function(
     # Calculate simulated population totals
     simEstTpTotal <- sum(mergedData$nInCohort * simRhoIn)
     simEstFnTotal <- sum(mergedData$nNotInCohort * simRhoOut)
+    simEstFpTotal <- sum(mergedData$nInCohort * (1 - simRhoIn))
+    simEstTnTotal <- sum(mergedData$nNotInCohort * (1 - simRhoOut))
     
     # Calculate simulated metrics
     simPpv <- simEstTpTotal / totalPopulationInCohort
     simSens <- simEstTpTotal / (simEstTpTotal + simEstFnTotal)
+    simSpec <- simEstTnTotal / (simEstTnTotal + simEstFpTotal)
+    simNpv <- simEstTnTotal / (simEstTnTotal + simEstFnTotal)
+    simEstTnOverallTotal <- simEstTnTotal / cohortPrevalence
+    simSpecOverall <- simEstTnOverallTotal / (simEstTnOverallTotal + simEstFpTotal)
+    simNpvOverall <- simEstTnOverallTotal / (simEstTnOverallTotal + simEstFnTotal)
     
-    c(simPpv, simSens)
+    c(simPpv, simSens, simSpec, simNpv, simSpecOverall, simNpvOverall)
   })
   
   ciPpv <- quantile(bootstrapResults[1, ], probs = c(0.025, 0.975), na.rm = TRUE)
   ciSens <- quantile(bootstrapResults[2, ], probs = c(0.025, 0.975), na.rm = TRUE)
+  ciSpec <- quantile(bootstrapResults[3, ], probs = c(0.025, 0.975), na.rm = TRUE)
+  ciNpv <- quantile(bootstrapResults[4, ], probs = c(0.025, 0.975), na.rm = TRUE)
+  ciSpecOverall <- quantile(bootstrapResults[5, ], probs = c(0.025, 0.975), na.rm = TRUE)
+  ciNpvOverall <- quantile(bootstrapResults[6, ], probs = c(0.025, 0.975), na.rm = TRUE)
   metricsSummary <- confusionCounts  |>
     summarise(tp = sum(.data$truePositives),
               tn = sum(.data$trueNegatives),
@@ -769,7 +815,19 @@ evaluateCohortUsingStratifiedSample <- function(
       ppvUb = ciPpv[2],
       sensitivity = pointSens,
       sensitivityLb = ciSens[1],
-      sensitivityUb = ciSens[2]
+      sensitivityUb = ciSens[2],
+      specificity = pointSpec,
+      specificityLb = ciSpec[1],
+      specificityUb = ciSpec[2],
+      specificityOverall = pointSpecOverall,
+      specificityOverallLb = ciSpecOverall[1],
+      specificityOverallUb = ciSpecOverall[2],
+      npv = pointNpv,
+      npvLb = ciNpv[1],
+      npvUb = ciNpv[2],
+      npvOverall = pointNpvOverall,
+      npvOverallLb = ciNpvOverall[1],
+      npvOverallUb = ciNpvOverall[2]
     )
   return(metricsSummary)
 }

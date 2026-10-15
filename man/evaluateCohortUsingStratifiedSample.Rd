@@ -42,10 +42,14 @@ be created using [createReferenceCohortTableNamesUsingStratifiedSample())].
 \item{referenceCohortDefinitionId}{The cohort definition ID of the reference cohort.}
 }
 \value{
-A tibble with one row, with columns for PPV, sensitivity, and their confidence intervals.
+A tibble with one row, with columns for PPV, sensitivity, specificity, NPV, overall specificity, overall NPV, and
+their confidence intervals.
 }
 \description{
-Computes operating characteristics (sensitivity and positive predictive value) of a cohort definition by comparing it
-against a reference cohort created from LLM review of KEEPER profiles. Assumes stratified sampling was used, and uses
-the Begg and Greenes framework for optimal power.
+Computes operating characteristics (sensitivity, specificity, positive predictive value, and negative predictive
+value, each with confidence intervals) of a cohort definition by comparing it against a reference cohort created from
+LLM review of KEEPER profiles. Assumes stratified sampling was used, and uses the Begg and Greenes framework for
+optimal power. Specificity and negative predictive value are computed both within the highly-sensitive reference
+cohort population, and (as the \verb{*Overall} columns) extrapolated to the entire population using the prevalence of the
+highly-sensitive cohort.
 }
