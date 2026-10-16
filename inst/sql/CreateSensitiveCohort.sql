@@ -189,21 +189,42 @@ FROM (
 ) tmp;
 
 -- Gather all DOI event weeks within +-365 days of the index date
-SELECT condition_occurrence.person_id AS subject_id,
-	FLOOR(DATEDIFF(DAY, condition_start_date, cohort_start_date) / 7) AS doi_week
+SELECT subject_id,
+	doi_week
 INTO #doi_events
-FROM @cdm_database_schema.condition_occurrence
-INNER JOIN @cdm_database_schema.concept_ancestor
-	ON condition_concept_id = descendant_concept_id
-INNER JOIN #sensitive_cohort sens_cohort
-	ON condition_occurrence.person_id = sens_cohort.subject_id
-WHERE condition_start_date >= DATEADD(DAY, -365, sens_cohort.cohort_start_date)
-  AND condition_start_date <= DATEADD(DAY, 365, sens_cohort.cohort_start_date)
-  AND ancestor_concept_id IN (
-  	SELECT concept_id
-  	FROM #concept_sets
-  	WHERE concept_set_name = '@doi_set'
-  );
+FROM (
+  SELECT condition_occurrence.person_id AS subject_id,
+	  FLOOR(DATEDIFF(DAY, condition_start_date, cohort_start_date) / 7) AS doi_week 
+  FROM @cdm_database_schema.condition_occurrence
+  INNER JOIN @cdm_database_schema.concept_ancestor
+  	ON condition_concept_id = descendant_concept_id
+  INNER JOIN #sensitive_cohort sens_cohort
+  	ON condition_occurrence.person_id = sens_cohort.subject_id
+  WHERE condition_start_date >= DATEADD(DAY, -365, sens_cohort.cohort_start_date)
+    AND condition_start_date <= DATEADD(DAY, 365, sens_cohort.cohort_start_date)
+    AND ancestor_concept_id IN (
+    	SELECT concept_id
+    	FROM #concept_sets
+    	WHERE concept_set_name = '@doi_set'
+    )
+    
+  UNION ALL
+  
+  SELECT observation.person_id AS subject_id,
+	  FLOOR(DATEDIFF(DAY, observation_date, cohort_start_date) / 7) AS doi_week 
+  FROM @cdm_database_schema.observation
+  INNER JOIN @cdm_database_schema.concept_ancestor
+  	ON observation_concept_id = descendant_concept_id
+  INNER JOIN #sensitive_cohort sens_cohort
+  	ON observation.person_id = sens_cohort.subject_id
+  WHERE observation_date >= DATEADD(DAY, -365, sens_cohort.cohort_start_date)
+    AND observation_date <= DATEADD(DAY, 365, sens_cohort.cohort_start_date)
+    AND ancestor_concept_id IN (
+    	SELECT concept_id
+    	FROM #concept_sets
+    	WHERE concept_set_name = '@doi_set'
+    )
+) tmp;
 
 -- Gather all supporting category events within +-365 days of the index date
 SELECT e.person_id,
@@ -268,6 +289,19 @@ FROM (
 	FROM @cdm_database_schema.condition_occurrence
 	INNER JOIN @cdm_database_schema.concept_ancestor
 	  ON condition_concept_id = descendant_concept_id
+	INNER JOIN #concept_ratios
+	  ON ancestor_concept_id = concept_id
+	WHERE concept_set_name IN ('complications')
+		AND ppv > 0.1
+
+	UNION ALL
+	
+	SELECT person_id,
+		observation_date AS event_date,
+		'complications' AS category
+	FROM @cdm_database_schema.observation
+	INNER JOIN @cdm_database_schema.concept_ancestor
+	  ON observation_concept_id = descendant_concept_id
 	INNER JOIN #concept_ratios
 	  ON ancestor_concept_id = concept_id
 	WHERE concept_set_name IN ('complications')
