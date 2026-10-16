@@ -409,16 +409,19 @@ computeRequiredSampleSize <- function(targetRelativeError,
     pull()
   requiredNvariance <- (sStratified / targetStandardError)^2
   
-  expectedYield <- prevalencePerStratum |>
-    mutate(
-      stratumSd = sqrt(.data$p * (1 - .data$p)),
-      neymanWeight = .data$personCount * .data$stratumSd,
-      neymanProp = .data$neymanWeight / sum(.data$neymanWeight) 
-    ) |>
-    summarise(casesPerSample = sum(.data$neymanProp * .data$p)) |>
-    pull()
-  requiredNcases <- targetTrueCases / expectedYield
-  
+  if (overallPrevalence == 1) {
+    requiredNcases <- targetTrueCases
+  } else {
+    expectedYield <- prevalencePerStratum |>
+      mutate(
+        stratumSd = sqrt(.data$p * (1 - .data$p)),
+        neymanWeight = .data$personCount * .data$stratumSd,
+        neymanProp = .data$neymanWeight / sum(.data$neymanWeight) 
+      ) |>
+      summarise(casesPerSample = sum(.data$neymanProp * .data$p)) |>
+      pull()
+    requiredNcases <- targetTrueCases / expectedYield
+  }
   requiredSampleSize <- ceiling(max(requiredNvariance, requiredNcases))
   return(requiredSampleSize)
 }
