@@ -8,22 +8,45 @@ DELETE FROM @cohort_database_schema.@cohort_table
 WHERE cohort_definition_id = @cohort_definition_id;
 	
 -- #doi_cohort
-SELECT condition_occurrence.person_id AS subject_id,
-	MIN(condition_start_date) AS cohort_start_date
+SELECT subject_id,
+  	MIN(cohort_start_date) AS cohort_start_date
 INTO #doi_cohort
-FROM @cdm_database_schema.condition_occurrence
-INNER JOIN @cdm_database_schema.concept_ancestor
-	ON condition_concept_id = descendant_concept_id
-INNER JOIN @cdm_database_schema.observation_period
-	ON condition_occurrence.person_id = observation_period.person_id
-		AND condition_start_date >= observation_period_start_date
-		AND condition_start_date <= observation_period_end_date
-WHERE ancestor_concept_id IN (
-	SELECT concept_id
-	FROM #concept_sets
-	WHERE concept_set_name = '@doi_set'
-)
-GROUP BY condition_occurrence.person_id;
+FROM (
+  SELECT condition_occurrence.person_id AS subject_id,
+  	MIN(condition_start_date) AS cohort_start_date
+  FROM @cdm_database_schema.condition_occurrence
+  INNER JOIN @cdm_database_schema.concept_ancestor
+  	ON condition_concept_id = descendant_concept_id
+  INNER JOIN @cdm_database_schema.observation_period
+  	ON condition_occurrence.person_id = observation_period.person_id
+  		AND condition_start_date >= observation_period_start_date
+  		AND condition_start_date <= observation_period_end_date
+  WHERE ancestor_concept_id IN (
+  	SELECT concept_id
+  	FROM #concept_sets
+  	WHERE concept_set_name = '@doi_set'
+  )
+  GROUP BY condition_occurrence.person_id
+  
+  UNION ALL
+
+  SELECT observation.person_id AS subject_id,
+  	MIN(observation_date) AS cohort_start_date
+  FROM @cdm_database_schema.observation
+  INNER JOIN @cdm_database_schema.concept_ancestor
+  	ON observation_concept_id = descendant_concept_id
+  INNER JOIN @cdm_database_schema.observation_period
+  	ON observation.person_id = observation_period.person_id
+  		AND observation_date >= observation_period_start_date
+  		AND observation_date <= observation_period_end_date
+  WHERE ancestor_concept_id IN (
+  	SELECT concept_id
+  	FROM #concept_sets
+  	WHERE concept_set_name = '@doi_set'
+  )
+  GROUP BY observation.person_id
+) tmp
+GROUP BY subject_id;
 
 -- #combi_cohort
 SELECT events.person_id AS subject_id,
