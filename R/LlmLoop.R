@@ -234,15 +234,28 @@ reviewCases <- function(keeper,
 }
 
 generateCacheFileName <- function(phenotypeName, generatedId, cacheFolder, type = "response") {
+  phenotypeString <- gsub("[^[:alnum:]]", "", phenotypeName)
+  phenotypeString <- truncateString(phenotypeString)
   fileName <- sprintf(
     "%s_p%s",
-    gsub("[^[:alnum:]]", "", phenotypeName),
+    phenotypeString,
     generatedId
   )
   if (type != "response") {
     fileName <- paste(fileName, type, sep = "_")
   }
   fileName <- paste(fileName, "txt", sep = ".")
-  
   return(file.path(cacheFolder, fileName))
+}
+
+truncateString <- function(string, maxLength = 50) {
+  if (nchar(string) <= maxLength) {
+    return(string)
+  }
+  removedString <- substr(string, maxLength - 4, nchar(string))
+  hash <- sprintf(
+    "%04x",
+    sum(utf8ToInt(removedString)) %% 65536
+  )
+  return(paste0(substr(string, 1, maxLength - 4), hash))
 }
