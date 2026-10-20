@@ -169,21 +169,27 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     sql = sql,
     snakeCaseToCamelCase = TRUE
   )
+  doiPersonCount <- count |>
+    filter(conceptSetName == "doi") |>
+    pull(personCount) |>
+    first(default = 0)
+  hypernymPersonCount <- count |>
+    filter(conceptSetName == "hypernym") |>
+    pull(personCount) |>
+    first(default = 0)   
   doiSet <- "doi"
-  if (count$personCount < minDoiPersons) {
-    if ("hypernym" %in% conceptSets$conceptSetName) {
-      warning(sprintf("Found %d persons with the disease of interest concept(s) (<%s). Using hypernym concept(s) instead.",
-                      count$personCount,
-                      minDoiPersons))
-      doiSet <- "hypernym"
-    } else {
+  if (doiPersonCount < minDoiPersons) {
+    if (hypernymPersonCount < minDoiPersons) {
       error <- errorCondition(
-        message = sprintf("Found %d persons with the disease of interest concept(s) (<%s). Try adding hypernym concept(s) to your concept sets",
-                          count$personCount,
-                          minDoiPersons),
+        message = "Found too few people with the disease of interest or hypernym. Cannot construct sensitive cohort",
         class = "NoPersonsWithDoiError"
       )
       stop(error)
+    } else {
+      warning(sprintf("Found %d persons with the disease of interest concept(s) (<%s). Using hypernym concept(s) instead.",
+                      doiPersonCount,
+                      minDoiPersons))
+      doiSet <- "hypernym"
     }
   }
   
