@@ -465,7 +465,14 @@ generateConceptSet <- function(phenotype,
   }
   message(sprintf("  Kept %d unique concepts", nrow(concepts)))
   
-  if (nrow(concepts) != 0) {
+  if (nrow(concepts) == 0) {
+    concepts <- tibble(
+      conceptId = NA_real_,
+      conceptName = NA_character_,
+      vocabularyId = NA_character_
+    ) |>
+      filter(!is.na(conceptId))
+  } else {
     concepts <- concepts |>
       select("conceptId", "conceptName", "vocabularyId")
   }
