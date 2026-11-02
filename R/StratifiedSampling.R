@@ -447,6 +447,68 @@ createReferenceCohortTableNamesUsingStratifiedSample <- function(referenceCohort
   return(tableNames)
 }
 
+#' Create the reference cohort tables
+#'
+#' @template Connection
+#'
+#' @param referenceCohortDatabaseSchema  The name of the database schema where the reference
+#'                                       cohort will be stored.
+#' @param referenceCohortTableNames      The table names where the reference cohort, metadata, and stratified sensitive
+#'                                       cohort will be stored. Should be created using 
+#'                                       [createReferenceCohortTableNamesUsingStratifiedSample()].
+#'
+#' @returns
+#' This function does not return a value. It is called for the side effect of creating the reference cohort tables on
+#' the server
+#'
+#' @export
+createReferenceCohortTablesUsingStratifiedSample <- function(connectionDetails = NULL,
+                                        connection = NULL,
+                                        referenceCohortDatabaseSchema,
+                                        referenceCohortTableNames) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
+  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertList(referenceCohortTableNames, len = 3, add = errorMessages)
+  checkmate::assertNames(names(referenceCohortTableNames), must.include = c(
+    "referenceCohortTable",
+    "referenceSensitiveCohortTable",
+    "referenceCohortMetadataTable"
+  ), add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  if (is.null(connectionDetails) && is.null(connection)) {
+    stop("Must provide either connectionDetails or a connection.")
+  }
+  if (is.null(connection)) {
+    connection <- DatabaseConnector::connect(connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
+  }
+  createReferenceCohortTables(
+    connection = connection,
+    referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
+    referenceCohortTableNames = referenceCohortTableNames
+  )
+  message("Creating reference sensitive cohort table")
+  sql <- "
+      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_sensitive_cohort_table;
+
+      CREATE TABLE @reference_cohort_database_schema.@reference_sensitive_cohort_table (
+        cohort_definition_id INT,
+        subject_id BIGINT,
+        cohort_start_date DATE,
+        stratum_id INT
+      );
+    "
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    sql = sql,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_sensitive_cohort_table = referenceCohortTableNames$referenceSensitiveCohortTable
+  )
+  invisible(NULL)
+}
+
 #' Upload a reference cohort when using stratified sampling
 #'
 #' @description
@@ -464,7 +526,7 @@ createReferenceCohortTableNamesUsingStratifiedSample <- function(referenceCohort
 #'
 #' @param referenceCohortDatabaseSchema  The name of the database schema where the reference
 #'                                       cohort will be stored.
-#' @param referenceCohortTableNames      The table names where the reference cohort, metadata, and stratified sensitve
+#' @param referenceCohortTableNames      The table names where the reference cohort, metadata, and stratified sensitive
 #'                                       cohort will be stored. Should be created using 
 #'                                       [createReferenceCohortTableNamesUsingStratifiedSample()].
 #' @param referenceCohortDefinitionId    The cohort definition ID that will be used for the

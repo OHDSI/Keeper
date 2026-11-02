@@ -471,7 +471,7 @@ generateConceptSet <- function(phenotype,
       conceptName = NA_character_,
       vocabularyId = NA_character_
     ) |>
-      filter(!is.na(conceptId))
+      filter(!is.na(.data$conceptId))
   } else {
     concepts <- concepts |>
       select("conceptId", "conceptName", "vocabularyId")

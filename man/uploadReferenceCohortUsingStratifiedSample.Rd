@@ -40,7 +40,7 @@ can be created.}
 \item{referenceCohortDatabaseSchema}{The name of the database schema where the reference
 cohort will be stored.}
 
-\item{referenceCohortTableNames}{The table names where the reference cohort, metadata, and stratified sensitve
+\item{referenceCohortTableNames}{The table names where the reference cohort, metadata, and stratified sensitive
 cohort will be stored. Should be created using
 \code{\link[=createReferenceCohortTableNamesUsingStratifiedSample]{createReferenceCohortTableNamesUsingStratifiedSample()}}.}
 

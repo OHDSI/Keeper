@@ -170,12 +170,12 @@ createSensitiveCohort <- function(connectionDetails = NULL,
     snakeCaseToCamelCase = TRUE
   )
   doiPersonCount <- count |>
-    filter(conceptSetName == "doi") |>
-    pull(personCount) |>
+    filter(.data$conceptSetName == "doi") |>
+    pull(.data$personCount) |>
     first(default = 0)
   hypernymPersonCount <- count |>
-    filter(conceptSetName == "hypernym") |>
-    pull(personCount) |>
+    filter(.data$conceptSetName == "hypernym") |>
+    pull(.data$personCount) |>
     first(default = 0)   
   doiSet <- "doi"
   if (doiPersonCount < minDoiPersons) {
@@ -305,6 +305,74 @@ createReferenceCohortTableNames <- function(referenceCohortTable) {
   return(tableNames)
 }
 
+#' Create the reference cohort tables
+#'
+#' @template Connection
+#'
+#' @param referenceCohortDatabaseSchema  The name of the database schema where the reference
+#'                                       cohort will be stored.
+#' @param referenceCohortTableNames      The table names where the reference cohort and metadata will be stored. Should
+#'                                       be created using [createReferenceCohortTableNames()].
+#'
+#' @returns
+#' This function does not return a value. It is called for the side effect of creating the reference cohort tables on
+#' the server
+#'
+#' @export
+createReferenceCohortTables <- function(connectionDetails = NULL,
+                                        connection = NULL,
+                                        referenceCohortDatabaseSchema,
+                                        referenceCohortTableNames) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
+  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertList(referenceCohortTableNames, min.len = 2, add = errorMessages)
+  checkmate::assertNames(names(referenceCohortTableNames), must.include = c(
+    "referenceCohortTable",
+    "referenceCohortMetadataTable"
+  ), add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  if (is.null(connectionDetails) && is.null(connection)) {
+    stop("Must provide either connectionDetails or a connection.")
+  }
+  if (is.null(connection)) {
+    connection <- DatabaseConnector::connect(connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
+  }
+  message("Creating reference cohort tables")
+  sql <- "
+      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_cohort_table;
+      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_cohort_metadata_table;
+
+      CREATE TABLE @reference_cohort_database_schema.@reference_cohort_table (
+        cohort_definition_id INT,
+        subject_id BIGINT,
+        cohort_start_date DATE,
+        is_case INT,
+        certainty VARCHAR(4),
+        justification VARCHAR,
+        observation_period_start_date DATE,
+        observation_period_end_date DATE
+      );
+
+      CREATE TABLE @reference_cohort_database_schema.@reference_cohort_metadata_table (
+        cohort_definition_id INT,
+        phenotype VARCHAR,
+        cohort_prevalence FLOAT,
+        model VARCHAR,
+        keeperVersion VARCHAR
+      );
+    "
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    sql = sql,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_cohort_table = referenceCohortTableNames$referenceCohortTable,
+    reference_cohort_metadata_table = referenceCohortTableNames$referenceCohortMetadataTable
+  )
+}
+
 #' Upload a reference cohort
 #'
 #' @description
@@ -345,7 +413,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
   checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
   checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
   checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
-  checkmate::assertList(referenceCohortTableNames, len = 2, add = errorMessages)
+  checkmate::assertList(referenceCohortTableNames, min.len = 2, add = errorMessages)
   checkmate::assertNames(names(referenceCohortTableNames), must.include = c(
     "referenceCohortTable",
     "referenceCohortMetadataTable"
@@ -386,36 +454,10 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
   )
   
   if (createReferenceCohortTables) {
-    message("Creating reference cohort tables")
-    sql <- "
-      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_cohort_table;
-      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_cohort_metadata_table;
-
-      CREATE TABLE @reference_cohort_database_schema.@reference_cohort_table (
-        cohort_definition_id INT,
-        subject_id BIGINT,
-        cohort_start_date DATE,
-        is_case INT,
-        certainty VARCHAR(4),
-        justification VARCHAR,
-        observation_period_start_date DATE,
-        observation_period_end_date DATE
-      );
-
-      CREATE TABLE @reference_cohort_database_schema.@reference_cohort_metadata_table (
-        cohort_definition_id INT,
-        phenotype VARCHAR,
-        cohort_prevalence FLOAT,
-        model VARCHAR,
-        keeperVersion VARCHAR
-      );
-    "
-    DatabaseConnector::renderTranslateExecuteSql(
+    createReferenceCohortTables(
       connection = connection,
-      sql = sql,
-      reference_cohort_database_schema = referenceCohortDatabaseSchema,
-      reference_cohort_table = referenceCohortTableNames$referenceCohortTable,
-      reference_cohort_metadata_table = referenceCohortTableNames$referenceCohortMetadataTable
+      referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
+      referenceCohortTableNames = referenceCohortTableNames
     )
   }
   
@@ -517,6 +559,7 @@ uploadReferenceCohort <- function(connectionDetails = NULL,
     reportOverallTime = FALSE,
     progressBar = FALSE
   )
+  invisible(NULL)
 }
 
 #' Compute cohort operating characteristics based on a Reference Cohort
@@ -742,4 +785,46 @@ computePerformanceMetrics <- function(tp, tn, fp, fn, cases, nonCases, cohortPre
     prevalenceOverall = prevOverall
   )
   return(metrics)
+}
+
+#' List the reference cohorts in the database
+#'
+#' @template Connection
+#' @param referenceCohortDatabaseSchema  The name of the database schema where the reference cohorts are stored.
+#' @param referenceCohortMetadataTable   The name of the reference cohort metadata table, as created using 
+#'                                       [createReferenceCohortTableNames()].
+#' @returns
+#' A tibble with one row per reference cohort.
+#' 
+#' @export
+listReferenceCohorts <- function(connectionDetails = NULL,
+                                 connection = NULL,
+                                 referenceCohortDatabaseSchema,
+                                 referenceCohortMetadataTable) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
+  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
+  checkmate::assertCharacter(referenceCohortMetadataTable, len = 1, add = errorMessages)
+  checkmate::reportAssertions(errorMessages)
+  if (is.null(connectionDetails) && is.null(connection)) {
+    stop("Must provide either connectionDetails or a connection.")
+  }
+  
+  if (is.null(connection)) {
+    connection <- DatabaseConnector::connect(connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
+  }
+  sql <- "
+    SELECT *
+    FROM @reference_cohort_database_schema.@reference_cohort_metadata_table;
+  "
+  cohorts <- DatabaseConnector::renderTranslateQuerySql(
+    connection = connection,
+    sql = sql,
+    reference_cohort_database_schema = referenceCohortDatabaseSchema,
+    reference_cohort_metadata_table = referenceCohortMetadataTable,
+    snakeCaseToCamelCase = TRUE
+  )
+  return(cohorts)
 }
