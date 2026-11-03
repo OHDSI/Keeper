@@ -136,78 +136,78 @@ createSensitiveCohort(
 
 Here, we assign `cohortDefinitionId = 2` to prevent overwriting the simpler cohort (ID 1) we created in the previous vignette.
 
-## 2. Running Keeper on the HSC
+## 2. Reviewing a stratified sample of the HSC
 
-Next, we extract the patient profiles for our new sensitive cohort:
-
-```{r eval = FALSE}
-keeperHsc <- generateKeeper(
-  connectionDetails = connectionDetails,
-  cohortDatabaseSchema = cohortDatabaseSchema,
-  cdmDatabaseSchema = cdmDatabaseSchema,
-  cohortTable = cohortTable,
-  cohortDefinitionId = 2,
-  sampleSize = 10000,
-  phenotypeName = "Type I Diabetes Mellitus (T1DM)",
-  keeperConceptSets = conceptSets,
-  removePii = FALSE
-)
-```
-
-**Important considerations:**
-* **Sample Size:** We sample 10,000 persons to guarantee enough true positive cases for robust PPV and sensitivity calculations.
-* **PII Handling:** We set `removePii = FALSE` so that the resulting LLM adjudications can be joined accurately with specific target cohorts later during evaluation.
-
-## 3. Adjudicating the HSC via LLM
-
-We now send all 10,000 sampled profiles to the LLM for review. 
-
-> **Cost Warning:** Adjudicating a dataset of this size can incur significant API costs. For example, using our preferred model (GPT-o3) to review 10,000 cases typically costs between $60 and $80.
+Rather than choosing a fixed sample size, we can use stratified sampling to estimate the sample size needed for the
+desired precision and number of true cases. The function creates strata from the `doi_bin` and `category_bin` values
+in the HSC, reviews an initial sample from each stratum, and then uses Neyman allocation to select any additional
+profiles needed.
 
 ```{r eval = FALSE}
 promptSettings <- createPromptSettings()
-llmReviewsHsc <- reviewCases(
-  keeper = keeperHsc,
+stratifiedReviews <- reviewCasesUsingStratifiedSampling(
+  connectionDetails = connectionDetails,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  sensitiveCohortDatabaseSchema = cohortDatabaseSchema,
+  sensitiveCohortTable = cohortTable,
+  sensitiveCohortDefinitionId = 2,
+  phase1SampleSize = 100,
+  targetRelativeError = 0.10,
+  targetTrueCases = 150,
+  keeperConceptSets = conceptSets,
   settings = promptSettings,
+  phenotypeName = "Type I Diabetes Mellitus (T1DM)",
   client = client,
   cacheFolder = "cacheVignetteHsc"
 )
 ```
 
-Once complete, this dataset becomes our *Reference Cohort*.
+The result contains the LLM reviews, the mapping from HSC bins to strata, and the total LLM cost. The review function
+uses `removePii = FALSE` internally so the reviewed persons can be joined to the target cohort during evaluation.
+Because the reviews are cached, an interrupted run can be resumed by calling the function again with the same
+`cacheFolder`.
 
-## 4. Storing the Reference Cohort
+## 3. Storing the stratified reference cohort
 
-To use the reference cohort across different analyses, we upload it back to our database server:
+To use the reference cohort across different analyses, we upload the reviews and the stratification mapping to the
+database server:
 
 ```{r eval = FALSE}
 referenceCohortDatabaseSchema <- "cdm"
 referenceCohortTable <- "reference_cohort"
+referenceCohortTableNames <- createReferenceCohortTableNamesUsingStratifiedSample(referenceCohortTable)
 
-uploadReferenceCohort(
+uploadReferenceCohortUsingStratifiedSample(
   connectionDetails = connectionDetails,
+  tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  sensitiveCohortDatabaseSchema = cohortDatabaseSchema,
+  sensitiveCohortTable = cohortTable,
+  sensitiveCohortDefinitionId = 2,
   referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
-  referenceCohortTableNames = createReferenceCohortTableNames(referenceCohortTable),
+  referenceCohortTableNames = referenceCohortTableNames,
   referenceCohortDefinitionId = 1,
   createReferenceCohortTables = TRUE,
-  reviews = llmReviewsHsc
+  stratifiedReviews = stratifiedReviews
 )
 ```
 
-Setting `createReferenceCohortTables = TRUE` generates two tables (`reference_cohort` and `reference_cohort_metadata`). We also assign a `referenceCohortDefinitionId` of `1` to uniquely identify it for future comparisons.
+Setting `createReferenceCohortTables = TRUE` generates the reference cohort, metadata, and stratified sensitive cohort
+tables. We assign a `referenceCohortDefinitionId` of `1` to uniquely identify the reference cohort for future
+comparisons.
 
-## 5. Evaluating Target Cohorts
+## 4. Evaluating Target Cohorts
 
 With our reference cohort safely stored in the database, evaluating any standard T1DM cohort is highly efficient. Let's evaluate the simple target cohort (`cohortDefinitionId = 1`) from the previous vignette:
 
 ```{r eval = FALSE}
-metrics <- computeCohortOperatingCharacteristics(
+metrics <- evaluateCohortUsingStratifiedSample(
   connectionDetails = connectionDetails,
   cohortDatabaseSchema = cohortDatabaseSchema,
   cohortTable = cohortTable,
   cohortDefinitionId = 1,
   referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
-  referenceCohortTableNames = createReferenceCohortTableNames(referenceCohortTable),
+  referenceCohortTableNames = referenceCohortTableNames,
   referenceCohortDefinitionId = 1
 )
 ```
