@@ -1,9 +1,17 @@
-Keeper 2.2.1
+Keeper 2.3.0
 ============
+
+Changes:
+
+1. Added `reviewCasesUsingStratifiedSampling()` and accompanying functions to create reference cohorts using stratified sampling. This greatly reduces the number of profiles to review.
+
+2. Now also looking in the `observation` table for disease of interest and hypernym concepts (in both patient profiles and when constructing the sensitive cohort).
 
 Bugfixes:
 
 1. Allowing skipping patient profiles that trigger AI content filters.
+
+2. Fixed running Keeper from a temp cohor table.
 
 
 Keeper 2.2.0
@@ -30,7 +38,6 @@ Bug fixes:
 3. Fixed parsing errors for some local LLMs that don't support structured output.
 
 Added unit tests for all supported database platforms.
->>>>>>> d27a4d54274cd5c8763f76b34ace5d2fdd1e975b
 
 
 Keeper 2.1.2

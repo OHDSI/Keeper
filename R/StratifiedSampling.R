@@ -975,7 +975,7 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
   
   # Assuming phase1Count can be a vector (if varying per stratum) or a scalar.
   # If it's a scalar, rep it to match stratumCount for safer vector math.
-  if(length(phase1Count) == 1) phase1Count <- rep(phase1Count, stratumCount)
+  if (length(phase1Count) == 1) phase1Count <- rep(phase1Count, stratumCount)
   
   targetPhase2Total <- nOpt - sum(phase1Count)
   
