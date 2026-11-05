@@ -5,7 +5,7 @@ test_that("createReferenceCohortTableNames derives both table names", {
   tableNames <- createReferenceCohortTableNames("ref_cohort")
 
   expect_type(tableNames, "list")
-  expect_named(tableNames, c("referenceCohortTable", "referenceCohortMetadataTable"))
+  expect_named(tableNames, c("referenceCohortTable", "referenceCohortMetadataTable", "referenceSensitiveCohortTable"))
   expect_equal(tableNames$referenceCohortTable, "ref_cohort")
   expect_equal(tableNames$referenceCohortMetadataTable, "ref_cohort_metadata")
 })

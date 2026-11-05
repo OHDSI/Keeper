@@ -63,8 +63,6 @@ Specificity, NPV, and prevalence are computed both within the reference cohort, 
 sensitive cohort, also in the overall population.
 }
 \description{
-Computes operating characteristics (sensitivity, specificity, positive predictive value, AUC,
-and Cohen's kappa) of a cohort definition by comparing it against a reference cohort created from
-LLM review of KEEPER profiles. Metrics are computed separately for high-certainty reviews, low-certainty reviews,
-and all reviews combined.
+This function is DEPRECATED. It only produces correct statistics when applied to a non-stratified reference cohort.
+Use the \code{evaluateCohortUsingReferenceCohort()} function instead.
 }

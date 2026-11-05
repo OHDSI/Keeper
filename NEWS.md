@@ -5,7 +5,13 @@ Changes:
 
 1. Added `reviewCasesUsingStratifiedSampling()` and accompanying functions to create reference cohorts using stratified sampling. This greatly reduces the number of profiles to review.
 
-2. Now also looking in the `observation` table for disease of interest and hypernym concepts (in both patient profiles and when constructing the sensitive cohort).
+2. Deprecated `computeCohortOperatingCharacteristics()` and added `evaluateCohortUsingReferenceCohort()`. The latter automatically detects whether stratified sampling was used, and applies the appropriate statistics.
+
+3. Now also looking in the `observation` table for disease of interest and hypernym concepts (in both patient profiles and when constructing the sensitive cohort).
+
+4. Argument names for the sensitive and reference cohorts are renamed to be explicit (e.g. to `sentiveCohortTable` and `referenceCohortTable`).
+
+5. Added separate `createSensitiveCohortTable()` and `createReferenceCohortTables()` functions.
 
 Bugfixes:
 

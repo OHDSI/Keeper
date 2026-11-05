@@ -27,7 +27,7 @@ test_that("Run Keeper on Eunomia", {
   expect_true("personId" %in% colnames(keeperTable))
 })
 
-test_that("Run Keeper supressing person IDs", {
+test_that("Run Keeper suppressing person IDs", {
   keeper <- generateKeeper(
     connectionDetails = connectionDetails,
     cdmDatabaseSchema = "main",
@@ -52,9 +52,9 @@ test_that("Create sensitive cohort in existing cohort table on Eunomia", {
   specConcepts <- createSensitiveCohort(
     connectionDetails = connectionDetails,
     cdmDatabaseSchema = "main",
-    cohortDatabaseSchema = "main",
-    cohortTable = "cohort",
-    cohortDefinitionId = 999,
+    sensitiveCohortDatabaseSchema = "main",
+    sensitiveCohortTable = "cohort",
+    sensitiveCohortDefinitionId = 999,
     createCohortTable = FALSE,
     keeperConceptSets = gibConceptSets,
     addStratificationInfo = FALSE
@@ -76,9 +76,9 @@ test_that("Create sensitive cohort in new cohort table on Eunomia", {
   specConcepts <- createSensitiveCohort(
     connectionDetails = connectionDetails,
     cdmDatabaseSchema = "main",
-    cohortDatabaseSchema = "main",
-    cohortTable = "sens_cohort",
-    cohortDefinitionId = 1,
+    sensitiveCohortDatabaseSchema = "main",
+    sensitiveCohortTable = "sens_cohort",
+    sensitiveCohortDefinitionId = 1,
     createCohortTable = TRUE,
     keeperConceptSets = gibConceptSets
   )

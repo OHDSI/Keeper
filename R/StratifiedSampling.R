@@ -394,7 +394,6 @@ samplePersons <- function(sampleSizePerStratum,
   return(sampledPersons)
 }
 
-
 computeRequiredSampleSize <- function(targetRelativeError,
                                       targetTrueCases,
                                       prevalencePerStratum) {
@@ -425,91 +424,6 @@ computeRequiredSampleSize <- function(targetRelativeError,
   return(requiredSampleSize)
 }
 
-#' Create reference cohort table names when using stratified sampling
-#' 
-#' @description
-#' Derives the metadata and stratified sensitive cohort table names from the reference cohort table name in a systematic
-#' way. The derived names append `_metadata` and `_sensitive`, respectively.
-#'
-#' @param referenceCohortTable The name of the cohort table itself. 
-#'
-#' @returns
-#' A list with the input `referenceCohortTable` and the derived
-#' `referenceCohortMetadataTable` and `referenceSensitiveCohortTable` names.
-#'
-#' @export
-createReferenceCohortTableNamesUsingStratifiedSample <- function(referenceCohortTable) {
-  tableNames <- list(
-    referenceCohortTable = referenceCohortTable,
-    referenceCohortMetadataTable = paste0(referenceCohortTable, "_metadata"),
-    referenceSensitiveCohortTable = paste0(referenceCohortTable, "_sensitive")
-  )
-  return(tableNames)
-}
-
-#' Create the reference cohort tables
-#'
-#' @template Connection
-#'
-#' @param referenceCohortDatabaseSchema  The name of the database schema where the reference
-#'                                       cohort will be stored.
-#' @param referenceCohortTableNames A list of table names created using
-#'                                  [createReferenceCohortTableNamesUsingStratifiedSample()]. It must contain
-#'                                  `referenceCohortTable`, `referenceCohortMetadataTable`, and
-#'                                  `referenceSensitiveCohortTable`.
-#'
-#' @returns
-#' This function does not return a value. It creates the reference cohort, metadata, and stratified sensitive cohort
-#' tables on the server.
-#'
-#' @export
-createReferenceCohortTablesUsingStratifiedSample <- function(connectionDetails = NULL,
-                                        connection = NULL,
-                                        referenceCohortDatabaseSchema,
-                                        referenceCohortTableNames) {
-  errorMessages <- checkmate::makeAssertCollection()
-  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
-  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
-  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
-  checkmate::assertList(referenceCohortTableNames, len = 3, add = errorMessages)
-  checkmate::assertNames(names(referenceCohortTableNames), must.include = c(
-    "referenceCohortTable",
-    "referenceSensitiveCohortTable",
-    "referenceCohortMetadataTable"
-  ), add = errorMessages)
-  checkmate::reportAssertions(errorMessages)
-  if (is.null(connectionDetails) && is.null(connection)) {
-    stop("Must provide either connectionDetails or a connection.")
-  }
-  if (is.null(connection)) {
-    connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection))
-  }
-  createReferenceCohortTables(
-    connection = connection,
-    referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
-    referenceCohortTableNames = referenceCohortTableNames
-  )
-  message("Creating reference sensitive cohort table")
-  sql <- "
-      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_sensitive_cohort_table;
-
-      CREATE TABLE @reference_cohort_database_schema.@reference_sensitive_cohort_table (
-        cohort_definition_id INT,
-        subject_id BIGINT,
-        cohort_start_date DATE,
-        stratum_id INT
-      );
-    "
-  DatabaseConnector::renderTranslateExecuteSql(
-    connection = connection,
-    sql = sql,
-    reference_cohort_database_schema = referenceCohortDatabaseSchema,
-    reference_sensitive_cohort_table = referenceCohortTableNames$referenceSensitiveCohortTable
-  )
-  invisible(NULL)
-}
-
 #' Upload a reference cohort when using stratified sampling
 #'
 #' @description
@@ -517,7 +431,7 @@ createReferenceCohortTablesUsingStratifiedSample <- function(connectionDetails =
 #' sampling was performed using [reviewCasesUsingStratifiedSampling()].
 #' 
 #' The reference cohort can be used to compute operating characteristics of a cohort definition for the same phenotype
-#' using [evaluateCohortUsingStratifiedSample()].
+#' using [evaluateCohortUsingReferenceCohort()].
 #'
 #' @template Connection
 #'
@@ -527,10 +441,7 @@ createReferenceCohortTablesUsingStratifiedSample <- function(connectionDetails =
 #'
 #' @param referenceCohortDatabaseSchema The name of the database schema where the reference cohort and stratified
 #'                                      sensitive cohort will be stored.
-#' @param referenceCohortTableNames A list of table names created using
-#'                                  [createReferenceCohortTableNamesUsingStratifiedSample()]. It must contain
-#'                                  `referenceCohortTable`, `referenceCohortMetadataTable`, and
-#'                                  `referenceSensitiveCohortTable`.
+#' @param referenceCohortTableNames A list of table names created using [createReferenceCohortTableNames()]. 
 #' @param referenceCohortDefinitionId The cohort definition ID to use for the reference cohort and its associated
 #'                                     stratified sensitive cohort.
 #' @param createReferenceCohortTables Whether to create the reference cohort, metadata, and stratified sensitive cohort
@@ -586,37 +497,15 @@ uploadReferenceCohortUsingStratifiedSample <- function(connectionDetails = NULL,
     dbms = DatabaseConnector::dbms(connection),
     tempEmulationSchema = tempEmulationSchema
   )
-  tableNamesMinusSensitive <- referenceCohortTableNames
-  tableNamesMinusSensitive$referenceSensitiveCohortTable <- NULL
   uploadReferenceCohort(
     connection = connection,
     tempEmulationSchema = tempEmulationSchema,
     referenceCohortDatabaseSchema = referenceCohortDatabaseSchema,
-    referenceCohortTableNames = tableNamesMinusSensitive,
+    referenceCohortTableNames = referenceCohortTableNames,
     referenceCohortDefinitionId = referenceCohortDefinitionId,
     createReferenceCohortTables = createReferenceCohortTables,
     reviews = stratifiedReviews$llmReviews
   )
-  
-  if (createReferenceCohortTables) {
-    message("Creating reference sensitive cohort table")
-    sql <- "
-      DROP TABLE IF EXISTS @reference_cohort_database_schema.@reference_sensitive_cohort_table;
-
-      CREATE TABLE @reference_cohort_database_schema.@reference_sensitive_cohort_table (
-        cohort_definition_id INT,
-        subject_id BIGINT,
-        cohort_start_date DATE,
-        stratum_id INT
-      );
-    "
-    DatabaseConnector::renderTranslateExecuteSql(
-      connection = connection,
-      sql = sql,
-      reference_cohort_database_schema = referenceCohortDatabaseSchema,
-      reference_sensitive_cohort_table = referenceCohortTableNames$referenceSensitiveCohortTable
-    )
-  }
   
   message("Uploading stratification mapping")
   DatabaseConnector::insertTable(
@@ -669,38 +558,8 @@ uploadReferenceCohortUsingStratifiedSample <- function(connectionDetails = NULL,
   )
 }
 
-
-#' Evaluate a cohort when using stratified sampling
-#'
-#' @description
-#' Computes operating characteristics (sensitivity, specificity, positive predictive value, and negative predictive
-#' value) of a cohort definition by comparing it against a reference cohort created from LLM review of KEEPER profiles.
-#' It assumes that stratified sampling was used. Specificity and negative predictive value are computed both within the
-#' highly sensitive reference cohort population and, in the `*Overall` columns, extrapolated to the entire population
-#' using the prevalence of the highly sensitive cohort. Confidence intervals are estimated using a parametric bootstrap.
-#'
-#' @template Connection
-#'
-#' @param cohortDatabaseSchema The name of the database schema containing the cohort to evaluate.
-#' @param cohortTable The table name containing the cohort to evaluate.
-#' @param cohortDefinitionId The cohort definition ID of the cohort to evaluate.
-#' @param referenceCohortDatabaseSchema The name of the database schema containing the reference cohort and associated
-#'                                       tables, as uploaded by [uploadReferenceCohortUsingStratifiedSample()].
-#' @param referenceCohortTableNames A list of table names created using
-#'                                  [createReferenceCohortTableNamesUsingStratifiedSample()]. It must contain
-#'                                  `referenceCohortTable`, `referenceCohortMetadataTable`, and
-#'                                  `referenceSensitiveCohortTable`.
-#' @param referenceCohortDefinitionId The cohort definition ID of the reference cohort.
-#'
-#' @returns
-#' A one-row tibble with the estimated `ppv`, `sensitivity`, `specificity`, `specificityOverall`, `npv`, and
-#' `npvOverall` values; lower and upper bootstrap interval columns are provided for each metric using the `Lb` and
-#' `Ub` suffixes. The tibble also includes the aggregated `tp`, `tn`, `fp`, and `fn` review counts.
-#'
-#' @export
 evaluateCohortUsingStratifiedSample <- function(
-    connectionDetails = NULL,
-    connection = NULL,
+    connection,
     cohortDatabaseSchema,
     cohortTable,
     cohortDefinitionId,
@@ -708,28 +567,6 @@ evaluateCohortUsingStratifiedSample <- function(
     referenceCohortTableNames,
     referenceCohortDefinitionId
 ) {
-  errorMessages <- checkmate::makeAssertCollection()
-  checkmate::assertClass(connectionDetails, "ConnectionDetails", null.ok = TRUE, add = errorMessages)
-  checkmate::assertClass(connection, "DatabaseConnectorConnection", null.ok = TRUE, add = errorMessages)
-  checkmate::assertCharacter(cohortDatabaseSchema, len = 1, add = errorMessages)
-  checkmate::assertCharacter(cohortTable, len = 1, add = errorMessages)
-  checkmate::assertIntegerish(cohortDefinitionId, len = 1, add = errorMessages)
-  checkmate::assertCharacter(referenceCohortDatabaseSchema, len = 1, add = errorMessages)
-  checkmate::assertList(referenceCohortTableNames, len = 3, add = errorMessages)
-  checkmate::assertNames(names(referenceCohortTableNames), must.include = c(
-    "referenceCohortTable",
-    "referenceSensitiveCohortTable",
-    "referenceCohortMetadataTable"
-  ), add = errorMessages)
-  checkmate::assertIntegerish(referenceCohortDefinitionId, len = 1, add = errorMessages)
-  checkmate::reportAssertions(errorMessages)
-  if (is.null(connectionDetails) && is.null(connection)) {
-    stop("Must provide either connectionDetails or a connection.")
-  }
-  if (is.null(connection)) {
-    connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection))
-  }
   message("Computing confusion with annotated sample")
   sql <- SqlRender::loadRenderTranslateSql(
     sqlFilename = "ComputeCohortConfusion.sql",
@@ -1066,14 +903,6 @@ calculatePhase2Allocation <- function(stratumData, nOpt, phase1Count) {
   return(stratumData)
 }
 
-#' Compute Bayesian Sensitivity and PPV for Stratified Samples
-#'
-#' @param sampleData Data frame with: personId, stratumId, isCase (logical), inCohort (logical)
-#' @param stratumData Data frame with: stratumId, personCount (Total N_h in the HSC for that stratum)
-#' @param priorWeight The pseudocount added to each cell (0.5 for Jeffreys prior, 1.0 for uniform)
-#' @param nDraws Number of posterior draws for the simulation
-#' @param ciLevel The confidence/credible interval level (default 0.95)
-#' @return A data frame containing the median estimate and credible intervals for Sens and PPV
 computeMetricsBayesian <- function(sampleData, stratumData, priorWeight = 0.5, nDraws = 10000, ciLevel = 0.95) {
   
   # 1. Aggregate empirical counts per stratum

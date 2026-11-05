@@ -11,8 +11,9 @@ createReferenceCohortTableNames(referenceCohortTable)
 by appending '_metadata'.}
 }
 \value{
-A list with \code{referenceCohortTable} and \code{referenceCohortMetadataTable}.
+A list with \code{referenceCohortTable}, \code{referenceCohortMetadataTable}, and \code{referenceSensitiveCohortTable}
 }
 \description{
-Derives a metadata table name from the reference cohort table name in a systematic way.
+Derives a metadata table and sensitive cohort table (for when using stratified sampling) name from the reference
+cohort table name in a systematic way.
 }
