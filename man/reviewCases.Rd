@@ -17,7 +17,7 @@ reviewCases(
 \arguments{
 \item{keeper}{Output from the \code{\link[=generateKeeper]{generateKeeper()}} function.}
 
-\item{settings}{Prompt creating settings as created using the \link{createPromptSettings} function.}
+\item{settings}{Prompt creating settings as created using the \code{\link[=createPromptSettings]{createPromptSettings()}} function.}
 
 \item{phenotypeName}{The name of the disease to use in the prompt. If not provided, the name in the Keeper input will
 be used.}

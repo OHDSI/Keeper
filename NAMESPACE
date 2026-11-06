@@ -2,6 +2,7 @@
 
 export(computeCohortOperatingCharacteristics)
 export(convertKeeperToTable)
+export(createPrompt)
 export(createPromptSettings)
 export(createReferenceCohortTableNames)
 export(createReferenceCohortTables)

@@ -56,7 +56,36 @@ createSystemPrompt <- function(settings, phenotypeName, clinicalDefinition) {
 }
 
 # Modern prompt --------------------------------------------------------------------------------------------------------
-createPrompt <- function(settings, subset) {
+
+#' Create a patient profile prompt
+#'
+#' @param subset   A subset of Keeper data as created by `generateKeeper()`, but restricted to a single patient.
+#' @param settings Prompt creating settings as created using the [createPromptSettings()] function.
+#'
+#' @returns
+#' A string containing the patient profile as text, to be used as input to an LLM.
+#' 
+#' @export
+createPrompt <- function(subset, settings) {
+  errorMessages <- checkmate::makeAssertCollection()
+  checkmate::assertDataFrame(subset, add = errorMessages)
+  checkmate::assertNames(colnames(subset), must.include = c(
+    "generatedId",
+    "startDay",
+    "endDay",
+    "conceptId",
+    "conceptName",
+    "category",
+    "target",
+    "extraData"
+  ), add = errorMessages)
+  checkmate::assertClass(settings, "PromptSettings", add = errorMessages)
+  checkmate::reportAssertions(collection = errorMessages)
+  
+  if (length(unique(subset$generatedId)) > 1) {
+    stop("Keeper input should be subsetted to a single patient, but multiple generated IDs found.")
+  }
+  
   if (nrow(subset) == 0) {
     return("No data")
   }

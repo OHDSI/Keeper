@@ -19,7 +19,7 @@ CONTENT_FILTER <- "CONTENT_FILTER"
 #' Review Keeper profiles using an LLM
 #'
 #' @param keeper      Output from the [generateKeeper()] function.
-#' @param settings    Prompt creating settings as created using the [createPromptSettings] function.
+#' @param settings    Prompt creating settings as created using the [createPromptSettings()] function.
 #' @param phenotypeName The name of the disease to use in the prompt. If not provided, the name in the Keeper input will
 #'                      be used.
 #' @param clinicalDefinition Optionally prove a text blob with the definition and any other information about the
